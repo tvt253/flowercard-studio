@@ -1,0 +1,12 @@
+services:
+  - type: web
+    name: flowercard-studio
+    env: docker
+    plan: free
+    region: singapore
+    dockerfilePath: ./Dockerfile
+    dockerContext: .
+    healthCheckPath: /health
+    envVars:
+      - key: PORT
+        value: 7860
