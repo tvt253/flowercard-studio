@@ -1,10 +1,36 @@
 import React, { useState } from 'react';
 import { useCardStore } from '../store/useCardStore';
 import SvgCardCanvas from './SvgCardCanvas';
-import { Bold, Italic, Check, Edit3, ArrowUp, ArrowDown } from 'lucide-react';
+import {
+  Bold,
+  Italic,
+  Check,
+  Edit3,
+  ArrowUp,
+  ArrowDown,
+  Maximize2,
+  Minimize2,
+  PanelLeftClose,
+  PanelLeftOpen,
+  Printer,
+  FileDown,
+} from 'lucide-react';
 import { clsx } from 'clsx';
+import { handlePrint, handleExportPDF } from '../utils/exportUtils';
 
-const A4PreviewArea: React.FC = () => {
+interface A4PreviewAreaProps {
+  isSidebarOpen?: boolean;
+  onToggleSidebar?: () => void;
+  isFullscreen?: boolean;
+  onToggleFullscreen?: () => void;
+}
+
+const A4PreviewArea: React.FC<A4PreviewAreaProps> = ({
+  isSidebarOpen = true,
+  onToggleSidebar,
+  isFullscreen = false,
+  onToggleFullscreen,
+}) => {
   const { config, updateLine, toggleLineTextCase } = useCardStore();
   const [selectedLineId, setSelectedLineId] = useState<string | null>(null);
 
@@ -60,6 +86,106 @@ const A4PreviewArea: React.FC = () => {
           }
         }
       `}</style>
+
+      {/* FLOATING BAR IN FULLSCREEN MODE */}
+      {isFullscreen && (
+        <div className="fixed top-4 z-50 flex items-center gap-2.5 px-4 py-2 bg-slate-900/95 text-white backdrop-blur-md rounded-full shadow-2xl border border-slate-700/60 print:hidden">
+          <span className="text-xs font-bold text-rose-400 flex items-center gap-1.5 mr-1">
+            🌸 Preview Full
+          </span>
+
+          <span className="text-xs text-slate-400 hidden sm:inline">
+            {isLandscape ? 'A4 Ngang (1 bản)' : 'A4 Đứng (2 bản)'}
+          </span>
+
+          <div className="h-4 w-px bg-slate-700 mx-1" />
+
+          {/* Nút In Trực Tiếp */}
+          <button
+            onClick={handlePrint}
+            className="flex items-center gap-1 px-3 py-1 bg-rose-500 hover:bg-rose-600 text-white rounded-full text-xs font-semibold transition-colors shadow-sm"
+          >
+            <Printer size={13} /> In A4
+          </button>
+
+          {/* Nút Xuất PDF */}
+          <button
+            onClick={() => handleExportPDF(isLandscape)}
+            className="flex items-center gap-1 px-3 py-1 bg-slate-700 hover:bg-slate-600 text-white rounded-full text-xs font-semibold transition-colors shadow-sm"
+          >
+            <FileDown size={13} /> Xuất PDF
+          </button>
+
+          <div className="h-4 w-px bg-slate-700 mx-1" />
+
+          {/* Nút Thoát Fullscreen */}
+          <button
+            onClick={onToggleFullscreen}
+            className="flex items-center gap-1 px-3 py-1 bg-red-600/90 hover:bg-red-600 text-white rounded-full text-xs font-bold transition-colors shadow-sm"
+            title="Thoát toàn màn hình (phím ESC)"
+          >
+            <Minimize2 size={13} /> Thoát (ESC)
+          </button>
+        </div>
+      )}
+
+      {/* THANH ĐIỀU KHIỂN CHÍNH (MASTER ACTION BAR) */}
+      {!isFullscreen && (
+        <div className="w-full max-w-[800px] mb-2.5 flex flex-wrap items-center justify-between gap-2 p-2 bg-white/95 backdrop-blur border border-slate-200 rounded-xl shadow-sm print:hidden">
+          <div className="flex items-center gap-2">
+            {/* Nút Ẩn / Hiện Cài Đặt */}
+            {onToggleSidebar && (
+              <button
+                onClick={onToggleSidebar}
+                className={clsx(
+                  'flex items-center gap-1.5 px-3 py-1.5 rounded-lg text-xs font-semibold transition-all shadow-sm',
+                  isSidebarOpen
+                    ? 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                    : 'bg-rose-500 hover:bg-rose-600 text-white shadow-rose-200'
+                )}
+                title={isSidebarOpen ? 'Ẩn bảng cài đặt để xem thiệp to và rõ hơn' : 'Mở bảng cài đặt'}
+              >
+                {isSidebarOpen ? <PanelLeftClose size={15} /> : <PanelLeftOpen size={15} />}
+                <span>{isSidebarOpen ? 'Ẩn Cài Đặt' : 'Hiện Cài Đặt'}</span>
+              </button>
+            )}
+
+            {/* Nút Xem Toàn Màn Hình (Preview Full) */}
+            {onToggleFullscreen && (
+              <button
+                onClick={onToggleFullscreen}
+                className="flex items-center gap-1.5 px-3 py-1.5 bg-indigo-600 hover:bg-indigo-700 text-white rounded-lg text-xs font-semibold transition-all shadow-sm shadow-indigo-100"
+                title="Xem thiệp ở chế độ toàn màn hình không có thanh công cụ"
+              >
+                <Maximize2 size={15} />
+                <span>Preview Full</span>
+              </button>
+            )}
+          </div>
+
+          <div className="flex items-center gap-2">
+            {/* Nút In A4 nhanh */}
+            <button
+              onClick={handlePrint}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-500 hover:bg-rose-600 text-white rounded-lg text-xs font-semibold transition-colors shadow-sm shadow-rose-100"
+              title="In trực tiếp ra máy in khổ A4"
+            >
+              <Printer size={14} />
+              <span>In A4</span>
+            </button>
+
+            {/* Nút Xuất PDF nhanh */}
+            <button
+              onClick={() => handleExportPDF(isLandscape)}
+              className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-700 hover:bg-slate-800 text-white rounded-lg text-xs font-semibold transition-colors shadow-sm"
+              title="Xuất file PDF chuẩn 1 trang A4"
+            >
+              <FileDown size={14} />
+              <span>Xuất PDF</span>
+            </button>
+          </div>
+        </div>
+      )}
 
       {/* Thanh công cụ thông báo hướng dẫn sửa trực tiếp trên Preview */}
       <div className="mb-3 flex items-center justify-between w-full max-w-[800px] px-3 py-1.5 bg-white/80 backdrop-blur border border-slate-200 rounded-lg shadow-sm text-xs text-slate-600 print:hidden">

@@ -13,8 +13,11 @@ import {
   Sparkles,
   Type,
   Cloud,
+  PanelLeftClose,
+  Maximize2,
 } from 'lucide-react';
 import { clsx } from 'clsx';
+import { handlePrint, handleExportPDF } from '../utils/exportUtils';
 
 // 10 font chữ tuyển chọn hỗ trợ 100% tiếng Việt có dấu, đứng đầu là Charm (chuẩn mẫu)
 const FONT_OPTIONS = [
@@ -58,7 +61,15 @@ const COLOR_GROUPS = [
 
 const LAYER_COUNT_OPTIONS: (4 | 5 | 6)[] = [4, 5, 6];
 
-const ControlSidebar: React.FC = () => {
+interface ControlSidebarProps {
+  onToggleSidebar?: () => void;
+  onToggleFullscreen?: () => void;
+}
+
+const ControlSidebar: React.FC<ControlSidebarProps> = ({
+  onToggleSidebar,
+  onToggleFullscreen,
+}) => {
   const {
     config,
     addLine,
@@ -76,72 +87,25 @@ const ControlSidebar: React.FC = () => {
 
   const isOval = config.styleType === 'oval-red' || config.styleType === 'oval-black';
 
-  const handlePrint = () => {
-    window.print();
-  };
-
-  const handleExportPDF = async () => {
-    const element = document.getElementById('a4-print-area');
-    if (!element) return;
-
-    const isLandscape = config.copiesPerPage === 1;
-    const originalShadow = element.style.boxShadow;
-    const originalTransition = element.style.transition;
-
-    // Tắt tạm thời box-shadow và transition để html2canvas không chụp dính bóng mờ làm tràn sang trang 2
-    element.style.boxShadow = 'none';
-    element.style.transition = 'none';
-
-    try {
-      const html2pdf = (await import('html2pdf.js')).default;
-      const opt = {
-        margin: 0,
-        filename: `flowercard-${isLandscape ? 'landscape' : 'portrait'}.pdf`,
-        image: { type: 'jpeg', quality: 0.98 },
-        html2canvas: {
-          scale: 2,
-          useCORS: true,
-          logging: false,
-          scrollX: 0,
-          scrollY: 0,
-          windowWidth: element.offsetWidth,
-          windowHeight: element.offsetHeight,
-        },
-        jsPDF: {
-          unit: 'mm',
-          format: isLandscape ? [297, 210] : [210, 297],
-          orientation: isLandscape ? 'landscape' : 'portrait',
-        },
-        pagebreak: { mode: 'avoid-all' },
-      };
-
-      await (html2pdf as any)()
-        .set(opt)
-        .from(element)
-        .toPdf()
-        .get('pdf')
-        .then((pdf: any) => {
-          // Xóa triệt để mọi trang trắng thừa nếu phát sinh do làm tròn sub-pixel
-          while (pdf.internal.getNumberOfPages() > 1) {
-            pdf.deletePage(pdf.internal.getNumberOfPages());
-          }
-        })
-        .save();
-    } finally {
-      // Phục hồi lại hiệu ứng bóng mờ ban đầu cho giao diện xem trước
-      element.style.boxShadow = originalShadow;
-      element.style.transition = originalTransition;
-    }
-  };
-
   return (
     <aside className="w-[340px] h-screen bg-white border-r border-slate-200 flex flex-col overflow-hidden shadow-sm">
       {/* Header */}
-      <div className="px-4 py-3 bg-gradient-to-r from-rose-500 to-rose-600 text-white flex-shrink-0">
-        <h1 className="text-base font-bold tracking-wide flex items-center gap-1.5">
-          FlowerCard Studio
-        </h1>
-        <p className="text-xs text-rose-100 mt-0.5">Thiết kế thiệp và băng rôn hoa</p>
+      <div className="px-4 py-3 bg-gradient-to-r from-rose-500 to-rose-600 text-white flex-shrink-0 flex items-center justify-between">
+        <div>
+          <h1 className="text-base font-bold tracking-wide flex items-center gap-1.5">
+            FlowerCard Studio
+          </h1>
+          <p className="text-xs text-rose-100 mt-0.5">Thiết kế thiệp và băng rôn hoa</p>
+        </div>
+        {onToggleSidebar && (
+          <button
+            onClick={onToggleSidebar}
+            title="Ẩn bảng cài đặt (Thu gọn)"
+            className="p-1.5 hover:bg-white/20 text-white rounded-lg transition-colors flex items-center justify-center"
+          >
+            <PanelLeftClose size={18} />
+          </button>
+        )}
       </div>
 
       <div className="flex-1 overflow-y-auto">
@@ -596,12 +560,20 @@ const ControlSidebar: React.FC = () => {
             <Printer size={13} /> In Trực Tiếp
           </button>
           <button
-            onClick={handleExportPDF}
+            onClick={() => handleExportPDF(config.copiesPerPage === 1)}
             className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-slate-700 hover:bg-slate-800 text-white text-xs font-semibold rounded transition-colors shadow-sm"
           >
             <FileDown size={13} /> Xuất PDF
           </button>
         </div>
+        {onToggleFullscreen && (
+          <button
+            onClick={onToggleFullscreen}
+            className="w-full flex items-center justify-center gap-1.5 px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded transition-colors shadow-sm"
+          >
+            <Maximize2 size={13} /> Xem Toàn Màn Hình (Full Preview)
+          </button>
+        )}
         <button
           onClick={resetDefault}
           className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs text-slate-500 hover:text-rose-500 border border-slate-200 hover:border-rose-300 rounded transition-colors bg-white"
