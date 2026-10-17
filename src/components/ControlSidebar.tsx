@@ -39,12 +39,15 @@ const PRESET_OPTIONS: { label: string; value: PresetName }[] = [
   { label: 'Chia Buồn', value: 'chia-buon' },
 ];
 
+// Nhóm màu chọn nhanh: Đỏ, Hồng, Tím, Xanh biển, Xanh lá, Cam/Nâu, Đen
 const COLOR_GROUPS = [
-  { name: 'Đỏ', color: '#c81e2b', bgClass: 'bg-red-600' },
-  { name: 'Xanh lá', color: '#15803d', bgClass: 'bg-green-700' },
-  { name: 'Xanh biển', color: '#1d4ed8', bgClass: 'bg-blue-700' },
-  { name: 'Tím', color: '#7e22ce', bgClass: 'bg-purple-700' },
-  { name: 'Hồng', color: '#db2777', bgClass: 'bg-pink-600' },
+  { name: 'Đỏ', color: '#c81e2b' },
+  { name: 'Hồng', color: '#db2777' },
+  { name: 'Tím', color: '#7e22ce' },
+  { name: 'Xanh nước biển', color: '#1d4ed8' },
+  { name: 'Xanh lá cây', color: '#15803d' },
+  { name: 'Cam đất', color: '#b45309' },
+  { name: 'Đen chia buồn', color: '#09090b' },
 ];
 
 const LAYER_COUNT_OPTIONS: (4 | 5 | 6)[] = [4, 5, 6];
@@ -72,13 +75,14 @@ const ControlSidebar: React.FC = () => {
     const element = document.getElementById('a4-print-area');
     if (!element) return;
 
+    const isLandscape = config.copiesPerPage === 1;
     const html2pdf = (await import('html2pdf.js')).default;
     const opt = {
       margin: 0,
-      filename: 'flowercard.pdf',
+      filename: `flowercard-${isLandscape ? 'landscape' : 'portrait'}.pdf`,
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: { scale: 3, useCORS: true, logging: false },
-      jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
+      jsPDF: { unit: 'mm', format: 'a4', orientation: isLandscape ? 'landscape' : 'portrait' },
     };
     html2pdf().set(opt).from(element).save();
   };
@@ -163,16 +167,16 @@ const ControlSidebar: React.FC = () => {
               <Sparkles size={11} /> Cài đặt chung
             </div>
 
-            {/* Kích thước toàn bộ thiệp so với giấy - chuyển lên điều chỉnh chung */}
+            {/* Kích thước thiệp so với giấy */}
             <div>
               <div className="flex justify-between text-xs font-medium text-slate-500 mb-1">
-                <span>Kích thước thiệp so với giấy:</span>
+                <span>Kích thước thiệp:</span>
                 <span className="text-rose-600 font-bold">{config.scalePercent}%</span>
               </div>
               <input
                 type="range"
                 min={50}
-                max={110}
+                max={100}
                 value={config.scalePercent}
                 onChange={(e) => updateGlobalTypography({ scalePercent: parseInt(e.target.value) })}
               />
@@ -210,20 +214,6 @@ const ControlSidebar: React.FC = () => {
                   updateGlobalTypography({ globalCurveStrength: parseInt(e.target.value) })
                 }
               />
-            </div>
-
-            {/* Màu mặt chữ chung */}
-            <div className="flex items-center justify-between pt-1 border-t border-slate-100">
-              <span className="text-xs font-medium text-slate-600">Màu mặt chữ:</span>
-              <div className="flex items-center gap-2">
-                <input
-                  type="color"
-                  value={config.globalTextColor}
-                  onChange={(e) => updateGlobalTypography({ globalTextColor: e.target.value })}
-                  className="w-7 h-6 rounded cursor-pointer border border-slate-300"
-                />
-                <span className="text-xs font-mono text-slate-500">{config.globalTextColor}</span>
-              </div>
             </div>
           </div>
 
@@ -336,25 +326,32 @@ const ControlSidebar: React.FC = () => {
           </div>
 
           <div className="space-y-3">
-            {/* Chọn nhanh nhóm màu cho stroke */}
+            {/* Chọn nhanh nhóm màu: Bỏ text, thu gọn chỉ hiển thị ô màu tròn */}
             <div>
               <label className="block text-xs font-medium text-slate-500 mb-1.5">
                 Chọn nhanh nhóm màu
               </label>
-              <div className="grid grid-cols-5 gap-1.5">
-                {COLOR_GROUPS.map((g) => (
-                  <button
-                    key={g.color}
-                    onClick={() => setQuickColorGroup(g.color)}
-                    className={clsx(
-                      'py-1.5 px-1 rounded-md text-[11px] font-semibold text-white flex flex-col items-center gap-1 transition-transform hover:scale-105 shadow-sm',
-                      g.bgClass,
-                      config.outerStrokeColor === g.color && 'ring-2 ring-offset-1 ring-slate-900'
-                    )}
-                  >
-                    <span>{g.name}</span>
-                  </button>
-                ))}
+              <div className="flex items-center gap-2 flex-wrap">
+                {COLOR_GROUPS.map((g) => {
+                  const isSelected =
+                    config.outerStrokeColor.toLowerCase() === g.color.toLowerCase();
+                  return (
+                    <button
+                      key={g.color}
+                      onClick={() => setQuickColorGroup(g.color)}
+                      title={g.name}
+                      className={clsx(
+                        'w-7 h-7 rounded-full transition-all shadow-sm border border-slate-300 flex items-center justify-center flex-shrink-0',
+                        isSelected
+                          ? 'ring-2 ring-offset-2 ring-rose-500 scale-110'
+                          : 'hover:scale-105 opacity-90 hover:opacity-100'
+                      )}
+                      style={{ backgroundColor: g.color }}
+                    >
+                      {isSelected && <span className="w-2 h-2 rounded-full bg-white shadow-sm" />}
+                    </button>
+                  );
+                })}
               </div>
             </div>
 
@@ -428,7 +425,7 @@ const ControlSidebar: React.FC = () => {
               </div>
             </div>
 
-            {/* Kích thước độ dày viền ngoài cùng và sát chữ */}
+            {/* Kích thước độ dày viền ngoài cùng (lên đến 150) và sát chữ (lên đến 50) */}
             <div className="space-y-2">
               <div>
                 <div className="flex justify-between text-xs font-medium text-slate-500 mb-1">
@@ -438,7 +435,7 @@ const ControlSidebar: React.FC = () => {
                 <input
                   type="range"
                   min={20}
-                  max={90}
+                  max={150}
                   value={config.outerStrokeWidth}
                   onChange={(e) => updateStrokeSettings({ outerStrokeWidth: parseInt(e.target.value) })}
                 />
@@ -451,8 +448,8 @@ const ControlSidebar: React.FC = () => {
                 </div>
                 <input
                   type="range"
-                  min={4}
-                  max={24}
+                  min={2}
+                  max={50}
                   value={config.innerStrokeWidth}
                   onChange={(e) => updateStrokeSettings({ innerStrokeWidth: parseInt(e.target.value) })}
                 />
@@ -468,10 +465,10 @@ const ControlSidebar: React.FC = () => {
           </h2>
 
           <div className="space-y-3">
-            {/* Bộ chọn số bản in: chỉ 1 và 2 bản */}
+            {/* Bộ chọn số bản in: 1 bản và 2 bản */}
             <div>
               <label className="block text-xs font-medium text-slate-500 mb-1.5">
-                Số bản in trên 1 tờ A4
+                Số bản in / tờ A4
               </label>
               <div className="grid grid-cols-2 gap-2">
                 <button
@@ -483,7 +480,7 @@ const ControlSidebar: React.FC = () => {
                       : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
                   )}
                 >
-                  1 bản dọc
+                  1 bản
                 </button>
 
                 <button
@@ -495,12 +492,12 @@ const ControlSidebar: React.FC = () => {
                       : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
                   )}
                 >
-                  2 bản ngang
+                  2 bản
                 </button>
               </div>
             </div>
 
-            {/* Checkbox đường viền cắt nền trắng viền đứt nét */}
+            {/* Checkbox đường viền cắt nền trắng viền đứt nét 0.5cm */}
             <label className="flex items-center gap-2 cursor-pointer p-2.5 bg-slate-50 rounded-lg border border-slate-200">
               <input
                 type="checkbox"

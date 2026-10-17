@@ -26,7 +26,7 @@ export type StyleType = 'cloud';
 
 export interface CardConfig {
   scalePercent: number; // Kích thước thiệp so với giấy (mặc định 100%)
-  copiesPerPage: 1 | 2; // 1: Dọc 100% chiều dài A4; 2: Ngang 100% chiều rộng A4
+  copiesPerPage: 1 | 2; // 1: Xoay ngang giấy A4; 2: Giấy đứng A4 2 bản
   showCutLines: boolean; // Đường viền cắt nét đứt nền trắng
 
   styleType: StyleType;
@@ -34,14 +34,13 @@ export interface CardConfig {
   // Cài đặt chung
   globalFontFamily: string;
   globalCurveStrength: number; // Độ cong từ 0 đến 80
-  globalTextColor: string;
   globalStrokeColor: string;
   globalStrokeWidth: number;
 
-  // Cài đặt viền Stroke tự động
+  // Cài đặt viền Stroke tự động (mặt chữ luôn ăn theo outerStrokeColor)
   strokeLayerCount: 4 | 5 | 6; // 3 tùy chọn: 4, 5, 6 lớp
-  outerStrokeWidth: number;
-  innerStrokeWidth: number;
+  outerStrokeWidth: number; // Tối đa lên đến 150px
+  innerStrokeWidth: number; // Tối đa lên đến 50px
   outerStrokeColor: string;
   innerStrokeColor: string;
 

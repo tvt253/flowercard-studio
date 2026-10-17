@@ -90,20 +90,19 @@ const defaultLine2: TextLine = {
 };
 
 const defaultConfig: CardConfig = {
-  scalePercent: 100, // Mặc định vừa khít 100% kích thước giấy
-  copiesPerPage: 2, // Mặc định 2 bản
+  scalePercent: 100, // Mặc định 100% vừa khít giấy
+  copiesPerPage: 2, // Mặc định 2 bản (A4 đứng)
   showCutLines: true,
 
   styleType: 'cloud',
 
   // Cài đặt chung đồng nhất
   globalFontFamily: 'Dancing Script',
-  globalCurveStrength: 18, // Độ cong mặc định 18, tối đa đến 80
-  globalTextColor: '#c81e2b',
+  globalCurveStrength: 18,
   globalStrokeColor: '#ffffff',
   globalStrokeWidth: 2.5,
 
-  // Cài đặt viền đơn giản tự động tính toán
+  // Cài đặt viền tự động (màu mặt chữ luôn lấy giống outerStrokeColor)
   strokeLayerCount: initialLayerCount,
   outerStrokeWidth: initialOuterWidth,
   innerStrokeWidth: initialInnerWidth,
@@ -189,7 +188,6 @@ interface CardStore {
   updateGlobalTypography: (updates: {
     globalFontFamily?: string;
     globalCurveStrength?: number;
-    globalTextColor?: string;
     globalStrokeColor?: string;
     globalStrokeWidth?: number;
     scalePercent?: number;
@@ -258,7 +256,7 @@ export const useCardStore = create<CardStore>()(
           config: {
             ...state.config,
             copiesPerPage: copies,
-            scalePercent: 100, // Luôn để 100% vừa khít giấy theo yêu cầu
+            scalePercent: 100, // Luôn 100% vừa khít kích thước giấy
           },
         })),
 
@@ -309,7 +307,6 @@ export const useCardStore = create<CardStore>()(
             config: {
               ...state.config,
               outerStrokeColor: color,
-              globalTextColor: color,
               strokeLayers: newLayers,
             },
           };
@@ -334,7 +331,6 @@ export const useCardStore = create<CardStore>()(
               outerStrokeColor: preset.outerColor,
               innerStrokeColor: preset.innerColor,
               globalFontFamily: preset.globalFontFamily,
-              globalTextColor: preset.outerColor,
               strokeLayers: newLayers,
               lines: preset.lines.map((l) => ({
                 id: generateId(),
@@ -371,8 +367,8 @@ export const useCardStore = create<CardStore>()(
         }),
     }),
     {
-      name: 'flower-card-studio-storage-v8',
-      version: 8,
+      name: 'flower-card-studio-storage-v9',
+      version: 9,
     }
   )
 );
