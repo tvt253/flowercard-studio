@@ -6,6 +6,7 @@ export interface TextLine {
   fontWeight: 'normal' | 'bold';
   fontStyle: 'normal' | 'italic';
   letterSpacing: number;
+  textCase?: 'uppercase' | 'capitalize' | 'normal'; // Mặc định là caplock (uppercase)
 
   fontFamily?: string;
   color?: string;
@@ -25,9 +26,9 @@ export interface StrokeLayer {
 export type StyleType = 'cloud';
 
 export interface CardConfig {
-  scalePercent: number; // Kích thước thiệp so với giấy (mặc định 100%)
+  scalePercent: number; // Kích thước thiệp so với giấy (lên đến 120%)
   copiesPerPage: 1 | 2; // 1: Xoay ngang giấy A4; 2: Giấy đứng A4 2 bản
-  showCutLines: boolean; // Đường viền cắt nét đứt nền trắng
+  showCutLines?: boolean;
 
   styleType: StyleType;
 

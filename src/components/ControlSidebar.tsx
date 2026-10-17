@@ -58,6 +58,7 @@ const ControlSidebar: React.FC = () => {
     addLine,
     removeLine,
     updateLine,
+    toggleLineTextCase,
     updateConfig,
     updateGlobalTypography,
     updateStrokeSettings,
@@ -167,7 +168,7 @@ const ControlSidebar: React.FC = () => {
               <Sparkles size={11} /> Cài đặt chung
             </div>
 
-            {/* Kích thước thiệp so với giấy */}
+            {/* Kích thước thiệp so với giấy - cho phép chỉnh lên đến 120% */}
             <div>
               <div className="flex justify-between text-xs font-medium text-slate-500 mb-1">
                 <span>Kích thước thiệp:</span>
@@ -176,7 +177,7 @@ const ControlSidebar: React.FC = () => {
               <input
                 type="range"
                 min={50}
-                max={100}
+                max={120}
                 value={config.scalePercent}
                 onChange={(e) => updateGlobalTypography({ scalePercent: parseInt(e.target.value) })}
               />
@@ -232,11 +233,41 @@ const ControlSidebar: React.FC = () => {
                   <input
                     type="text"
                     value={line.text}
-                    onChange={(e) => updateLine(line.id, { text: e.target.value })}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      updateLine(line.id, {
+                        text: (line.textCase || 'uppercase') === 'uppercase' ? val.toUpperCase() : val,
+                      });
+                    }}
                     className="flex-1 px-2 py-1.5 text-xs font-semibold border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-rose-400"
                     placeholder={`Nhập dòng ${index + 1}...`}
                   />
                   <div className="flex items-center gap-0.5">
+                    {/* Nút chuyển kiểu chữ Aa: CAPSLOCK (Mặc định) -> Viết hoa đầu từ -> Thường */}
+                    <button
+                      onClick={() => toggleLineTextCase(line.id)}
+                      className={clsx(
+                        'px-1.5 py-1 text-xs border rounded font-bold transition-all shadow-sm',
+                        (!line.textCase || line.textCase === 'uppercase')
+                          ? 'bg-rose-500 border-rose-600 text-white'
+                          : line.textCase === 'capitalize'
+                          ? 'bg-amber-500 border-amber-600 text-white'
+                          : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                      )}
+                      title={
+                        (!line.textCase || line.textCase === 'uppercase')
+                          ? 'Đang bật: IN HOA TOÀN BỘ (CAPSLOCK) - Bấm để chuyển'
+                          : line.textCase === 'capitalize'
+                          ? 'Đang bật: Viết Hoa Đầu Từ - Bấm để chuyển'
+                          : 'Đang bật: Chữ thường - Bấm để chuyển'
+                      }
+                    >
+                      {(!line.textCase || line.textCase === 'uppercase')
+                        ? 'AA'
+                        : line.textCase === 'capitalize'
+                        ? 'Aa'
+                        : 'aa'}
+                    </button>
                     <button
                       onClick={() =>
                         updateLine(line.id, {
@@ -458,10 +489,10 @@ const ControlSidebar: React.FC = () => {
           </div>
         </div>
 
-        {/* MỤC 4: SỐ BẢN IN TRÊN TỜ A4 & ĐƯỜNG CẮT (CHỈ 1 VÀ 2 BẢN) */}
+        {/* MỤC 4: SỐ BẢN IN TRÊN TỜ A4 (1 VÀ 2 BẢN, ĐÃ BỎ ĐƯỜNG CẮT) */}
         <div className="p-4 border-b border-slate-100">
           <h2 className="text-xs font-bold text-slate-700 uppercase tracking-widest mb-3">
-            4. Dàn Trang A4 & Đường Cắt
+            4. Dàn Trang A4
           </h2>
 
           <div className="space-y-3">
@@ -496,19 +527,6 @@ const ControlSidebar: React.FC = () => {
                 </button>
               </div>
             </div>
-
-            {/* Checkbox đường viền cắt nền trắng viền đứt nét 0.5cm */}
-            <label className="flex items-center gap-2 cursor-pointer p-2.5 bg-slate-50 rounded-lg border border-slate-200">
-              <input
-                type="checkbox"
-                checked={config.showCutLines}
-                onChange={(e) => updateConfig({ showCutLines: e.target.checked })}
-                className="w-4 h-4 accent-rose-500"
-              />
-              <span className="text-xs font-semibold text-slate-700">
-                Hiển thị đường viền cắt đứt nét 0.5cm
-              </span>
-            </label>
           </div>
         </div>
       </div>

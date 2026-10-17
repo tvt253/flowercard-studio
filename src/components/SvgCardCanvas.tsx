@@ -1,5 +1,6 @@
 import React from 'react';
 import { CardConfig, TextLine, StrokeLayer } from '../types/card';
+import { applyTextCase } from '../store/useCardStore';
 
 interface SvgCardCanvasProps {
   config: CardConfig;
@@ -31,9 +32,6 @@ const SvgCardCanvas: React.FC<SvgCardCanvasProps> = ({
     .sort((a, b) => b.width - a.width);
 
   const maxLayerWidth = activeLayers[0]?.width || 56;
-  // Độ dày đường viền cắt: chừa lề trắng 0.5cm (khoảng 24px mỗi bên = +48px tổng stroke)
-  const cutMargin = 48;
-  const whiteCushionWidth = maxLayerWidth + cutMargin;
 
   // Màu mặt chữ luôn lấy đồng nhất theo màu stroke ngoài cùng
   const primaryTextColor = config.outerStrokeColor;
@@ -45,44 +43,6 @@ const SvgCardCanvas: React.FC<SvgCardCanvasProps> = ({
       style={{ width: '100%', height: 'auto', display: 'block', overflow: 'visible' }}
     >
       <defs>
-        {/* Bóng mờ mềm cho lớp viền cắt màu trắng để phân biệt rõ ràng trên giấy A4 */}
-        <filter id={`cut-shadow-${uid}`} x="-15%" y="-15%" width="130%" height="130%">
-          <feDropShadow dx="0" dy="2" stdDeviation="5" floodColor="#000000" floodOpacity="0.12" />
-        </filter>
-
-        {/* Mask tạo đường viền cắt đứt nét 1.5px mỏng bám theo đúng mép ngoài lề trắng */}
-        <mask id={`cut-mask-${uid}`}>
-          {/* Nền hiển thị toàn bộ */}
-          <rect x="-200" y="-200" width="1400" height="820" fill="#ffffff" />
-          {/* Vùng bên trong bị che đi bằng màu đen, chỉ chừa 1.5px ở mép ngoài cùng */}
-          {config.lines.map((line) => {
-            const fontFamily = line.fontFamily || config.globalFontFamily;
-            return (
-              <text
-                key={`mask-cut-${line.id}`}
-                fontFamily={fontFamily}
-                fontSize={line.fontSize}
-                fontWeight={line.fontWeight}
-                fontStyle={line.fontStyle}
-                fill="#000000"
-                stroke="#000000"
-                strokeWidth={whiteCushionWidth}
-                strokeLinejoin="round"
-                strokeLinecap="round"
-                letterSpacing={line.letterSpacing}
-              >
-                <textPath
-                  href={`#path-${uid}-${line.id}`}
-                  startOffset="50%"
-                  textAnchor="middle"
-                >
-                  {line.text}
-                </textPath>
-              </text>
-            );
-          })}
-        </mask>
-
         {/* Các đường path dẫn hướng uốn cong cho từng dòng chữ */}
         {config.lines.map((line) => (
           <path
@@ -94,82 +54,12 @@ const SvgCardCanvas: React.FC<SvgCardCanvasProps> = ({
         ))}
       </defs>
 
-      {/* 1. ĐƯỜNG VIỀN CẮT: NỀN TRẮNG CHÙA LỀ 0.5CM + ĐƯỜNG ĐỨT NÉT Ở MÉP NGOÀI */}
-      {config.showCutLines && (
-        <g id={`cutline-group-${uid}`}>
-          {/* Lớp đệm nền màu trắng phủ trọn hình dáng thiệp với chừa lề 0.5cm */}
-          <g filter={`url(#cut-shadow-${uid})`}>
-            {config.lines.map((line) => {
-              const fontFamily = line.fontFamily || config.globalFontFamily;
-              return (
-                <text
-                  key={`cut-white-${line.id}`}
-                  fontFamily={fontFamily}
-                  fontSize={line.fontSize}
-                  fontWeight={line.fontWeight}
-                  fontStyle={line.fontStyle}
-                  fill="#ffffff"
-                  stroke="#ffffff"
-                  strokeWidth={whiteCushionWidth}
-                  strokeLinejoin="round"
-                  strokeLinecap="round"
-                  letterSpacing={line.letterSpacing}
-                >
-                  <textPath
-                    href={`#path-${uid}-${line.id}`}
-                    startOffset="50%"
-                    textAnchor="middle"
-                  >
-                    {line.text}
-                  </textPath>
-                </text>
-              );
-            })}
-          </g>
-
-          {/* Đường viền đứt nét mỏng 1.5px nằm đúng trên mép cắt (dùng mask để không bị đen bên trong) */}
-          <g mask={`url(#cut-mask-${uid})`}>
-            {config.lines.map((line) => {
-              const fontFamily = line.fontFamily || config.globalFontFamily;
-              return (
-                <text
-                  key={`cut-dash-${line.id}`}
-                  fontFamily={fontFamily}
-                  fontSize={line.fontSize}
-                  fontWeight={line.fontWeight}
-                  fontStyle={line.fontStyle}
-                  fill="none"
-                  stroke="#64748b"
-                  strokeWidth={whiteCushionWidth + 3}
-                  strokeDasharray="9,6"
-                  strokeLinejoin="round"
-                  strokeLinecap="round"
-                  letterSpacing={line.letterSpacing}
-                >
-                  <textPath
-                    href={`#path-${uid}-${line.id}`}
-                    startOffset="50%"
-                    textAnchor="middle"
-                  >
-                    {line.text}
-                  </textPath>
-                </text>
-              );
-            })}
-          </g>
-
-          {/* Ký hiệu cây kéo chỉ dẫn cắt */}
-          <text x="65" y="75" fontSize="16" fill="#64748b" textAnchor="middle" fontWeight="bold">
-            ✂
-          </text>
-        </g>
-      )}
-
-      {/* 2. CÁC LỚP VIỀN STROKE XẾP TẦNG HÒA QUYỆN (CẢ 2 DÒNG CÙNG VẼ CHUNG MỖI LỚP) */}
+      {/* 1. CÁC LỚP VIỀN STROKE XẾP TẦNG HÒA QUYỆN (CẢ 2 DÒNG CÙNG VẼ CHUNG MỖI LỚP) */}
       {activeLayers.map((layer) => (
         <g key={`stroke-layer-${layer.id}`}>
           {config.lines.map((line) => {
             const fontFamily = line.fontFamily || config.globalFontFamily;
+            const displayText = applyTextCase(line.text, line.textCase);
             return (
               <text
                 key={`stroke-${layer.id}-${line.id}`}
@@ -189,7 +79,7 @@ const SvgCardCanvas: React.FC<SvgCardCanvasProps> = ({
                   startOffset="50%"
                   textAnchor="middle"
                 >
-                  {line.text}
+                  {displayText}
                 </textPath>
               </text>
             );
@@ -197,13 +87,14 @@ const SvgCardCanvas: React.FC<SvgCardCanvasProps> = ({
         </g>
       ))}
 
-      {/* 3. MẶT CHỮ CHÍNH - MÀU LUÔN ĂN THEO MÀU STROKE NGOÀI CÙNG (primaryTextColor) */}
+      {/* 2. MẶT CHỮ CHÍNH - MÀU LUÔN ĂN THEO MÀU STROKE NGOÀI CÙNG (primaryTextColor) */}
       {config.lines.map((line) => {
         const fontFamily = line.fontFamily || config.globalFontFamily;
         const textStrokeColor = line.strokeColor || config.globalStrokeColor;
         const textStrokeWidth =
           line.strokeWidth !== undefined ? line.strokeWidth : config.globalStrokeWidth;
         const isSelected = selectedLineId === line.id;
+        const displayText = applyTextCase(line.text, line.textCase);
 
         return (
           <g
@@ -229,7 +120,7 @@ const SvgCardCanvas: React.FC<SvgCardCanvasProps> = ({
                 startOffset="50%"
                 textAnchor="middle"
               >
-                {line.text}
+                {displayText}
               </textPath>
             </text>
 
@@ -253,7 +144,7 @@ const SvgCardCanvas: React.FC<SvgCardCanvasProps> = ({
                   startOffset="50%"
                   textAnchor="middle"
                 >
-                  {line.text}
+                  {displayText}
                 </textPath>
               </text>
             )}
@@ -276,7 +167,7 @@ const SvgCardCanvas: React.FC<SvgCardCanvasProps> = ({
                 startOffset="50%"
                 textAnchor="middle"
               >
-                {line.text}
+                {displayText}
               </textPath>
             </text>
           </g>

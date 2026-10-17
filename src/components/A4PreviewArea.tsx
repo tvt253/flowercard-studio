@@ -5,7 +5,7 @@ import { Bold, Italic, Check, Edit3, ArrowUp, ArrowDown } from 'lucide-react';
 import { clsx } from 'clsx';
 
 const A4PreviewArea: React.FC = () => {
-  const { config, updateLine } = useCardStore();
+  const { config, updateLine, toggleLineTextCase } = useCardStore();
   const [selectedLineId, setSelectedLineId] = useState<string | null>(null);
 
   const copies = Array.from({ length: config.copiesPerPage }, (_, i) => i);
@@ -95,7 +95,7 @@ const A4PreviewArea: React.FC = () => {
       {/* TỜ GIẤY A4: XOAY NGANG (297x210) KHI 1 BẢN, ĐỨNG (210x297) KHI 2 BẢN */}
       <div
         id="a4-print-area"
-        className="a4-paper bg-white relative transition-all duration-300 mx-auto"
+        className="a4-paper bg-white relative transition-all duration-300 mx-auto overflow-hidden"
         style={{
           width: isLandscape ? '297mm' : '210mm',
           height: isLandscape ? '210mm' : '297mm',
@@ -109,13 +109,12 @@ const A4PreviewArea: React.FC = () => {
         }}
       >
         {isLandscape ? (
-          // 1 BẢN TRÊN GIẤY A4 XOAY NGANG (297mm x 210mm) - Chữ nằm ngang tự nhiên 100%
+          // 1 BẢN TRÊN GIẤY A4 XOAY NGANG (297mm x 210mm) - Chữ nằm ngang tự nhiên, scale lên đến 120%
           <div className="w-full h-full flex items-center justify-center p-3 relative">
             <div
               className="relative flex items-center justify-center transition-all duration-200"
               style={{
                 width: `${config.scalePercent}%`,
-                maxWidth: '100%',
               }}
             >
               <SvgCardCanvas
@@ -139,10 +138,43 @@ const A4PreviewArea: React.FC = () => {
                     type="text"
                     value={selectedLine.text}
                     autoFocus
-                    onChange={(e) => updateLine(selectedLine.id, { text: e.target.value })}
+                    onChange={(e) => {
+                      const val = e.target.value;
+                      updateLine(selectedLine.id, {
+                        text: (selectedLine.textCase || 'uppercase') === 'uppercase' ? val.toUpperCase() : val,
+                      });
+                    }}
                     className="px-2.5 py-1 text-xs font-bold text-slate-800 bg-rose-50/60 border border-rose-200 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500 min-w-[220px]"
                     placeholder="Nhập nội dung chữ..."
                   />
+
+                  {/* Nút chuyển đổi kiểu chữ Aa: CAPSLOCK (Mặc định) -> Viết hoa đầu từ -> Chữ thường */}
+                  <button
+                    onClick={() => toggleLineTextCase(selectedLine.id)}
+                    className={clsx(
+                      'px-2 py-1 text-xs font-bold rounded-md border transition-all flex items-center gap-1 shadow-sm',
+                      (!selectedLine.textCase || selectedLine.textCase === 'uppercase')
+                        ? 'bg-rose-500 text-white border-rose-600'
+                        : selectedLine.textCase === 'capitalize'
+                        ? 'bg-amber-500 text-white border-amber-600'
+                        : 'bg-slate-100 text-slate-700 border-slate-300 hover:bg-slate-200'
+                    )}
+                    title={
+                      (!selectedLine.textCase || selectedLine.textCase === 'uppercase')
+                        ? 'Đang bật: IN HOA TOÀN BỘ (CAPSLOCK) - Bấm để chuyển'
+                        : selectedLine.textCase === 'capitalize'
+                        ? 'Đang bật: Viết Hoa Đầu Từ - Bấm để chuyển'
+                        : 'Đang bật: Chữ thường - Bấm để chuyển'
+                    }
+                  >
+                    <span>
+                      {(!selectedLine.textCase || selectedLine.textCase === 'uppercase')
+                        ? 'AA'
+                        : selectedLine.textCase === 'capitalize'
+                        ? 'Aa'
+                        : 'aa'}
+                    </span>
+                  </button>
 
                   {/* Nút cỡ chữ */}
                   <div className="flex items-center gap-1 bg-slate-100 rounded-md px-1.5 py-0.5 text-xs text-slate-700">
@@ -247,7 +279,7 @@ const A4PreviewArea: React.FC = () => {
             </div>
           </div>
         ) : (
-          // 2 BẢN TRÊN GIẤY A4 ĐỨNG (210mm x 297mm) - Xếp tầng trên dưới
+          // 2 BẢN TRÊN GIẤY A4 ĐỨNG (210mm x 297mm) - Xếp tầng trên dưới, scale lên đến 120%
           <div className="w-full h-full flex flex-col items-center justify-around p-3 relative">
             {copies.map((i) => (
               <div
@@ -255,7 +287,6 @@ const A4PreviewArea: React.FC = () => {
                 className="relative flex items-center justify-center transition-all duration-200"
                 style={{
                   width: `${config.scalePercent}%`,
-                  maxWidth: '100%',
                 }}
               >
                 <SvgCardCanvas
@@ -278,10 +309,43 @@ const A4PreviewArea: React.FC = () => {
                       type="text"
                       value={selectedLine.text}
                       autoFocus
-                      onChange={(e) => updateLine(selectedLine.id, { text: e.target.value })}
+                      onChange={(e) => {
+                        const val = e.target.value;
+                        updateLine(selectedLine.id, {
+                          text: (selectedLine.textCase || 'uppercase') === 'uppercase' ? val.toUpperCase() : val,
+                        });
+                      }}
                       className="px-2.5 py-1 text-xs font-bold text-slate-800 bg-rose-50/60 border border-rose-200 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500 min-w-[200px]"
                       placeholder="Nhập nội dung chữ..."
                     />
+
+                    {/* Nút chuyển đổi kiểu chữ Aa: CAPSLOCK (Mặc định) -> Viết hoa đầu từ -> Chữ thường */}
+                    <button
+                      onClick={() => toggleLineTextCase(selectedLine.id)}
+                      className={clsx(
+                        'px-2 py-1 text-xs font-bold rounded-md border transition-all flex items-center gap-1 shadow-sm',
+                        (!selectedLine.textCase || selectedLine.textCase === 'uppercase')
+                          ? 'bg-rose-500 text-white border-rose-600'
+                          : selectedLine.textCase === 'capitalize'
+                          ? 'bg-amber-500 text-white border-amber-600'
+                          : 'bg-slate-100 text-slate-700 border-slate-300 hover:bg-slate-200'
+                      )}
+                      title={
+                        (!selectedLine.textCase || selectedLine.textCase === 'uppercase')
+                          ? 'Đang bật: IN HOA TOÀN BỘ (CAPSLOCK) - Bấm để chuyển'
+                          : selectedLine.textCase === 'capitalize'
+                          ? 'Đang bật: Viết Hoa Đầu Từ - Bấm để chuyển'
+                          : 'Đang bật: Chữ thường - Bấm để chuyển'
+                      }
+                    >
+                      <span>
+                        {(!selectedLine.textCase || selectedLine.textCase === 'uppercase')
+                          ? 'AA'
+                          : selectedLine.textCase === 'capitalize'
+                          ? 'Aa'
+                          : 'aa'}
+                      </span>
+                    </button>
 
                     <div className="flex items-center gap-1 bg-slate-100 rounded-md px-1.5 py-0.5 text-xs text-slate-700">
                       <button
@@ -364,31 +428,31 @@ const A4PreviewArea: React.FC = () => {
                           selectedLine.fontStyle === 'italic'
                             ? 'bg-rose-500 text-white'
                             : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                        )}
-                        title="Nghiêng"
-                      >
-                        <Italic size={11} />
-                      </button>
-                    </div>
-
-                    <button
-                      onClick={() => setSelectedLineId(null)}
-                      className="flex items-center gap-1 px-2.5 py-1 text-xs bg-rose-500 hover:bg-rose-600 text-white font-semibold rounded-md shadow-sm transition-colors"
+                      )}
+                      title="Nghiêng"
                     >
-                      <Check size={12} /> Xong
+                      <Italic size={11} />
                     </button>
                   </div>
-                )}
-              </div>
-            ))}
-          </div>
-        )}
-      </div>
 
-      <p className="text-xs text-slate-400 mt-3 text-center print:hidden">
-        Nhấn <strong>In Trực Tiếp</strong> để in ra máy in hoặc <strong>Xuất PDF</strong> để lưu file in sắc nét.
-      </p>
+                  <button
+                    onClick={() => setSelectedLineId(null)}
+                    className="flex items-center gap-1 px-2.5 py-1 text-xs bg-rose-500 hover:bg-rose-600 text-white font-semibold rounded-md shadow-sm transition-colors"
+                  >
+                    <Check size={12} /> Xong
+                  </button>
+                </div>
+              )}
+            </div>
+          ))}
+        </div>
+      )}
     </div>
+
+    <p className="text-xs text-slate-400 mt-3 text-center print:hidden">
+      Nhấn <strong>In Trực Tiếp</strong> để in ra máy in hoặc <strong>Xuất PDF</strong> để lưu file in sắc nét.
+    </p>
+  </div>
   );
 };
 
