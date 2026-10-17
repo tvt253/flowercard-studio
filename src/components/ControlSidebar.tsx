@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { useCardStore } from '../store/useCardStore';
-import { TextLine, PresetName, TemplateId } from '../types/card';
+import { TextLine, PresetName } from '../types/card';
 import {
   Plus,
   Trash2,
@@ -10,8 +10,8 @@ import {
   Upload,
   Printer,
   FileDown,
-  Heart,
-  Sparkles,
+  Layers,
+  Shapes,
 } from 'lucide-react';
 import { clsx } from 'clsx';
 
@@ -25,21 +25,13 @@ const FONT_OPTIONS = [
   { label: 'Montserrat (Hiện đại)', value: 'Montserrat' },
 ];
 
-const TEMPLATE_OPTIONS: { label: string; value: TemplateId }[] = [
-  { label: '❤️ Bế Viền Đỏ - Trái Tim (Mẫu gốc)', value: 'diecut-red-heart' },
-  { label: '✨ Bế Viền Vàng Kim - Khai Trương', value: 'diecut-gold-luxury' },
-  { label: '🌊 Bế Viền Xanh Dương Tươi Mát', value: 'diecut-blue-fresh' },
-  { label: '💜 Bế Viền Tím Ngọt Ngào', value: 'diecut-purple-sweet' },
-  { label: '🕯️ Khung Oval Chia Buồn', value: 'oval-mourning' },
-];
-
 const PRESET_OPTIONS: { label: string; value: PresetName }[] = [
   { label: '🌹 20/10 - Phụ Nữ VN', value: '20-10' },
   { label: '📚 20/11 - Nhà Giáo VN', value: '20-11' },
   { label: '💐 8/3 - Quốc Tế PN', value: '8-3' },
-  { label: '🎊 Khai Trương', value: 'khai-truong' },
-  { label: '🎂 Sinh Nhật', value: 'sinh-nhat' },
-  { label: '🕊️ Chia Buồn', value: 'chia-buon' },
+  { label: '🎊 Khai Trương (Vàng Kim)', value: 'khai-truong' },
+  { label: '🎂 Sinh Nhật (Tím Pastel)', value: 'sinh-nhat' },
+  { label: '🕊️ Chia Buồn (Trang Nghiêm)', value: 'chia-buon' },
 ];
 
 const CURVE_TYPE_OPTIONS = [
@@ -145,7 +137,7 @@ const LineEditor: React.FC<LineEditorProps> = ({ line, index, onUpdate, onRemove
           {/* Color row */}
           <div className="flex gap-3 items-center">
             <div className="flex-1">
-              <label className="block text-xs font-medium text-slate-500 mb-1">Màu chữ</label>
+              <label className="block text-xs font-medium text-slate-500 mb-1">Màu mặt chữ</label>
               <div className="flex items-center gap-2">
                 <input
                   type="color"
@@ -158,7 +150,7 @@ const LineEditor: React.FC<LineEditorProps> = ({ line, index, onUpdate, onRemove
             </div>
             <div className="flex-1">
               <label className="block text-xs font-medium text-slate-500 mb-1">
-                Viền nét ({line.strokeWidth}px)
+                Viền mỏng nét ({line.strokeWidth}px)
               </label>
               <div className="flex items-center gap-2">
                 <input
@@ -270,15 +262,26 @@ const LineEditor: React.FC<LineEditorProps> = ({ line, index, onUpdate, onRemove
 };
 
 const ControlSidebar: React.FC = () => {
-  const { config, addLine, removeLine, updateLine, updateConfig, applyPreset, resetDefault } =
-    useCardStore();
+  const {
+    config,
+    addLine,
+    removeLine,
+    updateLine,
+    updateConfig,
+    addStrokeLayer,
+    removeStrokeLayer,
+    updateStrokeLayer,
+    applyPreset,
+    resetDefault,
+  } = useCardStore();
+
   const fileInputRef = useRef<HTMLInputElement>(null);
 
   const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
     const file = e.target.files?.[0];
     if (!file) return;
     const url = URL.createObjectURL(file);
-    updateConfig({ templateId: 'custom-upload', customBgUrl: url });
+    updateConfig({ customBgUrl: url });
   };
 
   const handlePrint = () => {
@@ -301,90 +304,41 @@ const ControlSidebar: React.FC = () => {
   };
 
   return (
-    <aside className="w-[330px] h-screen bg-white border-r border-slate-200 flex flex-col overflow-hidden shadow-sm">
+    <aside className="w-[340px] h-screen bg-white border-r border-slate-200 flex flex-col overflow-hidden shadow-sm">
       {/* Header */}
       <div className="px-4 py-3 bg-gradient-to-r from-rose-500 to-rose-600 text-white flex-shrink-0">
         <h1 className="text-base font-bold tracking-wide flex items-center gap-1.5">
           🌸 FlowerCard Studio
         </h1>
-        <p className="text-xs text-rose-200 mt-0.5">Bế viền chữ nghệ thuật & in thiệp giỏ hoa</p>
+        <p className="text-xs text-rose-200 mt-0.5">Bế viền chữ xếp tầng & in thiệp giỏ hoa</p>
       </div>
 
       <div className="flex-1 overflow-y-auto">
-        {/* Section 1: Template & Quick Fill */}
+        {/* Section 1: Presets Dịp Lễ */}
         <div className="p-4 border-b border-slate-100">
-          <h2 className="text-xs font-bold text-slate-700 uppercase tracking-widest mb-3">
-            📋 Mẫu Bế Viền & Dịp Lễ
+          <h2 className="text-xs font-bold text-slate-700 uppercase tracking-widest mb-2.5">
+            📋 Mẫu Dịp Lễ & Màu Sắc Chuẩn
           </h2>
 
-          <div className="space-y-3">
-            <div>
-              <label className="block text-xs font-medium text-slate-500 mb-1">Mẫu phôi thiệp</label>
-              <select
-                value={config.templateId}
-                onChange={(e) =>
-                  updateConfig({ templateId: e.target.value as TemplateId, customBgUrl: null })
-                }
-                className="w-full px-2 py-1.5 text-xs font-medium border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-rose-400 bg-white"
+          <div className="grid grid-cols-2 gap-1.5">
+            {PRESET_OPTIONS.map((p) => (
+              <button
+                key={p.value}
+                onClick={() => applyPreset(p.value)}
+                className="px-2 py-1.5 text-xs bg-slate-50 hover:bg-rose-50 hover:text-rose-600 border border-slate-200 hover:border-rose-300 rounded transition-colors text-slate-600 text-left"
               >
-                {TEMPLATE_OPTIONS.map((t) => (
-                  <option key={t.value} value={t.value}>
-                    {t.label}
-                  </option>
-                ))}
-                {config.templateId === 'custom-upload' && (
-                  <option value="custom-upload">📷 Ảnh phôi riêng của shop</option>
-                )}
-              </select>
-            </div>
+                {p.label}
+              </button>
+            ))}
+          </div>
 
-            {/* Họa tiết trang trí */}
-            <div>
-              <label className="block text-xs font-medium text-slate-500 mb-1.5">
-                Họa tiết trang trí dấu chữ
-              </label>
-              <div className="grid grid-cols-3 gap-1">
-                <button
-                  onClick={() => updateConfig({ decorationType: 'hearts' })}
-                  className={clsx(
-                    'py-1.5 text-xs border rounded font-medium flex items-center justify-center gap-1 transition-colors',
-                    config.decorationType === 'hearts'
-                      ? 'bg-rose-500 border-rose-500 text-white'
-                      : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-                  )}
-                >
-                  <Heart size={12} /> Trái tim
-                </button>
-                <button
-                  onClick={() => updateConfig({ decorationType: 'stars' })}
-                  className={clsx(
-                    'py-1.5 text-xs border rounded font-medium flex items-center justify-center gap-1 transition-colors',
-                    config.decorationType === 'stars'
-                      ? 'bg-rose-500 border-rose-500 text-white'
-                      : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-                  )}
-                >
-                  <Sparkles size={12} /> Ngôi sao
-                </button>
-                <button
-                  onClick={() => updateConfig({ decorationType: 'none' })}
-                  className={clsx(
-                    'py-1.5 text-xs border rounded font-medium transition-colors',
-                    config.decorationType === 'none'
-                      ? 'bg-rose-500 border-rose-500 text-white'
-                      : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-                  )}
-                >
-                  Tắt
-                </button>
-              </div>
-            </div>
-
+          {/* Tải ảnh phôi riêng */}
+          <div className="mt-3">
             <button
               onClick={() => fileInputRef.current?.click()}
-              className="w-full flex items-center justify-center gap-2 px-3 py-1.5 text-xs border-2 border-dashed border-slate-300 rounded hover:border-rose-400 hover:text-rose-500 text-slate-500 transition-colors"
+              className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs border border-dashed border-slate-300 rounded hover:border-rose-400 hover:text-rose-500 text-slate-500 transition-colors"
             >
-              <Upload size={13} /> Tải ảnh phôi riêng (.png, .jpg)
+              <Upload size={12} /> Tải ảnh phôi riêng (.png, .jpg)
             </button>
             <input
               ref={fileInputRef}
@@ -393,26 +347,129 @@ const ControlSidebar: React.FC = () => {
               className="hidden"
               onChange={handleFileUpload}
             />
-
-            {/* Quick preset buttons */}
-            <div>
-              <label className="block text-xs font-medium text-slate-500 mb-1.5">Chọn nhanh nội dung</label>
-              <div className="grid grid-cols-2 gap-1.5">
-                {PRESET_OPTIONS.map((p) => (
-                  <button
-                    key={p.value}
-                    onClick={() => applyPreset(p.value)}
-                    className="px-2 py-1.5 text-xs bg-slate-50 hover:bg-rose-50 hover:text-rose-600 border border-slate-200 hover:border-rose-300 rounded transition-colors text-slate-600 text-left"
-                  >
-                    {p.label}
-                  </button>
-                ))}
-              </div>
-            </div>
           </div>
         </div>
 
-        {/* Section 2: A4 Layout */}
+        {/* Section 2: Dáng Tổng Thể Thiệp (Envelope Shape) */}
+        <div className="p-4 border-b border-slate-100 bg-rose-50/40">
+          <div className="flex items-center gap-1.5 mb-2.5">
+            <Shapes size={14} className="text-rose-600" />
+            <h2 className="text-xs font-bold text-slate-700 uppercase tracking-widest">
+              Dáng Tổng Thể Thiệp
+            </h2>
+          </div>
+
+          <div className="space-y-3">
+            <div>
+              <div className="flex justify-between text-xs font-medium text-slate-500 mb-1">
+                <span>Độ phồng bao ngoài:</span>
+                <span className="text-rose-600 font-bold">{config.envelopePadding}px</span>
+              </div>
+              <input
+                type="range"
+                min={10}
+                max={70}
+                value={config.envelopePadding}
+                onChange={(e) => updateConfig({ envelopePadding: parseInt(e.target.value) })}
+              />
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                Tự động bám theo lớp viền ngoài cùng tạo dáng liền khối đầy đặn.
+              </p>
+            </div>
+
+            <label className="flex items-center gap-2 cursor-pointer">
+              <input
+                type="checkbox"
+                checked={config.fillInnerGaps}
+                onChange={(e) => updateConfig({ fillInnerGaps: e.target.checked })}
+                className="w-4 h-4 accent-rose-500"
+              />
+              <span className="text-xs text-slate-600 font-medium">
+                Lấp đầy khoảng hở giữa các dòng chữ
+              </span>
+            </label>
+          </div>
+        </div>
+
+        {/* Section 3: Hệ Thống Các Lớp Viền Stroke (Xếp Tầng) */}
+        <div className="p-4 border-b border-slate-100">
+          <div className="flex items-center justify-between mb-2.5">
+            <div className="flex items-center gap-1.5">
+              <Layers size={14} className="text-rose-600" />
+              <h2 className="text-xs font-bold text-slate-700 uppercase tracking-widest">
+                Lớp Viền Stroke ({config.strokeLayers.length} lớp)
+              </h2>
+            </div>
+            <button
+              onClick={addStrokeLayer}
+              className="flex items-center gap-1 px-2 py-1 text-xs bg-rose-500 text-white rounded hover:bg-rose-600 transition-colors shadow-sm"
+              title="Thêm một lớp viền mới"
+            >
+              <Plus size={12} /> Thêm lớp viền
+            </button>
+          </div>
+
+          <div className="space-y-2">
+            {config.strokeLayers.map((layer, index) => (
+              <div
+                key={layer.id}
+                className="p-2 border border-slate-200 rounded-lg bg-slate-50/70 space-y-1.5"
+              >
+                <div className="flex items-center justify-between">
+                  <div className="flex items-center gap-2">
+                    <input
+                      type="checkbox"
+                      checked={layer.enabled}
+                      onChange={(e) => updateStrokeLayer(layer.id, { enabled: e.target.checked })}
+                      className="w-3.5 h-3.5 accent-rose-500"
+                    />
+                    <span className="text-xs font-semibold text-slate-700">
+                      {layer.name || `Lớp ${index + 1}`}
+                    </span>
+                  </div>
+
+                  <div className="flex items-center gap-2">
+                    {/* Color picker */}
+                    <input
+                      type="color"
+                      value={layer.color}
+                      onChange={(e) => updateStrokeLayer(layer.id, { color: e.target.value })}
+                      className="w-6 h-6 rounded cursor-pointer border border-slate-300"
+                      title="Chọn màu lớp viền này"
+                    />
+                    {/* Delete button */}
+                    {config.strokeLayers.length > 1 && (
+                      <button
+                        onClick={() => removeStrokeLayer(layer.id)}
+                        className="text-slate-400 hover:text-red-500 p-0.5 rounded transition-colors"
+                        title="Xóa lớp viền này"
+                      >
+                        <Trash2 size={13} />
+                      </button>
+                    )}
+                  </div>
+                </div>
+
+                {/* Width slider */}
+                <div>
+                  <div className="flex justify-between text-[11px] text-slate-500">
+                    <span>Độ rộng viền:</span>
+                    <span className="font-bold text-rose-600">{layer.width}px</span>
+                  </div>
+                  <input
+                    type="range"
+                    min={2}
+                    max={70}
+                    value={layer.width}
+                    onChange={(e) => updateStrokeLayer(layer.id, { width: parseInt(e.target.value) })}
+                  />
+                </div>
+              </div>
+            ))}
+          </div>
+        </div>
+
+        {/* Section 4: A4 Layout */}
         <div className="p-4 border-b border-slate-100">
           <h2 className="text-xs font-bold text-slate-700 uppercase tracking-widest mb-3">
             📄 Kích Thước & Dàn Trang A4
@@ -466,7 +523,7 @@ const ControlSidebar: React.FC = () => {
           </div>
         </div>
 
-        {/* Section 3: Line Editors */}
+        {/* Section 5: Line Editors */}
         <div className="p-4">
           <div className="flex items-center justify-between mb-3">
             <h2 className="text-xs font-bold text-slate-700 uppercase tracking-widest">

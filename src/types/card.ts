@@ -14,21 +14,27 @@ export interface TextLine {
   letterSpacing: number;
 }
 
-export type TemplateId =
-  | 'diecut-red-heart'
-  | 'diecut-gold-luxury'
-  | 'diecut-blue-fresh'
-  | 'diecut-purple-sweet'
-  | 'oval-mourning'
-  | 'custom-upload';
+export interface StrokeLayer {
+  id: string;
+  name: string;
+  color: string;
+  width: number; // Độ rộng của lớp stroke (px)
+  enabled: boolean;
+}
 
 export interface CardConfig {
-  templateId: TemplateId;
   customBgUrl: string | null;
   scalePercent: number;
   copiesPerPage: 1 | 2 | 3 | 4;
   showCutLines: boolean;
-  decorationType: 'hearts' | 'stars' | 'none';
+
+  // Dáng tổng thể của thiệp (Envelope Shape)
+  envelopePadding: number; // Độ phồng của dáng tổng thể (10 - 70px, mặc định 35)
+  fillInnerGaps: boolean; // Lấp đầy khoảng trống giữa các dòng tạo dáng liền khối
+
+  // Hệ thống các lớp viền bế (Multi-layer Strokes)
+  strokeLayers: StrokeLayer[];
+
   lines: TextLine[];
 }
 
@@ -36,6 +42,6 @@ export type PresetName = '20-10' | '20-11' | '8-3' | 'khai-truong' | 'sinh-nhat'
 
 export interface Preset {
   name: string;
-  templateId: TemplateId;
+  strokeLayers: StrokeLayer[];
   lines: TextLine[];
 }
