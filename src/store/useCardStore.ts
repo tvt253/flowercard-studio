@@ -4,37 +4,37 @@ import { CardConfig, TextLine, StrokeLayer, PresetName } from '../types/card';
 
 const generateId = () => Math.random().toString(36).substring(2, 9);
 
-// 5 lớp stroke xếp tầng chuẩn xác 100% theo mẫu thiệp 20/10 thực tế
+// 5 lớp stroke xếp tầng bám sát từng dòng chữ theo mẫu PDF thực tế
 const defaultStrokeLayers: StrokeLayer[] = [
-  { id: 'layer-1', name: 'Lớp 1 (Đỏ thắm ngoài cùng)', color: '#c81e2b', width: 62, enabled: true },
-  { id: 'layer-2', name: 'Lớp 2 (Đỏ tươi)', color: '#e11d48', width: 50, enabled: true },
-  { id: 'layer-3', name: 'Lớp 3 (Hồng tươi)', color: '#fb7185', width: 38, enabled: true },
-  { id: 'layer-4', name: 'Lớp 4 (Hồng phấn nhạt)', color: '#fecdd3', width: 26, enabled: true },
-  { id: 'layer-5', name: 'Lớp 5 (Trắng sát chân chữ)', color: '#ffffff', width: 14, enabled: true },
+  { id: 'layer-1', name: 'Lớp 1 (Đỏ thắm ngoài cùng)', color: '#c81e2b', width: 56, enabled: true },
+  { id: 'layer-2', name: 'Lớp 2 (Đỏ tươi)', color: '#e11d48', width: 44, enabled: true },
+  { id: 'layer-3', name: 'Lớp 3 (Hồng tươi)', color: '#fb7185', width: 32, enabled: true },
+  { id: 'layer-4', name: 'Lớp 4 (Hồng phấn nhạt)', color: '#fecdd3', width: 22, enabled: true },
+  { id: 'layer-5', name: 'Lớp 5 (Trắng sát chân chữ)', color: '#ffffff', width: 12, enabled: true },
 ];
 
 const goldStrokeLayers: StrokeLayer[] = [
-  { id: 'layer-1', name: 'Lớp 1 (Nâu đồng ngoài cùng)', color: '#78350f', width: 62, enabled: true },
-  { id: 'layer-2', name: 'Lớp 2 (Vàng hổ phách)', color: '#b45309', width: 50, enabled: true },
-  { id: 'layer-3', name: 'Lớp 3 (Vàng hoàng kim)', color: '#f59e0b', width: 38, enabled: true },
-  { id: 'layer-4', name: 'Lớp 4 (Vàng chanh sáng)', color: '#fef08a', width: 26, enabled: true },
-  { id: 'layer-5', name: 'Lớp 5 (Trắng sát chân chữ)', color: '#ffffff', width: 14, enabled: true },
+  { id: 'layer-1', name: 'Lớp 1 (Nâu đồng ngoài cùng)', color: '#78350f', width: 56, enabled: true },
+  { id: 'layer-2', name: 'Lớp 2 (Vàng hổ phách)', color: '#b45309', width: 44, enabled: true },
+  { id: 'layer-3', name: 'Lớp 3 (Vàng hoàng kim)', color: '#f59e0b', width: 32, enabled: true },
+  { id: 'layer-4', name: 'Lớp 4 (Vàng chanh sáng)', color: '#fef08a', width: 22, enabled: true },
+  { id: 'layer-5', name: 'Lớp 5 (Trắng sát chân chữ)', color: '#ffffff', width: 12, enabled: true },
 ];
 
 const purpleStrokeLayers: StrokeLayer[] = [
-  { id: 'layer-1', name: 'Lớp 1 (Tím đậm ngoài cùng)', color: '#581c87', width: 62, enabled: true },
-  { id: 'layer-2', name: 'Lớp 2 (Tím hoa cà)', color: '#86198f', width: 50, enabled: true },
-  { id: 'layer-3', name: 'Lớp 3 (Hồng tím)', color: '#d946ef', width: 38, enabled: true },
-  { id: 'layer-4', name: 'Lớp 4 (Tím phấn nhạt)', color: '#f5d0fe', width: 26, enabled: true },
-  { id: 'layer-5', name: 'Lớp 5 (Trắng sát chân chữ)', color: '#ffffff', width: 14, enabled: true },
+  { id: 'layer-1', name: 'Lớp 1 (Tím đậm ngoài cùng)', color: '#581c87', width: 56, enabled: true },
+  { id: 'layer-2', name: 'Lớp 2 (Tím hoa cà)', color: '#86198f', width: 44, enabled: true },
+  { id: 'layer-3', name: 'Lớp 3 (Hồng tím)', color: '#d946ef', width: 32, enabled: true },
+  { id: 'layer-4', name: 'Lớp 4 (Tím phấn nhạt)', color: '#f5d0fe', width: 22, enabled: true },
+  { id: 'layer-5', name: 'Lớp 5 (Trắng sát chân chữ)', color: '#ffffff', width: 12, enabled: true },
 ];
 
 const mourningStrokeLayers: StrokeLayer[] = [
-  { id: 'layer-1', name: 'Lớp 1 (Đen tuyền ngoài cùng)', color: '#09090b', width: 60, enabled: true },
-  { id: 'layer-2', name: 'Lớp 2 (Xám than)', color: '#27272a', width: 48, enabled: true },
-  { id: 'layer-3', name: 'Lớp 3 (Xám bạc)', color: '#71717a', width: 36, enabled: true },
-  { id: 'layer-4', name: 'Lớp 4 (Xám khói sáng)', color: '#e4e4e7', width: 24, enabled: true },
-  { id: 'layer-5', name: 'Lớp 5 (Trắng sát chân chữ)', color: '#ffffff', width: 12, enabled: true },
+  { id: 'layer-1', name: 'Lớp 1 (Đen tuyền ngoài cùng)', color: '#09090b', width: 54, enabled: true },
+  { id: 'layer-2', name: 'Lớp 2 (Xám than)', color: '#27272a', width: 42, enabled: true },
+  { id: 'layer-3', name: 'Lớp 3 (Xám bạc)', color: '#71717a', width: 30, enabled: true },
+  { id: 'layer-4', name: 'Lớp 4 (Xám khói sáng)', color: '#e4e4e7', width: 20, enabled: true },
+  { id: 'layer-5', name: 'Lớp 5 (Trắng sát chân chữ)', color: '#ffffff', width: 10, enabled: true },
 ];
 
 const defaultLine1: TextLine = {
@@ -74,8 +74,8 @@ const defaultConfig: CardConfig = {
   scalePercent: 100,
   copiesPerPage: 2,
   showCutLines: true,
-  envelopePadding: 24,
-  fillInnerGaps: true,
+  strokeMode: 'per-line',
+  lineStacking: 'top-on-bottom',
   strokeLayers: defaultStrokeLayers,
   lines: [defaultLine1, defaultLine2],
 };
@@ -256,8 +256,8 @@ export const useCardStore = create<CardStore>()(
         })),
     }),
     {
-      name: 'flower-card-studio-storage-v4',
-      version: 4,
+      name: 'flower-card-studio-storage-v5',
+      version: 5,
     }
   )
 );

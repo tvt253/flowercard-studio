@@ -19,52 +19,18 @@ function calculatePathD(line: TextLine): string {
   }
 }
 
-// Ước tính chiều rộng dòng chữ
-function estimateLineWidth(line: TextLine): number {
-  const charCount = Math.max(line.text.length, 1);
-  const letterSpacing = line.letterSpacing || 0;
-  const charWidthFactor = line.fontFamily.includes('Great Vibes') ? 0.46 : 0.52;
-  const rawWidth = charCount * (line.fontSize * charWidthFactor + letterSpacing);
-  return Math.min(Math.max(rawWidth, 180), 880);
-}
-
-// Khối liên kết giữa các dòng (Inter-line Bridge) giúp thiệp liền mạch thành 1 khối vững chắc
-function generateBridgePath(lines: TextLine[], pad: number): string {
-  if (lines.length < 2) return '';
-
-  const line1 = lines[0];
-  const line2 = lines[1];
-
-  const w1 = estimateLineWidth(line1);
-  const w2 = estimateLineWidth(line2);
-
-  // Giới hạn chiều ngang của khối cầu nối ở giữa 2 tầng
-  const left1 = Math.max(500 - w1 / 2 + 10 - pad * 0.5, 80);
-  const right1 = Math.min(500 + w1 / 2 - 10 + pad * 0.5, 920);
-
-  const left2 = Math.max(500 - w2 / 2 + 30 - pad * 0.6, 60);
-  const right2 = Math.min(500 + w2 / 2 - 30 + pad * 0.6, 940);
-
-  // Khoảng cách theo chiều dọc giữa đáy dòng 1 và đỉnh dòng 2
-  const yTop = line1.offsetY + line1.fontSize * 0.05 - pad * 0.3;
-  const yBottom = line2.offsetY - line2.fontSize * 0.55 + pad * 0.3;
-
-  if (yBottom <= yTop) return '';
-
-  const midY = (yTop + yBottom) / 2;
-
-  return `M ${left1},${yTop}
-          L ${right1},${yTop}
-          C ${right1 + pad * 0.3},${midY} ${right2},${midY} ${right2},${yBottom}
-          L ${left2},${yBottom}
-          C ${left2},${midY} ${left1 - pad * 0.3},${midY} ${left1},${yTop} Z`;
-}
-
 const SvgCardCanvas: React.FC<SvgCardCanvasProps> = ({ config, uid }) => {
-  // Sắp xếp các lớp stroke từ ngoài cùng (width lớn nhất) vào trong (width nhỏ nhất)
+  // Lọc và sắp xếp các lớp stroke từ ngoài cùng (width lớn nhất) vào trong (width nhỏ nhất)
   const activeLayers: StrokeLayer[] = [...config.strokeLayers]
     .filter((layer) => layer.enabled && layer.width > 0)
     .sort((a, b) => b.width - a.width);
+
+  // Sắp xếp thứ tự các dòng chữ theo cấu hình lineStacking
+  // Mặc định 'top-on-bottom': dòng 2 vẽ trước, dòng 1 ("Chúc Mừng") vẽ sau để đè lên trên như mẫu
+  const linesToRender =
+    config.lineStacking === 'top-on-bottom'
+      ? [...config.lines].reverse() // Dòng dưới vẽ trước, dòng trên vẽ sau (đè lên)
+      : [...config.lines];
 
   return (
     <svg
@@ -93,28 +59,13 @@ const SvgCardCanvas: React.FC<SvgCardCanvasProps> = ({ config, uid }) => {
         />
       )}
 
-      {/* 2. HỆ THỐNG CÁC LỚP VIỀN STROKE XẾP TẦNG (Tương tự 100% mẫu thực tế) */}
-      {activeLayers.map((layer) => {
-        const bridgeD = config.fillInnerGaps
-          ? generateBridgePath(config.lines, layer.width)
-          : '';
-
-        return (
-          <g key={`stroke-group-${layer.id}`}>
-            {/* A. Khối liên kết mềm mại giữa 2 dòng giúp nối liền 2 tầng thành 1 khối vững chắc */}
-            {bridgeD && (
-              <path
-                d={bridgeD}
-                fill={layer.color}
-                stroke={layer.color}
-                strokeWidth={layer.width * 0.8}
-                strokeLinejoin="round"
-                strokeLinecap="round"
-              />
-            )}
-
-            {/* B. Lớp stroke uốn lượn ôm sát từng con chữ tạo đường viền bọt nước lồi lõm nghệ thuật */}
-            {config.lines.map((line) => (
+      {/* 2. CHẾ ĐỘ STROKE BÁM THEO TỪNG DÒNG CHỮ (Chuẩn 100% mẫu thực tế) */}
+      {config.strokeMode === 'per-line' ? (
+        // Render từng dòng chữ độc lập với đầy đủ các lớp viền riêng của dòng đó
+        linesToRender.map((line) => (
+          <g key={`line-cluster-${line.id}`}>
+            {/* Các lớp viền stroke xếp tầng bám sát từng nét chữ của dòng này */}
+            {activeLayers.map((layer) => (
               <text
                 key={`stroke-${layer.id}-${line.id}`}
                 fontFamily={line.fontFamily}
@@ -137,34 +88,87 @@ const SvgCardCanvas: React.FC<SvgCardCanvasProps> = ({ config, uid }) => {
                 </textPath>
               </text>
             ))}
-          </g>
-        );
-      })}
 
-      {/* 3. MẶT CHỮ CHÍNH (Foreground Text) - Nét chữ đỏ thắm viền trắng mỏng sắc sảo */}
-      {config.lines.map((line) => (
-        <text
-          key={`fg-${line.id}`}
-          fontFamily={line.fontFamily}
-          fontSize={line.fontSize}
-          fontWeight={line.fontWeight}
-          fontStyle={line.fontStyle}
-          fill={line.color}
-          stroke={line.strokeWidth > 0 ? line.strokeColor : 'none'}
-          strokeWidth={line.strokeWidth}
-          strokeLinejoin="round"
-          paintOrder="stroke fill"
-          letterSpacing={line.letterSpacing}
-        >
-          <textPath
-            href={`#path-${uid}-${line.id}`}
-            startOffset="50%"
-            textAnchor="middle"
-          >
-            {line.text}
-          </textPath>
-        </text>
-      ))}
+            {/* Mặt chữ chính của dòng này (nét chữ đỏ thắm viền trắng mỏng sắc nét) */}
+            <text
+              fontFamily={line.fontFamily}
+              fontSize={line.fontSize}
+              fontWeight={line.fontWeight}
+              fontStyle={line.fontStyle}
+              fill={line.color}
+              stroke={line.strokeWidth > 0 ? line.strokeColor : 'none'}
+              strokeWidth={line.strokeWidth}
+              strokeLinejoin="round"
+              paintOrder="stroke fill"
+              letterSpacing={line.letterSpacing}
+            >
+              <textPath
+                href={`#path-${uid}-${line.id}`}
+                startOffset="50%"
+                textAnchor="middle"
+              >
+                {line.text}
+              </textPath>
+            </text>
+          </g>
+        ))
+      ) : (
+        // Chế độ hòa nhập stroke (merged): tất cả dòng vẽ cùng lớp stroke rồi mới vẽ mặt chữ
+        <>
+          {activeLayers.map((layer) => (
+            <g key={`merged-layer-${layer.id}`}>
+              {config.lines.map((line) => (
+                <text
+                  key={`stroke-${layer.id}-${line.id}`}
+                  fontFamily={line.fontFamily}
+                  fontSize={line.fontSize}
+                  fontWeight={line.fontWeight}
+                  fontStyle={line.fontStyle}
+                  fill={layer.color}
+                  stroke={layer.color}
+                  strokeWidth={layer.width}
+                  strokeLinejoin="round"
+                  strokeLinecap="round"
+                  letterSpacing={line.letterSpacing}
+                >
+                  <textPath
+                    href={`#path-${uid}-${line.id}`}
+                    startOffset="50%"
+                    textAnchor="middle"
+                  >
+                    {line.text}
+                  </textPath>
+                </text>
+              ))}
+            </g>
+          ))}
+
+          {/* Mặt chữ chính cho tất cả các dòng */}
+          {config.lines.map((line) => (
+            <text
+              key={`merged-fg-${line.id}`}
+              fontFamily={line.fontFamily}
+              fontSize={line.fontSize}
+              fontWeight={line.fontWeight}
+              fontStyle={line.fontStyle}
+              fill={line.color}
+              stroke={line.strokeWidth > 0 ? line.strokeColor : 'none'}
+              strokeWidth={line.strokeWidth}
+              strokeLinejoin="round"
+              paintOrder="stroke fill"
+              letterSpacing={line.letterSpacing}
+            >
+              <textPath
+                href={`#path-${uid}-${line.id}`}
+                startOffset="50%"
+                textAnchor="middle"
+              >
+                {line.text}
+              </textPath>
+            </text>
+          ))}
+        </>
+      )}
     </svg>
   );
 };

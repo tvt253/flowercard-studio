@@ -350,44 +350,82 @@ const ControlSidebar: React.FC = () => {
           </div>
         </div>
 
-        {/* Section 2: Dáng Tổng Thể Thiệp (Envelope Shape) */}
+        {/* Section 2: Kiểu Viền & Xếp Chồng */}
         <div className="p-4 border-b border-slate-100 bg-rose-50/40">
           <div className="flex items-center gap-1.5 mb-2.5">
             <Shapes size={14} className="text-rose-600" />
             <h2 className="text-xs font-bold text-slate-700 uppercase tracking-widest">
-              Dáng Tổng Thể Thiệp
+              Kiểu Viền Stroke Theo Dòng
             </h2>
           </div>
 
           <div className="space-y-3">
             <div>
-              <div className="flex justify-between text-xs font-medium text-slate-500 mb-1">
-                <span>Độ phồng bao ngoài:</span>
-                <span className="text-rose-600 font-bold">{config.envelopePadding}px</span>
+              <label className="block text-xs font-medium text-slate-500 mb-1.5">
+                Chế độ bám viền
+              </label>
+              <div className="grid grid-cols-2 gap-1">
+                <button
+                  onClick={() => updateConfig({ strokeMode: 'per-line' })}
+                  className={clsx(
+                    'py-1.5 px-2 text-xs border rounded font-medium text-center transition-colors',
+                    config.strokeMode === 'per-line'
+                      ? 'bg-rose-500 border-rose-500 text-white'
+                      : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                  )}
+                >
+                  Bám riêng từng dòng ✓
+                </button>
+                <button
+                  onClick={() => updateConfig({ strokeMode: 'merged' })}
+                  className={clsx(
+                    'py-1.5 px-2 text-xs border rounded font-medium text-center transition-colors',
+                    config.strokeMode === 'merged'
+                      ? 'bg-rose-500 border-rose-500 text-white'
+                      : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                  )}
+                >
+                  Hòa nhập các dòng
+                </button>
               </div>
-              <input
-                type="range"
-                min={10}
-                max={70}
-                value={config.envelopePadding}
-                onChange={(e) => updateConfig({ envelopePadding: parseInt(e.target.value) })}
-              />
-              <p className="text-[11px] text-slate-400 mt-0.5">
-                Tự động bám theo lớp viền ngoài cùng tạo dáng liền khối đầy đặn.
+              <p className="text-[11px] text-slate-400 mt-1">
+                {config.strokeMode === 'per-line'
+                  ? 'Viền stroke bám sát từng dòng chữ riêng biệt chuẩn 100% mẫu thực tế.'
+                  : 'Các lớp viền của các dòng hòa nhập vào nhau.'}
               </p>
             </div>
 
-            <label className="flex items-center gap-2 cursor-pointer">
-              <input
-                type="checkbox"
-                checked={config.fillInnerGaps}
-                onChange={(e) => updateConfig({ fillInnerGaps: e.target.checked })}
-                className="w-4 h-4 accent-rose-500"
-              />
-              <span className="text-xs text-slate-600 font-medium">
-                Lấp đầy khoảng hở giữa các dòng chữ
-              </span>
-            </label>
+            {config.strokeMode === 'per-line' && (
+              <div>
+                <label className="block text-xs font-medium text-slate-500 mb-1.5">
+                  Thứ tự xếp chồng giữa 2 dòng
+                </label>
+                <div className="grid grid-cols-2 gap-1">
+                  <button
+                    onClick={() => updateConfig({ lineStacking: 'top-on-bottom' })}
+                    className={clsx(
+                      'py-1.5 px-2 text-xs border rounded font-medium text-center transition-colors',
+                      config.lineStacking === 'top-on-bottom'
+                        ? 'bg-rose-500 border-rose-500 text-white'
+                        : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                    )}
+                  >
+                    Dòng trên đè dưới ✓
+                  </button>
+                  <button
+                    onClick={() => updateConfig({ lineStacking: 'bottom-on-top' })}
+                    className={clsx(
+                      'py-1.5 px-2 text-xs border rounded font-medium text-center transition-colors',
+                      config.lineStacking === 'bottom-on-top'
+                        ? 'bg-rose-500 border-rose-500 text-white'
+                        : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                    )}
+                  >
+                    Dòng dưới đè trên
+                  </button>
+                </div>
+              </div>
+            )}
           </div>
         </div>
 

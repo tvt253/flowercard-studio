@@ -28,9 +28,10 @@ export interface CardConfig {
   copiesPerPage: 1 | 2 | 3 | 4;
   showCutLines: boolean;
 
-  // Dáng tổng thể của thiệp (Envelope Shape)
-  envelopePadding: number; // Độ phồng của dáng tổng thể (10 - 70px, mặc định 35)
-  fillInnerGaps: boolean; // Lấp đầy khoảng trống giữa các dòng tạo dáng liền khối
+  // Kiểu hiển thị stroke: bám theo từng dòng chữ (per-line) như mẫu
+  strokeMode: 'per-line' | 'merged';
+  // Thứ tự xếp chồng giữa các dòng: Dòng 1 đè lên Dòng 2 (chuẩn mẫu)
+  lineStacking: 'top-on-bottom' | 'bottom-on-top';
 
   // Hệ thống các lớp viền bế (Multi-layer Strokes)
   strokeLayers: StrokeLayer[];
