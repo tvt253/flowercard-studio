@@ -1,17 +1,19 @@
 export interface TextLine {
   id: string;
   text: string;
-  fontFamily: string;
   fontSize: number;
+  offsetY: number;
   fontWeight: 'normal' | 'bold';
   fontStyle: 'normal' | 'italic';
-  color: string;
-  strokeColor: string;
-  strokeWidth: number;
-  curveType: 'wave' | 'arc' | 'flat';
-  curveStrength: number;
-  offsetY: number;
   letterSpacing: number;
+
+  // Thuộc tính kế thừa hoặc tùy biến
+  fontFamily?: string;
+  color?: string;
+  strokeColor?: string;
+  strokeWidth?: number;
+  curveType?: 'wave' | 'arc' | 'flat';
+  curveStrength?: number;
 }
 
 export interface StrokeLayer {
@@ -22,18 +24,33 @@ export interface StrokeLayer {
   enabled: boolean;
 }
 
+export type StyleType = 'cloud' | 'minimal' | 'modern';
+
 export interface CardConfig {
   customBgUrl: string | null;
   scalePercent: number;
   copiesPerPage: 1 | 2 | 3 | 4;
   showCutLines: boolean;
 
-  // Kiểu hiển thị stroke: bám theo từng dòng chữ (per-line) như mẫu
-  strokeMode: 'per-line' | 'merged';
-  // Thứ tự xếp chồng giữa các dòng: Dòng 1 đè lên Dòng 2 (chuẩn mẫu)
-  lineStacking: 'top-on-bottom' | 'bottom-on-top';
+  // Chọn kiểu dáng thiệp (Mặc định: 'cloud' - Kiểu Đám Mây chuẩn mẫu)
+  styleType: StyleType;
 
-  // Hệ thống các lớp viền bế (Multi-layer Strokes)
+  // Cấu hình chữ chung (Global Typography) giúp đồng nhất toàn bộ thiệp
+  globalFontFamily: string;
+  globalCurveType: 'wave' | 'arc' | 'flat';
+  globalCurveStrength: number;
+  globalTextColor: string;
+  globalStrokeColor: string;
+  globalStrokeWidth: number;
+
+  // Cấu hình viền Stroke đơn giản tự động tính toán
+  strokeLayerCount: number; // Số lượng lớp viền (1 - 8, mặc định 5)
+  outerStrokeWidth: number; // Độ dày lớp ngoài cùng (20 - 90px, mặc định 56px)
+  innerStrokeWidth: number; // Độ dày lớp trong cùng sát chữ (4 - 24px, mặc định 12px)
+  outerStrokeColor: string; // Màu lớp ngoài cùng (mặc định đỏ thắm #c81e2b)
+  innerStrokeColor: string; // Màu lớp trong cùng (mặc định trắng #ffffff)
+
+  // Danh sách các lớp stroke đã tính toán
   strokeLayers: StrokeLayer[];
 
   lines: TextLine[];
@@ -43,6 +60,8 @@ export type PresetName = '20-10' | '20-11' | '8-3' | 'khai-truong' | 'sinh-nhat'
 
 export interface Preset {
   name: string;
-  strokeLayers: StrokeLayer[];
-  lines: TextLine[];
+  outerColor: string;
+  innerColor: string;
+  globalFontFamily: string;
+  lines: Omit<TextLine, 'id'>[];
 }

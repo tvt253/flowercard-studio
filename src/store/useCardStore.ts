@@ -4,68 +4,90 @@ import { CardConfig, TextLine, StrokeLayer, PresetName } from '../types/card';
 
 const generateId = () => Math.random().toString(36).substring(2, 9);
 
-// 5 lớp stroke xếp tầng bám sát từng dòng chữ theo mẫu PDF thực tế
-const defaultStrokeLayers: StrokeLayer[] = [
-  { id: 'layer-1', name: 'Lớp 1 (Đỏ thắm ngoài cùng)', color: '#c81e2b', width: 56, enabled: true },
-  { id: 'layer-2', name: 'Lớp 2 (Đỏ tươi)', color: '#e11d48', width: 44, enabled: true },
-  { id: 'layer-3', name: 'Lớp 3 (Hồng tươi)', color: '#fb7185', width: 32, enabled: true },
-  { id: 'layer-4', name: 'Lớp 4 (Hồng phấn nhạt)', color: '#fecdd3', width: 22, enabled: true },
-  { id: 'layer-5', name: 'Lớp 5 (Trắng sát chân chữ)', color: '#ffffff', width: 12, enabled: true },
-];
+// Hàm nội suy màu mượt mà giữa màu ngoài cùng và màu trong cùng
+function interpolateColor(color1: string, color2: string, factor: number): string {
+  const clean1 = color1.startsWith('#') ? color1.slice(1) : color1;
+  const clean2 = color2.startsWith('#') ? color2.slice(1) : color2;
 
-const goldStrokeLayers: StrokeLayer[] = [
-  { id: 'layer-1', name: 'Lớp 1 (Nâu đồng ngoài cùng)', color: '#78350f', width: 56, enabled: true },
-  { id: 'layer-2', name: 'Lớp 2 (Vàng hổ phách)', color: '#b45309', width: 44, enabled: true },
-  { id: 'layer-3', name: 'Lớp 3 (Vàng hoàng kim)', color: '#f59e0b', width: 32, enabled: true },
-  { id: 'layer-4', name: 'Lớp 4 (Vàng chanh sáng)', color: '#fef08a', width: 22, enabled: true },
-  { id: 'layer-5', name: 'Lớp 5 (Trắng sát chân chữ)', color: '#ffffff', width: 12, enabled: true },
-];
+  const c1 = parseInt(clean1.length === 3 ? clean1.split('').map(x => x + x).join('') : clean1, 16);
+  const c2 = parseInt(clean2.length === 3 ? clean2.split('').map(x => x + x).join('') : clean2, 16);
 
-const purpleStrokeLayers: StrokeLayer[] = [
-  { id: 'layer-1', name: 'Lớp 1 (Tím đậm ngoài cùng)', color: '#581c87', width: 56, enabled: true },
-  { id: 'layer-2', name: 'Lớp 2 (Tím hoa cà)', color: '#86198f', width: 44, enabled: true },
-  { id: 'layer-3', name: 'Lớp 3 (Hồng tím)', color: '#d946ef', width: 32, enabled: true },
-  { id: 'layer-4', name: 'Lớp 4 (Tím phấn nhạt)', color: '#f5d0fe', width: 22, enabled: true },
-  { id: 'layer-5', name: 'Lớp 5 (Trắng sát chân chữ)', color: '#ffffff', width: 12, enabled: true },
-];
+  const r1 = (c1 >> 16) & 255;
+  const g1 = (c1 >> 8) & 255;
+  const b1 = c1 & 255;
 
-const mourningStrokeLayers: StrokeLayer[] = [
-  { id: 'layer-1', name: 'Lớp 1 (Đen tuyền ngoài cùng)', color: '#09090b', width: 54, enabled: true },
-  { id: 'layer-2', name: 'Lớp 2 (Xám than)', color: '#27272a', width: 42, enabled: true },
-  { id: 'layer-3', name: 'Lớp 3 (Xám bạc)', color: '#71717a', width: 30, enabled: true },
-  { id: 'layer-4', name: 'Lớp 4 (Xám khói sáng)', color: '#e4e4e7', width: 20, enabled: true },
-  { id: 'layer-5', name: 'Lớp 5 (Trắng sát chân chữ)', color: '#ffffff', width: 10, enabled: true },
-];
+  const r2 = (c2 >> 16) & 255;
+  const g2 = (c2 >> 8) & 255;
+  const b2 = c2 & 255;
+
+  const r = Math.round(r1 + factor * (r2 - r1));
+  const g = Math.round(g1 + factor * (g2 - g1));
+  const b = Math.round(b1 + factor * (b2 - b1));
+
+  return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
+}
+
+// Tự động tính toán các lớp stroke theo số lượng và khoảng màu
+export function generateAutoStrokeLayers(
+  count: number,
+  outerColor: string,
+  innerColor: string,
+  maxWidth: number,
+  minWidth: number
+): StrokeLayer[] {
+  if (count <= 1) {
+    return [
+      { id: 'layer-1', name: 'Lớp viền ngoài', color: outerColor, width: maxWidth, enabled: true },
+    ];
+  }
+
+  const layers: StrokeLayer[] = [];
+  for (let i = 0; i < count; i++) {
+    const t = i / (count - 1);
+    const color = interpolateColor(outerColor, innerColor, t);
+    const width = Math.round(maxWidth - t * (maxWidth - minWidth));
+    layers.push({
+      id: `layer-${i + 1}`,
+      name: i === 0 ? 'Lớp ngoài cùng' : i === count - 1 ? 'Lớp sát chân chữ' : `Lớp viền ${i + 1}`,
+      color,
+      width,
+      enabled: true,
+    });
+  }
+  return layers;
+}
+
+const initialOuterColor = '#c81e2b';
+const initialInnerColor = '#ffffff';
+const initialLayerCount = 5;
+const initialOuterWidth = 58;
+const initialInnerWidth = 12;
+
+const defaultStrokeLayers = generateAutoStrokeLayers(
+  initialLayerCount,
+  initialOuterColor,
+  initialInnerColor,
+  initialOuterWidth,
+  initialInnerWidth
+);
 
 const defaultLine1: TextLine = {
   id: generateId(),
   text: 'Chúc Mừng',
-  fontFamily: 'Dancing Script',
   fontSize: 84,
+  offsetY: 146,
   fontWeight: 'bold',
   fontStyle: 'normal',
-  color: '#c81e2b',
-  strokeColor: '#ffffff',
-  strokeWidth: 2.5,
-  curveType: 'arc',
-  curveStrength: 14,
-  offsetY: 146,
   letterSpacing: 2,
 };
 
 const defaultLine2: TextLine = {
   id: generateId(),
   text: 'Ngày Phụ Nữ Việt Nam 20-10',
-  fontFamily: 'Dancing Script',
   fontSize: 56,
+  offsetY: 252,
   fontWeight: 'bold',
   fontStyle: 'normal',
-  color: '#c81e2b',
-  strokeColor: '#ffffff',
-  strokeWidth: 2,
-  curveType: 'flat',
-  curveStrength: 0,
-  offsetY: 252,
   letterSpacing: 1.5,
 };
 
@@ -74,53 +96,89 @@ const defaultConfig: CardConfig = {
   scalePercent: 100,
   copiesPerPage: 2,
   showCutLines: true,
-  strokeMode: 'per-line',
-  lineStacking: 'top-on-bottom',
+
+  styleType: 'cloud',
+
+  // Cài đặt chung đồng nhất
+  globalFontFamily: 'Dancing Script',
+  globalCurveType: 'arc',
+  globalCurveStrength: 14,
+  globalTextColor: '#c81e2b',
+  globalStrokeColor: '#ffffff',
+  globalStrokeWidth: 2.5,
+
+  // Cài đặt viền đơn giản tự động tính toán
+  strokeLayerCount: initialLayerCount,
+  outerStrokeWidth: initialOuterWidth,
+  innerStrokeWidth: initialInnerWidth,
+  outerStrokeColor: initialOuterColor,
+  innerStrokeColor: initialInnerColor,
+
   strokeLayers: defaultStrokeLayers,
   lines: [defaultLine1, defaultLine2],
 };
 
-const PRESETS: Record<PresetName, { strokeLayers: StrokeLayer[]; lines: Omit<TextLine, 'id'>[] }> = {
+const PRESETS: Record<
+  PresetName,
+  {
+    outerColor: string;
+    innerColor: string;
+    globalFontFamily: string;
+    lines: { text: string; fontSize: number; offsetY: number; fontWeight: 'normal' | 'bold' }[];
+  }
+> = {
   '20-10': {
-    strokeLayers: defaultStrokeLayers,
+    outerColor: '#c81e2b',
+    innerColor: '#ffffff',
+    globalFontFamily: 'Dancing Script',
     lines: [
-      { text: 'Chúc Mừng', fontFamily: 'Dancing Script', fontSize: 84, fontWeight: 'bold', fontStyle: 'normal', color: '#c81e2b', strokeColor: '#ffffff', strokeWidth: 2.5, curveType: 'arc', curveStrength: 14, offsetY: 146, letterSpacing: 2 },
-      { text: 'Ngày Phụ Nữ Việt Nam 20-10', fontFamily: 'Dancing Script', fontSize: 56, fontWeight: 'bold', fontStyle: 'normal', color: '#c81e2b', strokeColor: '#ffffff', strokeWidth: 2, curveType: 'flat', curveStrength: 0, offsetY: 252, letterSpacing: 1.5 },
+      { text: 'Chúc Mừng', fontSize: 84, offsetY: 146, fontWeight: 'bold' },
+      { text: 'Ngày Phụ Nữ Việt Nam 20-10', fontSize: 56, offsetY: 252, fontWeight: 'bold' },
     ],
   },
   '20-11': {
-    strokeLayers: defaultStrokeLayers,
+    outerColor: '#c81e2b',
+    innerColor: '#ffffff',
+    globalFontFamily: 'Dancing Script',
     lines: [
-      { text: 'Chúc Mừng', fontFamily: 'Dancing Script', fontSize: 84, fontWeight: 'bold', fontStyle: 'normal', color: '#c81e2b', strokeColor: '#ffffff', strokeWidth: 2.5, curveType: 'arc', curveStrength: 14, offsetY: 146, letterSpacing: 2 },
-      { text: 'Ngày Nhà Giáo Việt Nam 20/11', fontFamily: 'Dancing Script', fontSize: 54, fontWeight: 'bold', fontStyle: 'normal', color: '#c81e2b', strokeColor: '#ffffff', strokeWidth: 2, curveType: 'flat', curveStrength: 0, offsetY: 252, letterSpacing: 1.2 },
+      { text: 'Chúc Mừng', fontSize: 84, offsetY: 146, fontWeight: 'bold' },
+      { text: 'Ngày Nhà Giáo Việt Nam 20/11', fontSize: 54, offsetY: 252, fontWeight: 'bold' },
     ],
   },
   '8-3': {
-    strokeLayers: defaultStrokeLayers,
+    outerColor: '#c81e2b',
+    innerColor: '#ffffff',
+    globalFontFamily: 'Dancing Script',
     lines: [
-      { text: 'Chúc Mừng', fontFamily: 'Dancing Script', fontSize: 84, fontWeight: 'bold', fontStyle: 'normal', color: '#c81e2b', strokeColor: '#ffffff', strokeWidth: 2.5, curveType: 'arc', curveStrength: 14, offsetY: 146, letterSpacing: 2 },
-      { text: 'Ngày Quốc Tế Phụ Nữ 8-3', fontFamily: 'Dancing Script', fontSize: 56, fontWeight: 'bold', fontStyle: 'normal', color: '#c81e2b', strokeColor: '#ffffff', strokeWidth: 2, curveType: 'flat', curveStrength: 0, offsetY: 252, letterSpacing: 1.5 },
+      { text: 'Chúc Mừng', fontSize: 84, offsetY: 146, fontWeight: 'bold' },
+      { text: 'Ngày Quốc Tế Phụ Nữ 8-3', fontSize: 56, offsetY: 252, fontWeight: 'bold' },
     ],
   },
   'khai-truong': {
-    strokeLayers: goldStrokeLayers,
+    outerColor: '#78350f',
+    innerColor: '#ffffff',
+    globalFontFamily: 'Playfair Display',
     lines: [
-      { text: 'Chúc Mừng', fontFamily: 'Playfair Display', fontSize: 76, fontWeight: 'bold', fontStyle: 'normal', color: '#78350f', strokeColor: '#ffffff', strokeWidth: 2.5, curveType: 'arc', curveStrength: 14, offsetY: 146, letterSpacing: 2 },
-      { text: 'Khai Trương Hồng Phát', fontFamily: 'Playfair Display', fontSize: 56, fontWeight: 'bold', fontStyle: 'normal', color: '#78350f', strokeColor: '#ffffff', strokeWidth: 2, curveType: 'flat', curveStrength: 0, offsetY: 252, letterSpacing: 1.5 },
+      { text: 'Chúc Mừng', fontSize: 76, offsetY: 146, fontWeight: 'bold' },
+      { text: 'Khai Trương Hồng Phát', fontSize: 56, offsetY: 252, fontWeight: 'bold' },
     ],
   },
   'sinh-nhat': {
-    strokeLayers: purpleStrokeLayers,
+    outerColor: '#581c87',
+    innerColor: '#ffffff',
+    globalFontFamily: 'Dancing Script',
     lines: [
-      { text: 'Happy Birthday', fontFamily: 'Pacifico', fontSize: 72, fontWeight: 'normal', fontStyle: 'normal', color: '#581c87', strokeColor: '#ffffff', strokeWidth: 2.5, curveType: 'arc', curveStrength: 12, offsetY: 146, letterSpacing: 2 },
-      { text: 'Chúc Mừng Sinh Nhật', fontFamily: 'Dancing Script', fontSize: 56, fontWeight: 'bold', fontStyle: 'normal', color: '#581c87', strokeColor: '#ffffff', strokeWidth: 2, curveType: 'flat', curveStrength: 0, offsetY: 252, letterSpacing: 1.5 },
+      { text: 'Happy Birthday', fontSize: 72, offsetY: 146, fontWeight: 'bold' },
+      { text: 'Chúc Mừng Sinh Nhật', fontSize: 56, offsetY: 252, fontWeight: 'bold' },
     ],
   },
   'chia-buon': {
-    strokeLayers: mourningStrokeLayers,
+    outerColor: '#09090b',
+    innerColor: '#ffffff',
+    globalFontFamily: 'Cormorant Garamond',
     lines: [
-      { text: 'Thành Kính Phân Ưu', fontFamily: 'Cormorant Garamond', fontSize: 62, fontWeight: 'bold', fontStyle: 'italic', color: '#09090b', strokeColor: '#ffffff', strokeWidth: 2, curveType: 'arc', curveStrength: 16, offsetY: 155, letterSpacing: 2 },
-      { text: 'Vô Cùng Thương Tiếc', fontFamily: 'Cormorant Garamond', fontSize: 50, fontWeight: 'normal', fontStyle: 'italic', color: '#27272a', strokeColor: '#ffffff', strokeWidth: 1.5, curveType: 'flat', curveStrength: 0, offsetY: 250, letterSpacing: 1.5 },
+      { text: 'Thành Kính Phân Ưu', fontSize: 62, offsetY: 155, fontWeight: 'bold' },
+      { text: 'Vô Cùng Thương Tiếc', fontSize: 50, offsetY: 250, fontWeight: 'normal' },
     ],
   },
 };
@@ -131,9 +189,21 @@ interface CardStore {
   removeLine: (id: string) => void;
   updateLine: (id: string, updates: Partial<TextLine>) => void;
   updateConfig: (updates: Partial<Omit<CardConfig, 'lines' | 'strokeLayers'>>) => void;
-  addStrokeLayer: () => void;
-  removeStrokeLayer: (id: string) => void;
-  updateStrokeLayer: (id: string, updates: Partial<StrokeLayer>) => void;
+  updateGlobalTypography: (updates: {
+    globalFontFamily?: string;
+    globalCurveType?: 'wave' | 'arc' | 'flat';
+    globalCurveStrength?: number;
+    globalTextColor?: string;
+    globalStrokeColor?: string;
+    globalStrokeWidth?: number;
+  }) => void;
+  updateStrokeSettings: (updates: {
+    strokeLayerCount?: number;
+    outerStrokeWidth?: number;
+    innerStrokeWidth?: number;
+    outerStrokeColor?: string;
+    innerStrokeColor?: string;
+  }) => void;
   applyPreset: (presetName: PresetName) => void;
   resetDefault: () => void;
 }
@@ -152,18 +222,12 @@ export const useCardStore = create<CardStore>()(
               {
                 id: generateId(),
                 text: 'Dòng chữ mới',
-                fontFamily: 'Dancing Script',
                 fontSize: 50,
+                offsetY: 315,
                 fontWeight: 'bold',
                 fontStyle: 'normal',
-                color: '#c81e2b',
-                strokeColor: '#ffffff',
-                strokeWidth: 2,
-                curveType: 'flat',
-                curveStrength: 0,
-                offsetY: 310,
                 letterSpacing: 1,
-              } as TextLine,
+              },
             ],
           },
         })),
@@ -191,73 +255,98 @@ export const useCardStore = create<CardStore>()(
           config: { ...state.config, ...updates },
         })),
 
-      addStrokeLayer: () =>
+      updateGlobalTypography: (updates) =>
+        set((state) => ({
+          config: {
+            ...state.config,
+            ...updates,
+          },
+        })),
+
+      updateStrokeSettings: (updates) =>
         set((state) => {
-          const count = state.config.strokeLayers.length;
-          const lastWidth = count > 0 ? state.config.strokeLayers[count - 1].width : 12;
-          const newWidth = Math.max(lastWidth - 8, 4);
-          const newLayer: StrokeLayer = {
-            id: generateId(),
-            name: `Lớp ${count + 1}`,
-            color: '#ffffff',
-            width: newWidth,
-            enabled: true,
-          };
+          const newCount = updates.strokeLayerCount ?? state.config.strokeLayerCount;
+          const newOuterWidth = updates.outerStrokeWidth ?? state.config.outerStrokeWidth;
+          const newInnerWidth = updates.innerStrokeWidth ?? state.config.innerStrokeWidth;
+          const newOuterColor = updates.outerStrokeColor ?? state.config.outerStrokeColor;
+          const newInnerColor = updates.innerStrokeColor ?? state.config.innerStrokeColor;
+
+          const newLayers = generateAutoStrokeLayers(
+            newCount,
+            newOuterColor,
+            newInnerColor,
+            newOuterWidth,
+            newInnerWidth
+          );
+
           return {
             config: {
               ...state.config,
-              strokeLayers: [...state.config.strokeLayers, newLayer],
+              ...updates,
+              strokeLayers: newLayers,
             },
           };
         }),
-
-      removeStrokeLayer: (id: string) =>
-        set((state) => ({
-          config: {
-            ...state.config,
-            strokeLayers: state.config.strokeLayers.filter((l) => l.id !== id),
-          },
-        })),
-
-      updateStrokeLayer: (id: string, updates: Partial<StrokeLayer>) =>
-        set((state) => ({
-          config: {
-            ...state.config,
-            strokeLayers: state.config.strokeLayers.map((l) =>
-              l.id === id ? { ...l, ...updates } : l
-            ),
-          },
-        })),
 
       applyPreset: (presetName: PresetName) =>
         set((state) => {
           const preset = PRESETS[presetName];
           if (!preset) return state;
+
+          const newLayers = generateAutoStrokeLayers(
+            state.config.strokeLayerCount,
+            preset.outerColor,
+            preset.innerColor,
+            state.config.outerStrokeWidth,
+            state.config.innerStrokeWidth
+          );
+
           return {
             config: {
               ...state.config,
               customBgUrl: null,
-              strokeLayers: preset.strokeLayers.map((s) => ({ ...s, id: generateId() })),
-              lines: preset.lines.map((l) => ({ ...l, id: generateId() })),
+              outerStrokeColor: preset.outerColor,
+              innerStrokeColor: preset.innerColor,
+              globalFontFamily: preset.globalFontFamily,
+              globalTextColor: preset.outerColor,
+              strokeLayers: newLayers,
+              lines: preset.lines.map((l) => ({
+                id: generateId(),
+                text: l.text,
+                fontSize: l.fontSize,
+                offsetY: l.offsetY,
+                fontWeight: l.fontWeight,
+                fontStyle: 'normal' as const,
+                letterSpacing: 1.5,
+              })),
             },
           };
         }),
 
       resetDefault: () =>
-        set(() => ({
-          config: {
-            ...defaultConfig,
-            strokeLayers: defaultStrokeLayers.map((s) => ({ ...s, id: generateId() })),
-            lines: [
-              { ...defaultLine1, id: generateId() },
-              { ...defaultLine2, id: generateId() },
-            ],
-          },
-        })),
+        set(() => {
+          const newLayers = generateAutoStrokeLayers(
+            initialLayerCount,
+            initialOuterColor,
+            initialInnerColor,
+            initialOuterWidth,
+            initialInnerWidth
+          );
+          return {
+            config: {
+              ...defaultConfig,
+              strokeLayers: newLayers,
+              lines: [
+                { ...defaultLine1, id: generateId() },
+                { ...defaultLine2, id: generateId() },
+              ],
+            },
+          };
+        }),
     }),
     {
-      name: 'flower-card-studio-storage-v5',
-      version: 5,
+      name: 'flower-card-studio-storage-v6',
+      version: 6,
     }
   )
 );
