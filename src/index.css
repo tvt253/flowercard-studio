@@ -87,15 +87,30 @@ body {
 /* Print styles */
 @media print {
   @page {
-    margin: 0;
+    margin: 0 !important;
   }
 
   html, body {
-    margin: 0;
-    padding: 0;
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
     background: white !important;
-    print-color-adjust: exact;
-    -webkit-print-color-adjust: exact;
+    overflow: hidden !important;
+    print-color-adjust: exact !important;
+    -webkit-print-color-adjust: exact !important;
+  }
+
+  #app-root,
+  main,
+  .print-wrapper {
+    display: block !important;
+    width: 100% !important;
+    height: 100% !important;
+    margin: 0 !important;
+    padding: 0 !important;
+    overflow: hidden !important;
+    background: white !important;
   }
 
   .print\:hidden {
@@ -104,11 +119,14 @@ body {
 
   .a4-paper {
     box-shadow: none !important;
-    page-break-after: always;
-  }
-
-  #app-root {
-    display: block !important;
+    border: none !important;
+    margin: 0 auto !important;
+    page-break-before: avoid !important;
+    page-break-after: avoid !important;
+    page-break-inside: avoid !important;
+    break-before: avoid !important;
+    break-after: avoid !important;
+    break-inside: avoid !important;
   }
 }
 

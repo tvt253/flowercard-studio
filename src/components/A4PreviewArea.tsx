@@ -15,31 +15,48 @@ const A4PreviewArea: React.FC = () => {
   const selectedLine = config.lines.find((l) => l.id === selectedLineId);
 
   return (
-    <div className="flex flex-col items-center select-none w-full max-w-5xl py-2">
+    <div className="print-wrapper flex flex-col items-center select-none w-full max-w-5xl py-2">
       {/* Dynamic Print Styles for A4 Landscape (1 copy) vs Portrait (2 copies) */}
       <style>{`
         @media print {
           @page {
             size: ${isLandscape ? 'A4 landscape' : 'A4 portrait'};
-            margin: 0;
+            margin: 0 !important;
           }
           html, body {
             width: ${isLandscape ? '297mm' : '210mm'} !important;
             height: ${isLandscape ? '210mm' : '297mm'} !important;
+            max-width: ${isLandscape ? '297mm' : '210mm'} !important;
+            max-height: ${isLandscape ? '210mm' : '297mm'} !important;
             margin: 0 !important;
             padding: 0 !important;
+            overflow: hidden !important;
           }
-          #app-root {
+          #app-root, main, .print-wrapper {
+            margin: 0 !important;
+            padding: 0 !important;
+            width: ${isLandscape ? '297mm' : '210mm'} !important;
+            height: ${isLandscape ? '210mm' : '297mm'} !important;
+            max-width: ${isLandscape ? '297mm' : '210mm'} !important;
+            max-height: ${isLandscape ? '210mm' : '297mm'} !important;
+            overflow: hidden !important;
             display: block !important;
-            height: auto !important;
-          }
-          .print\\:hidden {
-            display: none !important;
           }
           .a4-paper {
+            width: ${isLandscape ? '297mm' : '210mm'} !important;
+            height: ${isLandscape ? '210mm' : '297mm'} !important;
+            max-width: ${isLandscape ? '297mm' : '210mm'} !important;
+            max-height: ${isLandscape ? '210mm' : '297mm'} !important;
             box-shadow: none !important;
             border: none !important;
             margin: 0 !important;
+            padding: 0 !important;
+            page-break-before: avoid !important;
+            page-break-after: avoid !important;
+            page-break-inside: avoid !important;
+            break-before: avoid !important;
+            break-after: avoid !important;
+            break-inside: avoid !important;
           }
         }
       `}</style>
