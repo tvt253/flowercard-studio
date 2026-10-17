@@ -16,14 +16,18 @@ import {
 } from 'lucide-react';
 import { clsx } from 'clsx';
 
+// 10 font chữ tuyển chọn hỗ trợ 100% tiếng Việt có dấu, đứng đầu là Charm (chuẩn mẫu)
 const FONT_OPTIONS = [
-  { label: 'Dancing Script', value: 'Dancing Script' },
-  { label: 'Great Vibes', value: 'Great Vibes' },
-  { label: 'Alex Brush', value: 'Alex Brush' },
-  { label: 'Pacifico', value: 'Pacifico' },
-  { label: 'Playfair Display', value: 'Playfair Display' },
-  { label: 'Cormorant Garamond', value: 'Cormorant Garamond' },
-  { label: 'Montserrat', value: 'Montserrat' },
+  { label: 'Charm (Thư pháp nét chuẩn mẫu gốc)', value: 'Charm' },
+  { label: 'Charmonman (Thư pháp uốn lượn quý phái)', value: 'Charmonman' },
+  { label: 'Dancing Script (Chữ viết tay nghệ thuật)', value: 'Dancing Script' },
+  { label: 'Pattaya (Chữ cọ nét dày sang trọng)', value: 'Pattaya' },
+  { label: 'Playwrite VN (Chữ thảo nét thanh nét đậm)', value: 'Playwrite VN' },
+  { label: 'Sriracha (Chữ viết tự nhiên mềm mại)', value: 'Sriracha' },
+  { label: 'Pacifico (Chữ uốn cổ điển)', value: 'Pacifico' },
+  { label: 'Playfair Display (Chữ có chân sang trọng)', value: 'Playfair Display' },
+  { label: 'Cormorant Garamond (Chữ cổ điển trang trọng)', value: 'Cormorant Garamond' },
+  { label: 'Montserrat (Chữ không chân hiện đại)', value: 'Montserrat' },
 ];
 
 const STYLE_OPTIONS: { label: string; value: StyleType }[] = [
@@ -183,13 +187,13 @@ const ControlSidebar: React.FC = () => {
               />
             </div>
 
-            {/* Font chữ chung */}
+            {/* Font chữ chung - Charm mặc định giống mẫu nhất */}
             <div>
               <label className="block text-xs font-medium text-slate-500 mb-1">Font chữ</label>
               <select
                 value={config.globalFontFamily}
                 onChange={(e) => updateGlobalTypography({ globalFontFamily: e.target.value })}
-                className="w-full px-2 py-1.5 text-xs border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-rose-400"
+                className="w-full px-2 py-1.5 text-xs border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-rose-400 font-medium"
                 style={{ fontFamily: config.globalFontFamily }}
               >
                 {FONT_OPTIONS.map((f) => (
@@ -233,39 +237,34 @@ const ControlSidebar: React.FC = () => {
                   <input
                     type="text"
                     value={line.text}
-                    onChange={(e) => {
-                      const val = e.target.value;
-                      updateLine(line.id, {
-                        text: (line.textCase || 'uppercase') === 'uppercase' ? val.toUpperCase() : val,
-                      });
-                    }}
+                    onChange={(e) => updateLine(line.id, { text: e.target.value })}
                     className="flex-1 px-2 py-1.5 text-xs font-semibold border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-rose-400"
                     placeholder={`Nhập dòng ${index + 1}...`}
                   />
                   <div className="flex items-center gap-0.5">
-                    {/* Nút chuyển kiểu chữ Aa: CAPSLOCK (Mặc định) -> Viết hoa đầu từ -> Thường */}
+                    {/* Nút chuyển kiểu chữ Aa: Viết hoa đầu từ (Mặc định) -> In hoa toàn bộ -> Thường */}
                     <button
                       onClick={() => toggleLineTextCase(line.id)}
                       className={clsx(
                         'px-1.5 py-1 text-xs border rounded font-bold transition-all shadow-sm',
-                        (!line.textCase || line.textCase === 'uppercase')
+                        (!line.textCase || line.textCase === 'capitalize')
                           ? 'bg-rose-500 border-rose-600 text-white'
-                          : line.textCase === 'capitalize'
+                          : line.textCase === 'uppercase'
                           ? 'bg-amber-500 border-amber-600 text-white'
                           : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
                       )}
                       title={
-                        (!line.textCase || line.textCase === 'uppercase')
+                        (!line.textCase || line.textCase === 'capitalize')
+                          ? 'Đang bật: Viết Hoa Đầu Từ (Chuẩn mẫu thiệp) - Bấm để chuyển'
+                          : line.textCase === 'uppercase'
                           ? 'Đang bật: IN HOA TOÀN BỘ (CAPSLOCK) - Bấm để chuyển'
-                          : line.textCase === 'capitalize'
-                          ? 'Đang bật: Viết Hoa Đầu Từ - Bấm để chuyển'
                           : 'Đang bật: Chữ thường - Bấm để chuyển'
                       }
                     >
-                      {(!line.textCase || line.textCase === 'uppercase')
-                        ? 'AA'
-                        : line.textCase === 'capitalize'
+                      {(!line.textCase || line.textCase === 'capitalize')
                         ? 'Aa'
+                        : line.textCase === 'uppercase'
+                        ? 'AA'
                         : 'aa'}
                     </button>
                     <button
@@ -489,14 +488,13 @@ const ControlSidebar: React.FC = () => {
           </div>
         </div>
 
-        {/* MỤC 4: SỐ BẢN IN TRÊN TỜ A4 (1 VÀ 2 BẢN, ĐÃ BỎ ĐƯỜNG CẮT) */}
+        {/* MỤC 4: SỐ BẢN IN TRÊN TỜ A4 */}
         <div className="p-4 border-b border-slate-100">
           <h2 className="text-xs font-bold text-slate-700 uppercase tracking-widest mb-3">
             4. Dàn Trang A4
           </h2>
 
           <div className="space-y-3">
-            {/* Bộ chọn số bản in: 1 bản và 2 bản */}
             <div>
               <label className="block text-xs font-medium text-slate-500 mb-1.5">
                 Số bản in / tờ A4

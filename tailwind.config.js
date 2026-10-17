@@ -7,9 +7,12 @@ export default {
   theme: {
     extend: {
       fontFamily: {
-        'great-vibes': ['Great Vibes', 'cursive'],
+        'charm': ['Charm', 'cursive'],
+        'charmonman': ['Charmonman', 'cursive'],
         'dancing': ['Dancing Script', 'cursive'],
-        'alex-brush': ['Alex Brush', 'cursive'],
+        'pattaya': ['Pattaya', 'cursive'],
+        'sriracha': ['Sriracha', 'cursive'],
+        'playwrite': ['Playwrite VN', 'cursive'],
         'pacifico': ['Pacifico', 'cursive'],
         'playfair': ['Playfair Display', 'serif'],
         'cormorant': ['Cormorant Garamond', 'serif'],

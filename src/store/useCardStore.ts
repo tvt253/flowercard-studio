@@ -28,18 +28,16 @@ function interpolateColor(color1: string, color2: string, factor: number): strin
 
 export function applyTextCase(
   text: string,
-  textCase: 'uppercase' | 'capitalize' | 'normal' = 'uppercase'
+  textCase: 'uppercase' | 'capitalize' | 'normal' = 'capitalize'
 ): string {
   if (textCase === 'normal') return text;
-  if (textCase === 'capitalize') {
-    return text
-      .toLowerCase()
-      .split(' ')
-      .map((w) => (w.length > 0 ? w.charAt(0).toUpperCase() + w.slice(1) : ''))
-      .join(' ');
-  }
-  // Mặc định: In hoa toàn bộ (CAPSLOCK)
-  return text.toUpperCase();
+  if (textCase === 'uppercase') return text.toUpperCase();
+  // Mặc định: Viết hoa chữ cái đầu (Title Case giống mẫu thiệp)
+  return text
+    .toLowerCase()
+    .split(' ')
+    .map((w) => (w.length > 0 ? w.charAt(0).toUpperCase() + w.slice(1) : ''))
+    .join(' ');
 }
 
 export function generateAutoStrokeLayers(
@@ -85,26 +83,27 @@ const defaultStrokeLayers = generateAutoStrokeLayers(
   initialInnerWidth
 );
 
+// Mẫu chữ mặc định: Charm (Thư pháp nét chuẩn giống file mẫu nhất)
 const defaultLine1: TextLine = {
   id: generateId(),
-  text: 'CHÚC MỪNG',
-  fontSize: 84,
+  text: 'Chúc Mừng',
+  fontSize: 90,
   offsetY: 146,
   fontWeight: 'bold',
   fontStyle: 'normal',
   letterSpacing: 2,
-  textCase: 'uppercase',
+  textCase: 'capitalize',
 };
 
 const defaultLine2: TextLine = {
   id: generateId(),
-  text: 'NGÀY PHỤ NỮ VIỆT NAM 20-10',
-  fontSize: 56,
+  text: 'Ngày Phụ Nữ Việt Nam 20-10',
+  fontSize: 58,
   offsetY: 250,
   fontWeight: 'bold',
   fontStyle: 'normal',
   letterSpacing: 1.5,
-  textCase: 'uppercase',
+  textCase: 'capitalize',
 };
 
 const defaultConfig: CardConfig = {
@@ -114,8 +113,8 @@ const defaultConfig: CardConfig = {
 
   styleType: 'cloud',
 
-  // Cài đặt chung đồng nhất
-  globalFontFamily: 'Dancing Script',
+  // Cài đặt chung đồng nhất: Charm là font thư pháp giống file mẫu nhất
+  globalFontFamily: 'Charm',
   globalCurveStrength: 18,
   globalStrokeColor: '#ffffff',
   globalStrokeWidth: 2.5,
@@ -143,28 +142,28 @@ const PRESETS: Record<
   '20-10': {
     outerColor: '#c81e2b',
     innerColor: '#ffffff',
-    globalFontFamily: 'Dancing Script',
+    globalFontFamily: 'Charm',
     lines: [
-      { text: 'CHÚC MỪNG', fontSize: 84, offsetY: 146, fontWeight: 'bold' },
-      { text: 'NGÀY PHỤ NỮ VIỆT NAM 20-10', fontSize: 56, offsetY: 250, fontWeight: 'bold' },
+      { text: 'Chúc Mừng', fontSize: 90, offsetY: 146, fontWeight: 'bold' },
+      { text: 'Ngày Phụ Nữ Việt Nam 20-10', fontSize: 58, offsetY: 250, fontWeight: 'bold' },
     ],
   },
   '20-11': {
     outerColor: '#c81e2b',
     innerColor: '#ffffff',
-    globalFontFamily: 'Dancing Script',
+    globalFontFamily: 'Charm',
     lines: [
-      { text: 'CHÚC MỪNG', fontSize: 84, offsetY: 146, fontWeight: 'bold' },
-      { text: 'NGÀY NHÀ GIÁO VIỆT NAM 20/11', fontSize: 54, offsetY: 250, fontWeight: 'bold' },
+      { text: 'Chúc Mừng', fontSize: 90, offsetY: 146, fontWeight: 'bold' },
+      { text: 'Ngày Nhà Giáo Việt Nam 20/11', fontSize: 56, offsetY: 250, fontWeight: 'bold' },
     ],
   },
   '8-3': {
     outerColor: '#c81e2b',
     innerColor: '#ffffff',
-    globalFontFamily: 'Dancing Script',
+    globalFontFamily: 'Charm',
     lines: [
-      { text: 'CHÚC MỪNG', fontSize: 84, offsetY: 146, fontWeight: 'bold' },
-      { text: 'NGÀY QUỐC TẾ PHỤ NỮ 8-3', fontSize: 56, offsetY: 250, fontWeight: 'bold' },
+      { text: 'Chúc Mừng', fontSize: 90, offsetY: 146, fontWeight: 'bold' },
+      { text: 'Ngày Quốc Tế Phụ Nữ 8-3', fontSize: 58, offsetY: 250, fontWeight: 'bold' },
     ],
   },
   'khai-truong': {
@@ -172,17 +171,17 @@ const PRESETS: Record<
     innerColor: '#ffffff',
     globalFontFamily: 'Playfair Display',
     lines: [
-      { text: 'CHÚC MỪNG', fontSize: 76, offsetY: 146, fontWeight: 'bold' },
-      { text: 'KHAI TRƯƠNG HỒNG PHÁT', fontSize: 56, offsetY: 250, fontWeight: 'bold' },
+      { text: 'Chúc Mừng', fontSize: 78, offsetY: 146, fontWeight: 'bold' },
+      { text: 'Khai Trương Hồng Phát', fontSize: 58, offsetY: 250, fontWeight: 'bold' },
     ],
   },
   'sinh-nhat': {
     outerColor: '#7e22ce',
     innerColor: '#ffffff',
-    globalFontFamily: 'Dancing Script',
+    globalFontFamily: 'Charm',
     lines: [
-      { text: 'HAPPY BIRTHDAY', fontSize: 72, offsetY: 146, fontWeight: 'bold' },
-      { text: 'CHÚC MỪNG SINH NHẬT', fontSize: 56, offsetY: 250, fontWeight: 'bold' },
+      { text: 'Happy Birthday', fontSize: 78, offsetY: 146, fontWeight: 'bold' },
+      { text: 'Chúc Mừng Sinh Nhật', fontSize: 58, offsetY: 250, fontWeight: 'bold' },
     ],
   },
   'chia-buon': {
@@ -190,8 +189,8 @@ const PRESETS: Record<
     innerColor: '#ffffff',
     globalFontFamily: 'Cormorant Garamond',
     lines: [
-      { text: 'THÀNH KÍNH PHÂN ƯU', fontSize: 62, offsetY: 155, fontWeight: 'bold' },
-      { text: 'VÔ CÙNG THƯƠNG TIẾC', fontSize: 50, offsetY: 250, fontWeight: 'normal' },
+      { text: 'Thành Kính Phân Ưu', fontSize: 64, offsetY: 155, fontWeight: 'bold' },
+      { text: 'Vô Cùng Thương Tiếc', fontSize: 52, offsetY: 250, fontWeight: 'normal' },
     ],
   },
 };
@@ -236,13 +235,13 @@ export const useCardStore = create<CardStore>()(
               ...state.config.lines,
               {
                 id: generateId(),
-                text: 'DÒNG CHỮ MỚI',
-                fontSize: 50,
+                text: 'Dòng Chữ Mới',
+                fontSize: 54,
                 offsetY: 315,
                 fontWeight: 'bold',
                 fontStyle: 'normal',
-                letterSpacing: 1,
-                textCase: 'uppercase',
+                letterSpacing: 1.5,
+                textCase: 'capitalize',
               },
             ],
           },
@@ -272,13 +271,14 @@ export const useCardStore = create<CardStore>()(
             ...state.config,
             lines: state.config.lines.map((l) => {
               if (l.id !== id) return l;
-              const currentMode = l.textCase || 'uppercase';
+              const currentMode = l.textCase || 'capitalize';
+              // Thứ tự chuyển: Viết hoa đầu từ (giống mẫu) -> In hoa toàn bộ -> Thường
               const nextMode: 'uppercase' | 'capitalize' | 'normal' =
-                currentMode === 'uppercase'
-                  ? 'capitalize'
-                  : currentMode === 'capitalize'
+                currentMode === 'capitalize'
+                  ? 'uppercase'
+                  : currentMode === 'uppercase'
                   ? 'normal'
-                  : 'uppercase';
+                  : 'capitalize';
               return {
                 ...l,
                 textCase: nextMode,
@@ -376,13 +376,13 @@ export const useCardStore = create<CardStore>()(
               strokeLayers: newLayers,
               lines: preset.lines.map((l) => ({
                 id: generateId(),
-                text: l.text.toUpperCase(),
+                text: l.text,
                 fontSize: l.fontSize,
                 offsetY: l.offsetY,
                 fontWeight: l.fontWeight,
                 fontStyle: 'normal' as const,
                 letterSpacing: 1.5,
-                textCase: 'uppercase' as const,
+                textCase: 'capitalize' as const,
               })),
             },
           };
@@ -410,8 +410,8 @@ export const useCardStore = create<CardStore>()(
         }),
     }),
     {
-      name: 'flower-card-studio-storage-v10',
-      version: 10,
+      name: 'flower-card-studio-storage-v11',
+      version: 11,
     }
   )
 );

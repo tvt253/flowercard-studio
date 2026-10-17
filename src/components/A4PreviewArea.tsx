@@ -139,39 +139,36 @@ const A4PreviewArea: React.FC = () => {
                     value={selectedLine.text}
                     autoFocus
                     onChange={(e) => {
-                      const val = e.target.value;
-                      updateLine(selectedLine.id, {
-                        text: (selectedLine.textCase || 'uppercase') === 'uppercase' ? val.toUpperCase() : val,
-                      });
+                      updateLine(selectedLine.id, { text: e.target.value });
                     }}
                     className="px-2.5 py-1 text-xs font-bold text-slate-800 bg-rose-50/60 border border-rose-200 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500 min-w-[220px]"
                     placeholder="Nhập nội dung chữ..."
                   />
 
-                  {/* Nút chuyển đổi kiểu chữ Aa: CAPSLOCK (Mặc định) -> Viết hoa đầu từ -> Chữ thường */}
+                  {/* Nút chuyển đổi kiểu chữ Aa: Viết hoa đầu từ (Mặc định) -> IN HOA TOÀN BỘ -> Chữ thường */}
                   <button
                     onClick={() => toggleLineTextCase(selectedLine.id)}
                     className={clsx(
                       'px-2 py-1 text-xs font-bold rounded-md border transition-all flex items-center gap-1 shadow-sm',
-                      (!selectedLine.textCase || selectedLine.textCase === 'uppercase')
+                      (!selectedLine.textCase || selectedLine.textCase === 'capitalize')
                         ? 'bg-rose-500 text-white border-rose-600'
-                        : selectedLine.textCase === 'capitalize'
+                        : selectedLine.textCase === 'uppercase'
                         ? 'bg-amber-500 text-white border-amber-600'
                         : 'bg-slate-100 text-slate-700 border-slate-300 hover:bg-slate-200'
                     )}
                     title={
-                      (!selectedLine.textCase || selectedLine.textCase === 'uppercase')
+                      (!selectedLine.textCase || selectedLine.textCase === 'capitalize')
+                        ? 'Đang bật: Viết Hoa Đầu Từ (Chuẩn mẫu thiệp) - Bấm để chuyển'
+                        : selectedLine.textCase === 'uppercase'
                         ? 'Đang bật: IN HOA TOÀN BỘ (CAPSLOCK) - Bấm để chuyển'
-                        : selectedLine.textCase === 'capitalize'
-                        ? 'Đang bật: Viết Hoa Đầu Từ - Bấm để chuyển'
                         : 'Đang bật: Chữ thường - Bấm để chuyển'
                     }
                   >
                     <span>
-                      {(!selectedLine.textCase || selectedLine.textCase === 'uppercase')
-                        ? 'AA'
-                        : selectedLine.textCase === 'capitalize'
+                      {(!selectedLine.textCase || selectedLine.textCase === 'capitalize')
                         ? 'Aa'
+                        : selectedLine.textCase === 'uppercase'
+                        ? 'AA'
                         : 'aa'}
                     </span>
                   </button>
@@ -310,39 +307,36 @@ const A4PreviewArea: React.FC = () => {
                       value={selectedLine.text}
                       autoFocus
                       onChange={(e) => {
-                        const val = e.target.value;
-                        updateLine(selectedLine.id, {
-                          text: (selectedLine.textCase || 'uppercase') === 'uppercase' ? val.toUpperCase() : val,
-                        });
+                        updateLine(selectedLine.id, { text: e.target.value });
                       }}
                       className="px-2.5 py-1 text-xs font-bold text-slate-800 bg-rose-50/60 border border-rose-200 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500 min-w-[200px]"
                       placeholder="Nhập nội dung chữ..."
                     />
 
-                    {/* Nút chuyển đổi kiểu chữ Aa: CAPSLOCK (Mặc định) -> Viết hoa đầu từ -> Chữ thường */}
+                    {/* Nút chuyển đổi kiểu chữ Aa: Viết hoa đầu từ (Mặc định) -> IN HOA TOÀN BỘ -> Chữ thường */}
                     <button
                       onClick={() => toggleLineTextCase(selectedLine.id)}
                       className={clsx(
                         'px-2 py-1 text-xs font-bold rounded-md border transition-all flex items-center gap-1 shadow-sm',
-                        (!selectedLine.textCase || selectedLine.textCase === 'uppercase')
+                        (!selectedLine.textCase || selectedLine.textCase === 'capitalize')
                           ? 'bg-rose-500 text-white border-rose-600'
-                          : selectedLine.textCase === 'capitalize'
+                          : selectedLine.textCase === 'uppercase'
                           ? 'bg-amber-500 text-white border-amber-600'
                           : 'bg-slate-100 text-slate-700 border-slate-300 hover:bg-slate-200'
                       )}
                       title={
-                        (!selectedLine.textCase || selectedLine.textCase === 'uppercase')
+                        (!selectedLine.textCase || selectedLine.textCase === 'capitalize')
+                          ? 'Đang bật: Viết Hoa Đầu Từ (Chuẩn mẫu thiệp) - Bấm để chuyển'
+                          : selectedLine.textCase === 'uppercase'
                           ? 'Đang bật: IN HOA TOÀN BỘ (CAPSLOCK) - Bấm để chuyển'
-                          : selectedLine.textCase === 'capitalize'
-                          ? 'Đang bật: Viết Hoa Đầu Từ - Bấm để chuyển'
                           : 'Đang bật: Chữ thường - Bấm để chuyển'
                       }
                     >
                       <span>
-                        {(!selectedLine.textCase || selectedLine.textCase === 'uppercase')
-                          ? 'AA'
-                          : selectedLine.textCase === 'capitalize'
+                        {(!selectedLine.textCase || selectedLine.textCase === 'capitalize')
                           ? 'Aa'
+                          : selectedLine.textCase === 'uppercase'
+                          ? 'AA'
                           : 'aa'}
                       </span>
                     </button>
