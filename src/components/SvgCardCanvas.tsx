@@ -21,19 +21,20 @@ function calculatePathD(line: TextLine, config: CardConfig): string {
 }
 
 const SvgCardCanvas: React.FC<SvgCardCanvasProps> = ({ config, uid }) => {
-  // Lọc và sắp xếp các lớp stroke từ ngoài cùng (width lớn nhất) vào trong (width nhỏ nhất)
+  // Sắp xếp các lớp stroke từ ngoài cùng (width lớn nhất) vào trong (width nhỏ nhất)
   const activeLayers: StrokeLayer[] = [...config.strokeLayers]
     .filter((layer) => layer.enabled && layer.width > 0)
     .sort((a, b) => b.width - a.width);
 
-  // Mặc định: Dòng dưới vẽ trước, Dòng trên ("Chúc Mừng") vẽ sau đè lên trên chuẩn mẫu
-  const linesToRender = [...config.lines].reverse();
+  const maxLayerWidth = activeLayers[0]?.width || 56;
+  // Độ dày đường viền cắt cách stroke ngoài cùng 0.5cm (khoảng 25px mỗi bên trong tọa độ SVG)
+  const cutLineWidth = maxLayerWidth + 50;
 
   return (
     <svg
       viewBox="0 0 1000 420"
       xmlns="http://www.w3.org/2000/svg"
-      style={{ width: '100%', height: 'auto', display: 'block' }}
+      style={{ width: '100%', height: 'auto', display: 'block', overflow: 'visible' }}
     >
       <defs>
         {config.lines.map((line) => (
@@ -56,18 +57,50 @@ const SvgCardCanvas: React.FC<SvgCardCanvasProps> = ({ config, uid }) => {
         />
       )}
 
-      {/* 2. CHẾ ĐỘ STROKE BÁM TỪNG DÒNG CHỮ (Chuẩn 100% mẫu thực tế) */}
-      {linesToRender.map((line) => {
-        const fontFamily = line.fontFamily || config.globalFontFamily;
-        const textColor = line.color || config.globalTextColor;
-        const textStrokeColor = line.strokeColor || config.globalStrokeColor;
-        const textStrokeWidth =
-          line.strokeWidth !== undefined ? line.strokeWidth : config.globalStrokeWidth;
+      {/* 2. ĐƯỜNG VIỀN CẮT NÉT ĐỨT CÁCH STROKE ĐÚNG 0.5CM (5mm) */}
+      {config.showCutLines && (
+        <g opacity={0.75}>
+          {config.lines.map((line) => {
+            const fontFamily = line.fontFamily || config.globalFontFamily;
+            return (
+              <text
+                key={`cutline-${line.id}`}
+                fontFamily={fontFamily}
+                fontSize={line.fontSize}
+                fontWeight={line.fontWeight}
+                fontStyle={line.fontStyle}
+                fill="none"
+                stroke="#94a3b8"
+                strokeWidth={cutLineWidth}
+                strokeDasharray="9,6"
+                strokeLinejoin="round"
+                strokeLinecap="round"
+                letterSpacing={line.letterSpacing}
+              >
+                <textPath
+                  href={`#path-${uid}-${line.id}`}
+                  startOffset="50%"
+                  textAnchor="middle"
+                >
+                  {line.text}
+                </textPath>
+              </text>
+            );
+          })}
+          {/* Biểu tượng cây kéo chỉ dẫn cắt */}
+          <text x="65" y="85" fontSize="16" fill="#64748b" textAnchor="middle">
+            ✂
+          </text>
+        </g>
+      )}
 
-        return (
-          <g key={`line-cluster-${line.id}`}>
-            {/* Các lớp viền stroke xếp tầng bám sát từng nét chữ của dòng này */}
-            {activeLayers.map((layer) => (
+      {/* 3. CÁC LỚP VIỀN STROKE HÒA QUYỆN THEO TỪNG TẦNG MÀU (Giống 100% mẫu thực tế) */}
+      {activeLayers.map((layer) => (
+        <g key={`stroke-layer-${layer.id}`}>
+          {/* Cả 2 dòng cùng vẽ chung một màu ở cùng một tầng lớp stroke, tự động hòa vào nhau ở vùng giao */}
+          {config.lines.map((line) => {
+            const fontFamily = line.fontFamily || config.globalFontFamily;
+            return (
               <text
                 key={`stroke-${layer.id}-${line.id}`}
                 fontFamily={fontFamily}
@@ -89,30 +122,41 @@ const SvgCardCanvas: React.FC<SvgCardCanvasProps> = ({ config, uid }) => {
                   {line.text}
                 </textPath>
               </text>
-            ))}
+            );
+          })}
+        </g>
+      ))}
 
-            {/* Mặt chữ chính (Foreground Text) sắc nét */}
-            <text
-              fontFamily={fontFamily}
-              fontSize={line.fontSize}
-              fontWeight={line.fontWeight}
-              fontStyle={line.fontStyle}
-              fill={textColor}
-              stroke={textStrokeWidth > 0 ? textStrokeColor : 'none'}
-              strokeWidth={textStrokeWidth}
-              strokeLinejoin="round"
-              paintOrder="stroke fill"
-              letterSpacing={line.letterSpacing}
+      {/* 4. MẶT CHỮ CHÍNH (Foreground Text) CỦA CÁC DÒNG */}
+      {config.lines.map((line) => {
+        const fontFamily = line.fontFamily || config.globalFontFamily;
+        const textColor = line.color || config.globalTextColor;
+        const textStrokeColor = line.strokeColor || config.globalStrokeColor;
+        const textStrokeWidth =
+          line.strokeWidth !== undefined ? line.strokeWidth : config.globalStrokeWidth;
+
+        return (
+          <text
+            key={`fg-${line.id}`}
+            fontFamily={fontFamily}
+            fontSize={line.fontSize}
+            fontWeight={line.fontWeight}
+            fontStyle={line.fontStyle}
+            fill={textColor}
+            stroke={textStrokeWidth > 0 ? textStrokeColor : 'none'}
+            strokeWidth={textStrokeWidth}
+            strokeLinejoin="round"
+            paintOrder="stroke fill"
+            letterSpacing={line.letterSpacing}
+          >
+            <textPath
+              href={`#path-${uid}-${line.id}`}
+              startOffset="50%"
+              textAnchor="middle"
             >
-              <textPath
-                href={`#path-${uid}-${line.id}`}
-                startOffset="50%"
-                textAnchor="middle"
-              >
-                {line.text}
-              </textPath>
-            </text>
-          </g>
+              {line.text}
+            </textPath>
+          </text>
         );
       })}
     </svg>

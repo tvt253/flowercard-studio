@@ -60,7 +60,7 @@ export function generateAutoStrokeLayers(
 const initialOuterColor = '#c81e2b';
 const initialInnerColor = '#ffffff';
 const initialLayerCount = 5;
-const initialOuterWidth = 58;
+const initialOuterWidth = 56;
 const initialInnerWidth = 12;
 
 const defaultStrokeLayers = generateAutoStrokeLayers(
@@ -85,7 +85,7 @@ const defaultLine2: TextLine = {
   id: generateId(),
   text: 'Ngày Phụ Nữ Việt Nam 20-10',
   fontSize: 56,
-  offsetY: 252,
+  offsetY: 250,
   fontWeight: 'bold',
   fontStyle: 'normal',
   letterSpacing: 1.5,
@@ -93,13 +93,13 @@ const defaultLine2: TextLine = {
 
 const defaultConfig: CardConfig = {
   customBgUrl: null,
-  scalePercent: 100,
-  copiesPerPage: 2,
-  showCutLines: true,
+  scalePercent: 95, // Mặc định 95% theo chiều ngang tờ A4 cho 2 bản
+  copiesPerPage: 2, // Mặc định 2 bản chuẩn mẫu
+  showCutLines: true, // Mặc định hiển thị đường viền cắt 0.5cm
 
   styleType: 'cloud',
 
-  // Cài đặt chung đồng nhất
+  // Cài đặt chữ chung đồng nhất
   globalFontFamily: 'Dancing Script',
   globalCurveType: 'arc',
   globalCurveStrength: 14,
@@ -133,7 +133,7 @@ const PRESETS: Record<
     globalFontFamily: 'Dancing Script',
     lines: [
       { text: 'Chúc Mừng', fontSize: 84, offsetY: 146, fontWeight: 'bold' },
-      { text: 'Ngày Phụ Nữ Việt Nam 20-10', fontSize: 56, offsetY: 252, fontWeight: 'bold' },
+      { text: 'Ngày Phụ Nữ Việt Nam 20-10', fontSize: 56, offsetY: 250, fontWeight: 'bold' },
     ],
   },
   '20-11': {
@@ -142,7 +142,7 @@ const PRESETS: Record<
     globalFontFamily: 'Dancing Script',
     lines: [
       { text: 'Chúc Mừng', fontSize: 84, offsetY: 146, fontWeight: 'bold' },
-      { text: 'Ngày Nhà Giáo Việt Nam 20/11', fontSize: 54, offsetY: 252, fontWeight: 'bold' },
+      { text: 'Ngày Nhà Giáo Việt Nam 20/11', fontSize: 54, offsetY: 250, fontWeight: 'bold' },
     ],
   },
   '8-3': {
@@ -151,7 +151,7 @@ const PRESETS: Record<
     globalFontFamily: 'Dancing Script',
     lines: [
       { text: 'Chúc Mừng', fontSize: 84, offsetY: 146, fontWeight: 'bold' },
-      { text: 'Ngày Quốc Tế Phụ Nữ 8-3', fontSize: 56, offsetY: 252, fontWeight: 'bold' },
+      { text: 'Ngày Quốc Tế Phụ Nữ 8-3', fontSize: 56, offsetY: 250, fontWeight: 'bold' },
     ],
   },
   'khai-truong': {
@@ -160,7 +160,7 @@ const PRESETS: Record<
     globalFontFamily: 'Playfair Display',
     lines: [
       { text: 'Chúc Mừng', fontSize: 76, offsetY: 146, fontWeight: 'bold' },
-      { text: 'Khai Trương Hồng Phát', fontSize: 56, offsetY: 252, fontWeight: 'bold' },
+      { text: 'Khai Trương Hồng Phát', fontSize: 56, offsetY: 250, fontWeight: 'bold' },
     ],
   },
   'sinh-nhat': {
@@ -169,7 +169,7 @@ const PRESETS: Record<
     globalFontFamily: 'Dancing Script',
     lines: [
       { text: 'Happy Birthday', fontSize: 72, offsetY: 146, fontWeight: 'bold' },
-      { text: 'Chúc Mừng Sinh Nhật', fontSize: 56, offsetY: 252, fontWeight: 'bold' },
+      { text: 'Chúc Mừng Sinh Nhật', fontSize: 56, offsetY: 250, fontWeight: 'bold' },
     ],
   },
   'chia-buon': {
@@ -189,6 +189,7 @@ interface CardStore {
   removeLine: (id: string) => void;
   updateLine: (id: string, updates: Partial<TextLine>) => void;
   updateConfig: (updates: Partial<Omit<CardConfig, 'lines' | 'strokeLayers'>>) => void;
+  setCopiesPerPage: (copies: 1 | 2 | 3 | 4) => void;
   updateGlobalTypography: (updates: {
     globalFontFamily?: string;
     globalCurveType?: 'wave' | 'arc' | 'flat';
@@ -254,6 +255,29 @@ export const useCardStore = create<CardStore>()(
         set((state) => ({
           config: { ...state.config, ...updates },
         })),
+
+      setCopiesPerPage: (copies: 1 | 2 | 3 | 4) =>
+        set((state) => {
+          // Tự động điều chỉnh tỷ lệ mặc định tối ưu theo số lượng bản in
+          let newScale = state.config.scalePercent;
+          if (copies === 1) {
+            newScale = 80; // 80% theo chiều dài dọc tờ giấy A4
+          } else if (copies === 2) {
+            newScale = 95; // 95% theo chiều ngang tờ giấy A4
+          } else if (copies === 3) {
+            newScale = 90;
+          } else if (copies === 4) {
+            newScale = 85;
+          }
+
+          return {
+            config: {
+              ...state.config,
+              copiesPerPage: copies,
+              scalePercent: newScale,
+            },
+          };
+        }),
 
       updateGlobalTypography: (updates) =>
         set((state) => ({
@@ -345,8 +369,8 @@ export const useCardStore = create<CardStore>()(
         }),
     }),
     {
-      name: 'flower-card-studio-storage-v6',
-      version: 6,
+      name: 'flower-card-studio-storage-v7',
+      version: 7,
     }
   )
 );

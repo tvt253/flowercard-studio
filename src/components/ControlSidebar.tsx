@@ -60,6 +60,7 @@ const ControlSidebar: React.FC = () => {
     updateGlobalTypography,
     updateStrokeSettings,
     applyPreset,
+    setCopiesPerPage,
     resetDefault,
   } = useCardStore();
 
@@ -485,49 +486,106 @@ const ControlSidebar: React.FC = () => {
           </h2>
 
           <div className="space-y-3">
+            {/* Bộ chọn số bản in / tờ */}
+            <div>
+              <label className="block text-xs font-medium text-slate-500 mb-1.5">
+                Số bản in / tờ A4
+              </label>
+              <div className="grid grid-cols-2 gap-1.5">
+                <button
+                  onClick={() => setCopiesPerPage(1)}
+                  className={clsx(
+                    'py-2 px-2 text-xs border rounded-lg font-medium transition-colors text-left flex flex-col',
+                    config.copiesPerPage === 1
+                      ? 'bg-rose-500 border-rose-500 text-white shadow-sm'
+                      : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
+                  )}
+                >
+                  <span className="font-bold">1 bản (Đặt dọc A4)</span>
+                  <span className={clsx('text-[10px]', config.copiesPerPage === 1 ? 'text-rose-100' : 'text-slate-400')}>
+                    Dài 80% tờ giấy A4
+                  </span>
+                </button>
+
+                <button
+                  onClick={() => setCopiesPerPage(2)}
+                  className={clsx(
+                    'py-2 px-2 text-xs border rounded-lg font-medium transition-colors text-left flex flex-col',
+                    config.copiesPerPage === 2
+                      ? 'bg-rose-500 border-rose-500 text-white shadow-sm'
+                      : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
+                  )}
+                >
+                  <span className="font-bold">2 bản (Đặt ngang) ✓</span>
+                  <span className={clsx('text-[10px]', config.copiesPerPage === 2 ? 'text-rose-100' : 'text-slate-400')}>
+                    Rộng 95% tờ giấy A4 (Chuẩn)
+                  </span>
+                </button>
+              </div>
+
+              {/* Tùy chọn 3, 4 bản in nhỏ hơn nếu cần */}
+              <div className="grid grid-cols-2 gap-1.5 mt-1.5">
+                <button
+                  onClick={() => setCopiesPerPage(3)}
+                  className={clsx(
+                    'py-1 px-2 text-xs border rounded font-medium transition-colors text-center',
+                    config.copiesPerPage === 3
+                      ? 'bg-rose-500 border-rose-500 text-white'
+                      : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                  )}
+                >
+                  3 bản / tờ
+                </button>
+                <button
+                  onClick={() => setCopiesPerPage(4)}
+                  className={clsx(
+                    'py-1 px-2 text-xs border rounded font-medium transition-colors text-center',
+                    config.copiesPerPage === 4
+                      ? 'bg-rose-500 border-rose-500 text-white'
+                      : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                  )}
+                >
+                  4 bản / tờ
+                </button>
+              </div>
+            </div>
+
+            {/* Slider điều chỉnh to nhỏ toàn bộ thiệp so với giấy */}
             <div>
               <div className="flex justify-between text-xs font-medium text-slate-500 mb-1">
-                <span>Kích thước thiệp:</span>
-                <span className="text-rose-500 font-bold">{config.scalePercent}%</span>
+                <span>To nhỏ thiệp so với giấy A4:</span>
+                <span className="text-rose-600 font-bold">{config.scalePercent}%</span>
               </div>
               <input
                 type="range"
-                min={30}
-                max={100}
+                min={40}
+                max={110}
                 value={config.scalePercent}
                 onChange={(e) => updateConfig({ scalePercent: parseInt(e.target.value) })}
               />
-            </div>
-
-            <div>
-              <label className="block text-xs font-medium text-slate-500 mb-2">Số bản in / tờ A4</label>
-              <div className="grid grid-cols-4 gap-1">
-                {([1, 2, 3, 4] as const).map((n) => (
-                  <button
-                    key={n}
-                    onClick={() => updateConfig({ copiesPerPage: n })}
-                    className={clsx(
-                      'py-1.5 text-xs border rounded font-medium transition-colors',
-                      config.copiesPerPage === n
-                        ? 'bg-rose-500 border-rose-500 text-white'
-                        : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-                    )}
-                  >
-                    {n} {n === 2 ? '✓' : ''}
-                  </button>
-                ))}
+              <div className="flex justify-between text-[10px] text-slate-400 mt-0.5">
+                <span>Thu nhỏ (40%)</span>
+                <span>Chuẩn (80-95%)</span>
+                <span>Phóng to (110%)</span>
               </div>
-              <p className="text-[11px] text-slate-400 mt-1">✓ = Chuẩn mẫu thực tế (2 bản / 1 tờ A4)</p>
             </div>
 
-            <label className="flex items-center gap-2 cursor-pointer">
+            {/* Checkbox đường viền cắt bám theo stroke độ dày 0.5cm */}
+            <label className="flex items-start gap-2 cursor-pointer p-2 bg-slate-50 rounded-lg border border-slate-200">
               <input
                 type="checkbox"
                 checked={config.showCutLines}
                 onChange={(e) => updateConfig({ showCutLines: e.target.checked })}
-                className="w-4 h-4 accent-rose-500"
+                className="w-4 h-4 accent-rose-500 mt-0.5"
               />
-              <span className="text-xs text-slate-600">Đường kẻ nét đứt hướng dẫn cắt ✂️</span>
+              <div>
+                <span className="text-xs font-semibold text-slate-700 block">
+                  Đường viền cắt kéo cách viền 0.5cm (5mm) ✂️
+                </span>
+                <span className="text-[11px] text-slate-400 block mt-0.5">
+                  Đường nét đứt ôm sát theo từng con chữ, cách lớp viền ngoài 0.5cm để cắt kéo chính xác.
+                </span>
+              </div>
             </label>
           </div>
         </div>
