@@ -459,7 +459,7 @@ const ControlSidebar: React.FC = () => {
                   <input
                     type="range"
                     min={2}
-                    max={70}
+                    max={90}
                     value={layer.width}
                     onChange={(e) => updateStrokeLayer(layer.id, { width: parseInt(e.target.value) })}
                   />

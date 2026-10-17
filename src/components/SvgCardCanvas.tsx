@@ -19,73 +19,49 @@ function calculatePathD(line: TextLine): string {
   }
 }
 
-// Ước tính chiều rộng dòng chữ để tính toán bounding box chính xác
+// Ước tính chiều rộng dòng chữ
 function estimateLineWidth(line: TextLine): number {
   const charCount = Math.max(line.text.length, 1);
   const letterSpacing = line.letterSpacing || 0;
-  // Hệ số chiều rộng trung bình của font script/display tiếng Việt
-  const charWidthFactor = line.fontFamily.includes('Great Vibes') ? 0.48 : 0.54;
+  const charWidthFactor = line.fontFamily.includes('Great Vibes') ? 0.46 : 0.52;
   const rawWidth = charCount * (line.fontSize * charWidthFactor + letterSpacing);
   return Math.min(Math.max(rawWidth, 180), 880);
 }
 
-// Tạo Dáng Tổng Thể (Overall Envelope Silhouette) bám theo cụm chữ và lớp viền
-function generateEnvelopePath(lines: TextLine[], pad: number): string {
-  if (lines.length === 0) return '';
+// Khối liên kết giữa các dòng (Inter-line Bridge) giúp thiệp liền mạch thành 1 khối vững chắc
+function generateBridgePath(lines: TextLine[], pad: number): string {
+  if (lines.length < 2) return '';
 
-  if (lines.length === 1) {
-    const line = lines[0];
-    const w = estimateLineWidth(line);
-    const left = Math.max(500 - w / 2 - pad, 30);
-    const right = Math.min(500 + w / 2 + pad, 970);
-    const top = Math.max(line.offsetY - line.fontSize * 0.8 - pad, 20);
-    const bottom = Math.min(line.offsetY + line.fontSize * 0.4 + pad, 400);
-    const r = Math.min((bottom - top) / 2, 60);
-
-    return `M ${left + r},${top} 
-            L ${right - r},${top} 
-            Q ${right},${top} ${right},${top + r} 
-            L ${right},${bottom - r} 
-            Q ${right},${bottom} ${right - r},${bottom} 
-            L ${left + r},${bottom} 
-            Q ${left},${bottom} ${left},${bottom - r} 
-            L ${left},${top + r} 
-            Q ${left},${top} ${left + r},${top} Z`;
-  }
-
-  // Trường hợp 2 dòng hoặc nhiều hơn (Chuẩn mẫu tiệm hoa: Tầng 1 nhô cao, Tầng 2 trải rộng)
   const line1 = lines[0];
   const line2 = lines[1];
 
   const w1 = estimateLineWidth(line1);
   const w2 = estimateLineWidth(line2);
 
-  const left1 = Math.max(500 - w1 / 2 - pad, 40);
-  const right1 = Math.min(500 + w1 / 2 + pad, 960);
-  const top1 = Math.max(line1.offsetY - line1.fontSize * 0.82 - pad, 20);
-  const bottom1 = line1.offsetY + line1.fontSize * 0.35 + pad * 0.4;
+  // Giới hạn chiều ngang của khối cầu nối ở giữa 2 tầng
+  const left1 = Math.max(500 - w1 / 2 + 10 - pad * 0.5, 80);
+  const right1 = Math.min(500 + w1 / 2 - 10 + pad * 0.5, 920);
 
-  const left2 = Math.max(500 - w2 / 2 - pad, 30);
-  const right2 = Math.min(500 + w2 / 2 + pad, 970);
-  const top2 = line2.offsetY - line2.fontSize * 0.82 - pad * 0.4;
-  const bottom2 = Math.min(line2.offsetY + line2.fontSize * 0.4 + pad, 400);
+  const left2 = Math.max(500 - w2 / 2 + 30 - pad * 0.6, 60);
+  const right2 = Math.min(500 + w2 / 2 - 30 + pad * 0.6, 940);
 
-  // Điểm nối chuyển tiếp mềm mại giữa 2 tầng (Shoulder transition)
-  const midY = (bottom1 + top2) / 2;
+  // Khoảng cách theo chiều dọc giữa đáy dòng 1 và đỉnh dòng 2
+  const yTop = line1.offsetY + line1.fontSize * 0.05 - pad * 0.3;
+  const yBottom = line2.offsetY - line2.fontSize * 0.55 + pad * 0.3;
 
-  return `M ${left1 + 40},${top1}
-          C ${left1 + 80},${top1 - 5} 500,${top1 - 10} ${right1 - 40},${top1}
-          C ${right1},${top1} ${right1 + 15},${top1 + 25} ${right1 + 15},${bottom1 - 10}
-          C ${right1 + 15},${midY} ${right2 + 10},${midY - 10} ${right2 + 10},${top2 + 20}
-          C ${right2 + 15},${top2 + 40} ${right2 + 25},${bottom2 - 30} ${right2},${bottom2}
-          C ${right2 - 40},${bottom2 + 8} 500,${bottom2 + 12} ${left2 + 40},${bottom2}
-          C ${left2 - 25},${bottom2 - 30} ${left2 - 15},${top2 + 40} ${left2 - 10},${top2 + 20}
-          C ${left2 - 10},${midY - 10} ${left1 - 15},${midY} ${left1 - 15},${bottom1 - 10}
-          C ${left1 - 15},${top1 + 25} ${left1},${top1} ${left1 + 40},${top1} Z`;
+  if (yBottom <= yTop) return '';
+
+  const midY = (yTop + yBottom) / 2;
+
+  return `M ${left1},${yTop}
+          L ${right1},${yTop}
+          C ${right1 + pad * 0.3},${midY} ${right2},${midY} ${right2},${yBottom}
+          L ${left2},${yBottom}
+          C ${left2},${midY} ${left1 - pad * 0.3},${midY} ${left1},${yTop} Z`;
 }
 
 const SvgCardCanvas: React.FC<SvgCardCanvasProps> = ({ config, uid }) => {
-  // Lọc và sắp xếp các lớp stroke từ ngoài vào trong (width lớn nhất nằm dưới cùng)
+  // Sắp xếp các lớp stroke từ ngoài cùng (width lớn nhất) vào trong (width nhỏ nhất)
   const activeLayers: StrokeLayer[] = [...config.strokeLayers]
     .filter((layer) => layer.enabled && layer.width > 0)
     .sort((a, b) => b.width - a.width);
@@ -107,7 +83,7 @@ const SvgCardCanvas: React.FC<SvgCardCanvasProps> = ({ config, uid }) => {
         ))}
       </defs>
 
-      {/* 1. Nếu có ảnh nền phôi riêng do người dùng upload */}
+      {/* 1. Ảnh nền phôi riêng nếu người dùng tải lên */}
       {config.customBgUrl && (
         <image
           href={config.customBgUrl}
@@ -117,34 +93,27 @@ const SvgCardCanvas: React.FC<SvgCardCanvasProps> = ({ config, uid }) => {
         />
       )}
 
-      {/* 2. DÁNG TỔNG THỂ & HỆ THỐNG CÁC LỚP STROKE XẾP TẦNG (Tự động bám theo stroke ngoài cùng) */}
+      {/* 2. HỆ THỐNG CÁC LỚP VIỀN STROKE XẾP TẦNG (Tương tự 100% mẫu thực tế) */}
       {activeLayers.map((layer) => {
-        // Tính độ nở của dáng tổng thể cho lớp này
-        // Lớp ngoài cùng (index 0) có padding lớn nhất, các lớp sau thu hẹp dần tạo thành các dải viền xếp tầng
-        const maxLayerWidth = activeLayers[0]?.width || 48;
-        const widthRatio = layer.width / maxLayerWidth;
-        const currentPad = Math.max(
-          config.envelopePadding * widthRatio + layer.width * 0.45,
-          layer.width * 0.5
-        );
-
-        const envelopeD = generateEnvelopePath(config.lines, currentPad);
+        const bridgeD = config.fillInnerGaps
+          ? generateBridgePath(config.lines, layer.width)
+          : '';
 
         return (
-          <g key={`layer-group-${layer.id}`}>
-            {/* A. Dáng tổng thể liền khối (Envelope Silhouette) không bị thủng lỗ và tạo form thiệp chuẩn */}
-            {config.fillInnerGaps && envelopeD && (
+          <g key={`stroke-group-${layer.id}`}>
+            {/* A. Khối liên kết mềm mại giữa 2 dòng giúp nối liền 2 tầng thành 1 khối vững chắc */}
+            {bridgeD && (
               <path
-                d={envelopeD}
+                d={bridgeD}
                 fill={layer.color}
                 stroke={layer.color}
-                strokeWidth={layer.width * 0.6}
+                strokeWidth={layer.width * 0.8}
                 strokeLinejoin="round"
                 strokeLinecap="round"
               />
             )}
 
-            {/* B. Stroke ôm theo từng nét chữ cái kết hợp hòa vào dáng tổng thể */}
+            {/* B. Lớp stroke uốn lượn ôm sát từng con chữ tạo đường viền bọt nước lồi lõm nghệ thuật */}
             {config.lines.map((line) => (
               <text
                 key={`stroke-${layer.id}-${line.id}`}
@@ -152,7 +121,7 @@ const SvgCardCanvas: React.FC<SvgCardCanvasProps> = ({ config, uid }) => {
                 fontSize={line.fontSize}
                 fontWeight={line.fontWeight}
                 fontStyle={line.fontStyle}
-                fill="none"
+                fill={layer.color}
                 stroke={layer.color}
                 strokeWidth={layer.width}
                 strokeLinejoin="round"
@@ -172,7 +141,7 @@ const SvgCardCanvas: React.FC<SvgCardCanvasProps> = ({ config, uid }) => {
         );
       })}
 
-      {/* 3. MẶT CHỮ CHÍNH (Foreground Text) - Nét chữ nổi bật sắc sảo */}
+      {/* 3. MẶT CHỮ CHÍNH (Foreground Text) - Nét chữ đỏ thắm viền trắng mỏng sắc sảo */}
       {config.lines.map((line) => (
         <text
           key={`fg-${line.id}`}

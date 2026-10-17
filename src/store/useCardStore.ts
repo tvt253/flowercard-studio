@@ -4,51 +4,52 @@ import { CardConfig, TextLine, StrokeLayer, PresetName } from '../types/card';
 
 const generateId = () => Math.random().toString(36).substring(2, 9);
 
+// 5 lớp stroke xếp tầng chuẩn xác 100% theo mẫu thiệp 20/10 thực tế
 const defaultStrokeLayers: StrokeLayer[] = [
-  { id: 'layer-1', name: 'Lớp 1 (Ngoài cùng)', color: '#d3202a', width: 48, enabled: true },
-  { id: 'layer-2', name: 'Lớp 2 (Đỏ hồng)', color: '#f43f5e', width: 36, enabled: true },
-  { id: 'layer-3', name: 'Lớp 3 (Hồng tươi)', color: '#fb7185', width: 25, enabled: true },
-  { id: 'layer-4', name: 'Lớp 4 (Hồng phấn)', color: '#fecdd3', width: 15, enabled: true },
-  { id: 'layer-5', name: 'Lớp 5 (Trắng sát chữ)', color: '#ffffff', width: 7, enabled: true },
+  { id: 'layer-1', name: 'Lớp 1 (Đỏ thắm ngoài cùng)', color: '#c81e2b', width: 62, enabled: true },
+  { id: 'layer-2', name: 'Lớp 2 (Đỏ tươi)', color: '#e11d48', width: 50, enabled: true },
+  { id: 'layer-3', name: 'Lớp 3 (Hồng tươi)', color: '#fb7185', width: 38, enabled: true },
+  { id: 'layer-4', name: 'Lớp 4 (Hồng phấn nhạt)', color: '#fecdd3', width: 26, enabled: true },
+  { id: 'layer-5', name: 'Lớp 5 (Trắng sát chân chữ)', color: '#ffffff', width: 14, enabled: true },
 ];
 
 const goldStrokeLayers: StrokeLayer[] = [
-  { id: 'layer-1', name: 'Lớp 1 (Ngoài cùng)', color: '#9a3412', width: 48, enabled: true },
-  { id: 'layer-2', name: 'Lớp 2 (Vàng đồng)', color: '#d97706', width: 36, enabled: true },
-  { id: 'layer-3', name: 'Lớp 3 (Vàng chanh)', color: '#fde047', width: 25, enabled: true },
-  { id: 'layer-4', name: 'Lớp 4 (Kem sáng)', color: '#fef9c3', width: 15, enabled: true },
-  { id: 'layer-5', name: 'Lớp 5 (Trắng sát chữ)', color: '#ffffff', width: 7, enabled: true },
+  { id: 'layer-1', name: 'Lớp 1 (Nâu đồng ngoài cùng)', color: '#78350f', width: 62, enabled: true },
+  { id: 'layer-2', name: 'Lớp 2 (Vàng hổ phách)', color: '#b45309', width: 50, enabled: true },
+  { id: 'layer-3', name: 'Lớp 3 (Vàng hoàng kim)', color: '#f59e0b', width: 38, enabled: true },
+  { id: 'layer-4', name: 'Lớp 4 (Vàng chanh sáng)', color: '#fef08a', width: 26, enabled: true },
+  { id: 'layer-5', name: 'Lớp 5 (Trắng sát chân chữ)', color: '#ffffff', width: 14, enabled: true },
 ];
 
 const purpleStrokeLayers: StrokeLayer[] = [
-  { id: 'layer-1', name: 'Lớp 1 (Ngoài cùng)', color: '#6b21a8', width: 48, enabled: true },
-  { id: 'layer-2', name: 'Lớp 2 (Tím hoa cà)', color: '#a855f7', width: 36, enabled: true },
-  { id: 'layer-3', name: 'Lớp 3 (Hồng tím)', color: '#e879f9', width: 25, enabled: true },
-  { id: 'layer-4', name: 'Lớp 4 (Tím phấn nhạt)', color: '#fae8ff', width: 15, enabled: true },
-  { id: 'layer-5', name: 'Lớp 5 (Trắng sát chữ)', color: '#ffffff', width: 7, enabled: true },
+  { id: 'layer-1', name: 'Lớp 1 (Tím đậm ngoài cùng)', color: '#581c87', width: 62, enabled: true },
+  { id: 'layer-2', name: 'Lớp 2 (Tím hoa cà)', color: '#86198f', width: 50, enabled: true },
+  { id: 'layer-3', name: 'Lớp 3 (Hồng tím)', color: '#d946ef', width: 38, enabled: true },
+  { id: 'layer-4', name: 'Lớp 4 (Tím phấn nhạt)', color: '#f5d0fe', width: 26, enabled: true },
+  { id: 'layer-5', name: 'Lớp 5 (Trắng sát chân chữ)', color: '#ffffff', width: 14, enabled: true },
 ];
 
 const mourningStrokeLayers: StrokeLayer[] = [
-  { id: 'layer-1', name: 'Lớp 1 (Ngoài cùng)', color: '#0f172a', width: 46, enabled: true },
-  { id: 'layer-2', name: 'Lớp 2 (Xám đen)', color: '#334155', width: 34, enabled: true },
-  { id: 'layer-3', name: 'Lớp 3 (Xám nhạt)', color: '#94a3b8', width: 22, enabled: true },
-  { id: 'layer-4', name: 'Lớp 4 (Trắng bạc)', color: '#e2e8f0', width: 13, enabled: true },
-  { id: 'layer-5', name: 'Lớp 5 (Trắng sát chữ)', color: '#ffffff', width: 6, enabled: true },
+  { id: 'layer-1', name: 'Lớp 1 (Đen tuyền ngoài cùng)', color: '#09090b', width: 60, enabled: true },
+  { id: 'layer-2', name: 'Lớp 2 (Xám than)', color: '#27272a', width: 48, enabled: true },
+  { id: 'layer-3', name: 'Lớp 3 (Xám bạc)', color: '#71717a', width: 36, enabled: true },
+  { id: 'layer-4', name: 'Lớp 4 (Xám khói sáng)', color: '#e4e4e7', width: 24, enabled: true },
+  { id: 'layer-5', name: 'Lớp 5 (Trắng sát chân chữ)', color: '#ffffff', width: 12, enabled: true },
 ];
 
 const defaultLine1: TextLine = {
   id: generateId(),
   text: 'Chúc Mừng',
   fontFamily: 'Dancing Script',
-  fontSize: 78,
+  fontSize: 84,
   fontWeight: 'bold',
   fontStyle: 'normal',
   color: '#c81e2b',
   strokeColor: '#ffffff',
-  strokeWidth: 2,
+  strokeWidth: 2.5,
   curveType: 'arc',
-  curveStrength: 16,
-  offsetY: 155,
+  curveStrength: 14,
+  offsetY: 146,
   letterSpacing: 2,
 };
 
@@ -56,7 +57,7 @@ const defaultLine2: TextLine = {
   id: generateId(),
   text: 'Ngày Phụ Nữ Việt Nam 20-10',
   fontFamily: 'Dancing Script',
-  fontSize: 54,
+  fontSize: 56,
   fontWeight: 'bold',
   fontStyle: 'normal',
   color: '#c81e2b',
@@ -64,7 +65,7 @@ const defaultLine2: TextLine = {
   strokeWidth: 2,
   curveType: 'flat',
   curveStrength: 0,
-  offsetY: 268,
+  offsetY: 252,
   letterSpacing: 1.5,
 };
 
@@ -73,7 +74,7 @@ const defaultConfig: CardConfig = {
   scalePercent: 100,
   copiesPerPage: 2,
   showCutLines: true,
-  envelopePadding: 36,
+  envelopePadding: 24,
   fillInnerGaps: true,
   strokeLayers: defaultStrokeLayers,
   lines: [defaultLine1, defaultLine2],
@@ -83,43 +84,43 @@ const PRESETS: Record<PresetName, { strokeLayers: StrokeLayer[]; lines: Omit<Tex
   '20-10': {
     strokeLayers: defaultStrokeLayers,
     lines: [
-      { text: 'Chúc Mừng', fontFamily: 'Dancing Script', fontSize: 78, fontWeight: 'bold', fontStyle: 'normal', color: '#c81e2b', strokeColor: '#ffffff', strokeWidth: 2, curveType: 'arc', curveStrength: 16, offsetY: 155, letterSpacing: 2 },
-      { text: 'Ngày Phụ Nữ Việt Nam 20-10', fontFamily: 'Dancing Script', fontSize: 54, fontWeight: 'bold', fontStyle: 'normal', color: '#c81e2b', strokeColor: '#ffffff', strokeWidth: 2, curveType: 'flat', curveStrength: 0, offsetY: 268, letterSpacing: 1.5 },
+      { text: 'Chúc Mừng', fontFamily: 'Dancing Script', fontSize: 84, fontWeight: 'bold', fontStyle: 'normal', color: '#c81e2b', strokeColor: '#ffffff', strokeWidth: 2.5, curveType: 'arc', curveStrength: 14, offsetY: 146, letterSpacing: 2 },
+      { text: 'Ngày Phụ Nữ Việt Nam 20-10', fontFamily: 'Dancing Script', fontSize: 56, fontWeight: 'bold', fontStyle: 'normal', color: '#c81e2b', strokeColor: '#ffffff', strokeWidth: 2, curveType: 'flat', curveStrength: 0, offsetY: 252, letterSpacing: 1.5 },
     ],
   },
   '20-11': {
     strokeLayers: defaultStrokeLayers,
     lines: [
-      { text: 'Chúc Mừng', fontFamily: 'Dancing Script', fontSize: 78, fontWeight: 'bold', fontStyle: 'normal', color: '#c81e2b', strokeColor: '#ffffff', strokeWidth: 2, curveType: 'arc', curveStrength: 16, offsetY: 155, letterSpacing: 2 },
-      { text: 'Ngày Nhà Giáo Việt Nam 20/11', fontFamily: 'Dancing Script', fontSize: 52, fontWeight: 'bold', fontStyle: 'normal', color: '#c81e2b', strokeColor: '#ffffff', strokeWidth: 2, curveType: 'flat', curveStrength: 0, offsetY: 268, letterSpacing: 1 },
+      { text: 'Chúc Mừng', fontFamily: 'Dancing Script', fontSize: 84, fontWeight: 'bold', fontStyle: 'normal', color: '#c81e2b', strokeColor: '#ffffff', strokeWidth: 2.5, curveType: 'arc', curveStrength: 14, offsetY: 146, letterSpacing: 2 },
+      { text: 'Ngày Nhà Giáo Việt Nam 20/11', fontFamily: 'Dancing Script', fontSize: 54, fontWeight: 'bold', fontStyle: 'normal', color: '#c81e2b', strokeColor: '#ffffff', strokeWidth: 2, curveType: 'flat', curveStrength: 0, offsetY: 252, letterSpacing: 1.2 },
     ],
   },
   '8-3': {
     strokeLayers: defaultStrokeLayers,
     lines: [
-      { text: 'Chúc Mừng', fontFamily: 'Dancing Script', fontSize: 78, fontWeight: 'bold', fontStyle: 'normal', color: '#c81e2b', strokeColor: '#ffffff', strokeWidth: 2, curveType: 'arc', curveStrength: 16, offsetY: 155, letterSpacing: 2 },
-      { text: 'Ngày Quốc Tế Phụ Nữ 8-3', fontFamily: 'Dancing Script', fontSize: 54, fontWeight: 'bold', fontStyle: 'normal', color: '#c81e2b', strokeColor: '#ffffff', strokeWidth: 2, curveType: 'flat', curveStrength: 0, offsetY: 268, letterSpacing: 1.5 },
+      { text: 'Chúc Mừng', fontFamily: 'Dancing Script', fontSize: 84, fontWeight: 'bold', fontStyle: 'normal', color: '#c81e2b', strokeColor: '#ffffff', strokeWidth: 2.5, curveType: 'arc', curveStrength: 14, offsetY: 146, letterSpacing: 2 },
+      { text: 'Ngày Quốc Tế Phụ Nữ 8-3', fontFamily: 'Dancing Script', fontSize: 56, fontWeight: 'bold', fontStyle: 'normal', color: '#c81e2b', strokeColor: '#ffffff', strokeWidth: 2, curveType: 'flat', curveStrength: 0, offsetY: 252, letterSpacing: 1.5 },
     ],
   },
   'khai-truong': {
     strokeLayers: goldStrokeLayers,
     lines: [
-      { text: 'Chúc Mừng', fontFamily: 'Playfair Display', fontSize: 72, fontWeight: 'bold', fontStyle: 'normal', color: '#9a3412', strokeColor: '#ffffff', strokeWidth: 2, curveType: 'arc', curveStrength: 15, offsetY: 155, letterSpacing: 2 },
-      { text: 'Khai Trương Hồng Phát', fontFamily: 'Playfair Display', fontSize: 54, fontWeight: 'bold', fontStyle: 'normal', color: '#9a3412', strokeColor: '#ffffff', strokeWidth: 2, curveType: 'flat', curveStrength: 0, offsetY: 268, letterSpacing: 1.5 },
+      { text: 'Chúc Mừng', fontFamily: 'Playfair Display', fontSize: 76, fontWeight: 'bold', fontStyle: 'normal', color: '#78350f', strokeColor: '#ffffff', strokeWidth: 2.5, curveType: 'arc', curveStrength: 14, offsetY: 146, letterSpacing: 2 },
+      { text: 'Khai Trương Hồng Phát', fontFamily: 'Playfair Display', fontSize: 56, fontWeight: 'bold', fontStyle: 'normal', color: '#78350f', strokeColor: '#ffffff', strokeWidth: 2, curveType: 'flat', curveStrength: 0, offsetY: 252, letterSpacing: 1.5 },
     ],
   },
   'sinh-nhat': {
     strokeLayers: purpleStrokeLayers,
     lines: [
-      { text: 'Happy Birthday', fontFamily: 'Pacifico', fontSize: 70, fontWeight: 'normal', fontStyle: 'normal', color: '#6b21a8', strokeColor: '#ffffff', strokeWidth: 2, curveType: 'arc', curveStrength: 15, offsetY: 155, letterSpacing: 2 },
-      { text: 'Chúc Mừng Sinh Nhật', fontFamily: 'Dancing Script', fontSize: 54, fontWeight: 'bold', fontStyle: 'normal', color: '#6b21a8', strokeColor: '#ffffff', strokeWidth: 2, curveType: 'flat', curveStrength: 0, offsetY: 268, letterSpacing: 1.5 },
+      { text: 'Happy Birthday', fontFamily: 'Pacifico', fontSize: 72, fontWeight: 'normal', fontStyle: 'normal', color: '#581c87', strokeColor: '#ffffff', strokeWidth: 2.5, curveType: 'arc', curveStrength: 12, offsetY: 146, letterSpacing: 2 },
+      { text: 'Chúc Mừng Sinh Nhật', fontFamily: 'Dancing Script', fontSize: 56, fontWeight: 'bold', fontStyle: 'normal', color: '#581c87', strokeColor: '#ffffff', strokeWidth: 2, curveType: 'flat', curveStrength: 0, offsetY: 252, letterSpacing: 1.5 },
     ],
   },
   'chia-buon': {
     strokeLayers: mourningStrokeLayers,
     lines: [
-      { text: 'Thành Kính Phân Ưu', fontFamily: 'Cormorant Garamond', fontSize: 60, fontWeight: 'bold', fontStyle: 'italic', color: '#0f172a', strokeColor: '#ffffff', strokeWidth: 2, curveType: 'arc', curveStrength: 20, offsetY: 165, letterSpacing: 2 },
-      { text: 'Vô Cùng Thương Tiếc', fontFamily: 'Cormorant Garamond', fontSize: 48, fontWeight: 'normal', fontStyle: 'italic', color: '#334155', strokeColor: '#ffffff', strokeWidth: 1.5, curveType: 'flat', curveStrength: 0, offsetY: 255, letterSpacing: 1.5 },
+      { text: 'Thành Kính Phân Ưu', fontFamily: 'Cormorant Garamond', fontSize: 62, fontWeight: 'bold', fontStyle: 'italic', color: '#09090b', strokeColor: '#ffffff', strokeWidth: 2, curveType: 'arc', curveStrength: 16, offsetY: 155, letterSpacing: 2 },
+      { text: 'Vô Cùng Thương Tiếc', fontFamily: 'Cormorant Garamond', fontSize: 50, fontWeight: 'normal', fontStyle: 'italic', color: '#27272a', strokeColor: '#ffffff', strokeWidth: 1.5, curveType: 'flat', curveStrength: 0, offsetY: 250, letterSpacing: 1.5 },
     ],
   },
 };
@@ -193,8 +194,8 @@ export const useCardStore = create<CardStore>()(
       addStrokeLayer: () =>
         set((state) => {
           const count = state.config.strokeLayers.length;
-          const lastWidth = count > 0 ? state.config.strokeLayers[count - 1].width : 10;
-          const newWidth = Math.max(lastWidth - 6, 4);
+          const lastWidth = count > 0 ? state.config.strokeLayers[count - 1].width : 12;
+          const newWidth = Math.max(lastWidth - 8, 4);
           const newLayer: StrokeLayer = {
             id: generateId(),
             name: `Lớp ${count + 1}`,
@@ -255,8 +256,8 @@ export const useCardStore = create<CardStore>()(
         })),
     }),
     {
-      name: 'flower-card-studio-storage-v3',
-      version: 3,
+      name: 'flower-card-studio-storage-v4',
+      version: 4,
     }
   )
 );
