@@ -11,366 +11,329 @@ function calculatePathD(line: TextLine): string {
   const c = line.curveStrength;
 
   if (line.curveType === 'wave') {
-    return `M 80,${y + c * 0.55} C 350,${y - c * 1.85} 650,${y + c * 1.85} 920,${y - c * 0.55}`;
+    return `M 70,${y + c * 0.55} C 350,${y - c * 1.85} 650,${y + c * 1.85} 930,${y - c * 0.55}`;
   } else if (line.curveType === 'arc') {
-    return `M 80,${y + c * 0.5} Q 500,${y - c * 1.7} 920,${y + c * 0.5}`;
+    return `M 70,${y + c * 0.5} Q 500,${y - c * 1.7} 930,${y + c * 0.5}`;
   } else {
-    return `M 80,${y} L 920,${y}`;
+    return `M 70,${y} L 930,${y}`;
   }
 }
 
-function RibbonRedTemplate() {
+// Icon Heart Component in SVG
+const HeartIcon: React.FC<{ x: number; y: number; size: number; rotate?: number; fill?: string; stroke?: string }> = ({
+  x,
+  y,
+  size,
+  rotate = 0,
+  fill = '#dc2626',
+  stroke = '#ffffff',
+}) => {
+  const scale = size / 24;
+  return (
+    <g transform={`translate(${x}, ${y}) rotate(${rotate}) scale(${scale})`}>
+      <path
+        d="M 12,21.35 l -1.45,-1.32 C 5.4,15.36 2,12.28 2,8.5 C 2,5.42 4.42,3 7.5,3 c 1.74,0 3.41,0.81 4.5,2.09 C 13.09,3.81 14.76,3 16.5,3 C 19.58,3 22,5.42 22,8.5 c 0,3.78 -3.4,6.86 -8.55,11.54 L 12,21.35 z"
+        fill={fill}
+        stroke={stroke}
+        strokeWidth="1.5"
+        strokeLinejoin="round"
+      />
+    </g>
+  );
+};
+
+// Icon Star Component in SVG
+const StarIcon: React.FC<{ x: number; y: number; size: number; fill?: string; stroke?: string }> = ({
+  x,
+  y,
+  size,
+  fill = '#f59e0b',
+  stroke = '#ffffff',
+}) => {
+  return (
+    <g transform={`translate(${x}, ${y})`}>
+      <path
+        d={`M 0,${-size} L ${size * 0.28},${-size * 0.28} L ${size},0 L ${size * 0.28},${size * 0.28} L 0,${size} L ${-size * 0.28},${size * 0.28} L ${-size},0 L ${-size * 0.28},${-size * 0.28} Z`}
+        fill={fill}
+        stroke={stroke}
+        strokeWidth="1.2"
+      />
+    </g>
+  );
+};
+
+// 1. Die-cut Sticker Red Heart Template (Chính xác theo mẫu ảnh người dùng gửi)
+function DiecutRedHeartTemplate() {
   return (
     <g>
-      {/* Gradient definitions */}
       <defs>
-        <linearGradient id="ribbonRedGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#fff1f2" />
-          <stop offset="100%" stopColor="#fecdd3" />
+        <linearGradient id="diecutRedTextGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#ef4444" />
+          <stop offset="50%" stopColor="#dc2626" />
+          <stop offset="100%" stopColor="#991b1b" />
         </linearGradient>
-        <linearGradient id="ribbonRedBorder" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#f43f5e" />
-          <stop offset="100%" stopColor="#9f1239" />
-        </linearGradient>
-        <linearGradient id="roseGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#fb7185" />
-          <stop offset="100%" stopColor="#e11d48" />
+        <linearGradient id="pinkGlowGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#fecdd3" />
+          <stop offset="50%" stopColor="#fda4af" />
+          <stop offset="100%" stopColor="#f43f5e" />
         </linearGradient>
       </defs>
 
-      {/* Main ribbon background - S-curved wave shape */}
+      {/* Outer Layer: Bold Red Silhouette Cloud Contour */}
       <path
-        d="M 0,60 C 150,20 350,100 500,60 C 650,20 850,100 1000,60 L 1000,360 C 850,400 650,320 500,360 C 350,400 150,320 0,360 Z"
-        fill="url(#ribbonRedGrad)"
-        stroke="url(#ribbonRedBorder)"
-        strokeWidth="4"
+        d="M 220,160 
+           C 210,95 270,55 350,55 
+           C 380,40 430,30 500,30 
+           C 570,30 620,40 650,55 
+           C 730,55 790,95 780,160 
+           C 840,165 910,185 960,225 
+           C 995,255 995,305 960,335 
+           C 910,375 830,385 750,375 
+           C 700,385 620,390 500,390 
+           C 380,390 300,385 250,375 
+           C 170,385 90,375 40,335 
+           C 5,305 5,255 40,225 
+           C 90,185 160,165 220,160 Z"
+        fill="#dc2626"
       />
 
-      {/* Inner decorative wavy line - top */}
+      {/* Middle Layer: Fresh Pink Bubble Silhouette */}
       <path
-        d="M 30,85 C 180,55 320,115 500,85 C 680,55 820,115 970,85"
-        fill="none"
-        stroke="#f43f5e"
-        strokeWidth="1.5"
-        strokeDasharray="6,4"
-        opacity="0.6"
+        d="M 230,162 
+           C 222,105 275,70 350,70 
+           C 380,55 430,46 500,46 
+           C 570,46 620,55 650,70 
+           C 725,70 778,105 770,162 
+           C 830,167 898,187 945,225 
+           C 978,252 978,298 945,325 
+           C 898,363 822,371 748,362 
+           C 698,371 618,375 500,375 
+           C 382,375 302,371 252,362 
+           C 178,371 102,363 55,325 
+           C 22,298 22,252 55,225 
+           C 102,187 170,167 230,162 Z"
+        fill="url(#pinkGlowGrad)"
       />
 
-      {/* Inner decorative wavy line - bottom */}
+      {/* Inner Layer: Pure White Halo Base */}
       <path
-        d="M 30,335 C 180,365 320,305 500,335 C 680,365 820,305 970,335"
-        fill="none"
-        stroke="#f43f5e"
-        strokeWidth="1.5"
-        strokeDasharray="6,4"
-        opacity="0.6"
+        d="M 242,165 
+           C 236,118 282,86 350,86 
+           C 380,72 430,64 500,64 
+           C 570,64 620,72 650,86 
+           C 718,86 764,118 758,165 
+           C 816,170 882,190 928,225 
+           C 958,250 958,290 928,315 
+           C 882,350 812,356 745,348 
+           C 695,356 615,360 500,360 
+           C 385,360 305,356 255,348 
+           C 188,356 118,350 72,315 
+           C 42,290 42,250 72,225 
+           C 118,190 184,170 242,165 Z"
+        fill="#ffffff"
       />
-
-      {/* Left ribbon tail fold */}
-      <path
-        d="M 0,60 L -30,10 L 0,30 Z"
-        fill="#be123c"
-        opacity="0.8"
-      />
-      <path
-        d="M 0,360 L -30,410 L 0,390 Z"
-        fill="#be123c"
-        opacity="0.8"
-      />
-
-      {/* Right ribbon tail fold */}
-      <path
-        d="M 1000,60 L 1030,10 L 1000,30 Z"
-        fill="#be123c"
-        opacity="0.8"
-      />
-      <path
-        d="M 1000,360 L 1030,410 L 1000,390 Z"
-        fill="#be123c"
-        opacity="0.8"
-      />
-
-      {/* Three rose flowers in the center bottom */}
-      {/* Center rose */}
-      <g transform="translate(490, 338)">
-        {/* Leaves */}
-        <ellipse cx="-22" cy="-5" rx="14" ry="7" fill="#16a34a" transform="rotate(-30, -22, -5)" />
-        <ellipse cx="22" cy="-5" rx="14" ry="7" fill="#16a34a" transform="rotate(30, 22, -5)" />
-        <ellipse cx="0" cy="-8" rx="10" ry="5" fill="#15803d" transform="rotate(0, 0, -8)" />
-        {/* Rose petals */}
-        <circle cx="0" cy="-20" r="12" fill="#f43f5e" opacity="0.85" />
-        <circle cx="10" cy="-14" r="11" fill="#e11d48" opacity="0.9" />
-        <circle cx="-10" cy="-14" r="11" fill="#e11d48" opacity="0.9" />
-        <circle cx="12" cy="-24" r="10" fill="#f43f5e" opacity="0.85" />
-        <circle cx="-12" cy="-24" r="10" fill="#f43f5e" opacity="0.85" />
-        <circle cx="0" cy="-30" r="10" fill="#fb7185" opacity="0.9" />
-        {/* Center */}
-        <circle cx="0" cy="-20" r="5" fill="#9f1239" />
-      </g>
-
-      {/* Left rose */}
-      <g transform="translate(420, 348)">
-        <ellipse cx="-18" cy="-4" rx="12" ry="6" fill="#16a34a" transform="rotate(-35, -18, -4)" />
-        <ellipse cx="18" cy="-4" rx="12" ry="6" fill="#16a34a" transform="rotate(35, 18, -4)" />
-        <circle cx="0" cy="-16" r="10" fill="#f43f5e" opacity="0.85" />
-        <circle cx="8" cy="-11" r="9" fill="#e11d48" opacity="0.9" />
-        <circle cx="-8" cy="-11" r="9" fill="#e11d48" opacity="0.9" />
-        <circle cx="0" cy="-24" r="9" fill="#fb7185" opacity="0.9" />
-        <circle cx="0" cy="-16" r="4" fill="#9f1239" />
-      </g>
-
-      {/* Right rose */}
-      <g transform="translate(560, 348)">
-        <ellipse cx="-18" cy="-4" rx="12" ry="6" fill="#16a34a" transform="rotate(-35, -18, -4)" />
-        <ellipse cx="18" cy="-4" rx="12" ry="6" fill="#16a34a" transform="rotate(35, 18, -4)" />
-        <circle cx="0" cy="-16" r="10" fill="#f43f5e" opacity="0.85" />
-        <circle cx="8" cy="-11" r="9" fill="#e11d48" opacity="0.9" />
-        <circle cx="-8" cy="-11" r="9" fill="#e11d48" opacity="0.9" />
-        <circle cx="0" cy="-24" r="9" fill="#fb7185" opacity="0.9" />
-        <circle cx="0" cy="-16" r="4" fill="#9f1239" />
-      </g>
-
-      {/* Decorative dots pattern */}
-      <circle cx="80" cy="210" r="3" fill="#fda4af" opacity="0.6" />
-      <circle cx="100" cy="210" r="3" fill="#fda4af" opacity="0.6" />
-      <circle cx="900" cy="210" r="3" fill="#fda4af" opacity="0.6" />
-      <circle cx="920" cy="210" r="3" fill="#fda4af" opacity="0.6" />
     </g>
   );
 }
 
-function RibbonGoldTemplate() {
+// 2. Die-cut Sticker Gold Luxury Template
+function DiecutGoldLuxuryTemplate() {
   return (
     <g>
       <defs>
-        <linearGradient id="ribbonGoldGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#fefce8" />
-          <stop offset="50%" stopColor="#fef9c3" />
-          <stop offset="100%" stopColor="#fde68a" />
-        </linearGradient>
-        <linearGradient id="ribbonGoldBorder" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#d97706" />
-          <stop offset="100%" stopColor="#92400e" />
-        </linearGradient>
-        <linearGradient id="goldRoseGrad" x1="0%" y1="0%" x2="100%" y2="100%">
-          <stop offset="0%" stopColor="#fde68a" />
-          <stop offset="100%" stopColor="#f59e0b" />
+        <linearGradient id="goldGlowGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#fef08a" />
+          <stop offset="50%" stopColor="#fde047" />
+          <stop offset="100%" stopColor="#eab308" />
         </linearGradient>
       </defs>
 
-      {/* Main ribbon */}
+      {/* Outer Layer: Bold Bronze/Amber Silhouette */}
       <path
-        d="M 0,60 C 150,20 350,100 500,60 C 650,20 850,100 1000,60 L 1000,360 C 850,400 650,320 500,360 C 350,400 150,320 0,360 Z"
-        fill="url(#ribbonGoldGrad)"
-        stroke="url(#ribbonGoldBorder)"
-        strokeWidth="4"
+        d="M 220,160 
+           C 210,95 270,55 350,55 
+           C 380,40 430,30 500,30 
+           C 570,30 620,40 650,55 
+           C 730,55 790,95 780,160 
+           C 840,165 910,185 960,225 
+           C 995,255 995,305 960,335 
+           C 910,375 830,385 750,375 
+           C 700,385 620,390 500,390 
+           C 380,390 300,385 250,375 
+           C 170,385 90,375 40,335 
+           C 5,305 5,255 40,225 
+           C 90,185 160,165 220,160 Z"
+        fill="#b45309"
       />
 
-      {/* Inner stitching pattern - top */}
+      {/* Middle Layer: Golden Yellow Glow */}
       <path
-        d="M 30,85 C 180,55 320,115 500,85 C 680,55 820,115 970,85"
-        fill="none"
-        stroke="#d97706"
-        strokeWidth="1.5"
-        strokeDasharray="8,5"
-        opacity="0.7"
+        d="M 230,162 
+           C 222,105 275,70 350,70 
+           C 380,55 430,46 500,46 
+           C 570,46 620,55 650,70 
+           C 725,70 778,105 770,162 
+           C 830,167 898,187 945,225 
+           C 978,252 978,298 945,325 
+           C 898,363 822,371 748,362 
+           C 698,371 618,375 500,375 
+           C 382,375 302,371 252,362 
+           C 178,371 102,363 55,325 
+           C 22,298 22,252 55,225 
+           C 102,187 170,167 230,162 Z"
+        fill="url(#goldGlowGrad)"
       />
 
-      {/* Inner stitching pattern - bottom */}
+      {/* Inner Layer: Pure White Halo Base */}
       <path
-        d="M 30,335 C 180,365 320,305 500,335 C 680,365 820,305 970,335"
-        fill="none"
-        stroke="#d97706"
-        strokeWidth="1.5"
-        strokeDasharray="8,5"
-        opacity="0.7"
+        d="M 242,165 
+           C 236,118 282,86 350,86 
+           C 380,72 430,64 500,64 
+           C 570,64 620,72 650,86 
+           C 718,86 764,118 758,165 
+           C 816,170 882,190 928,225 
+           C 958,250 958,290 928,315 
+           C 882,350 812,356 745,348 
+           C 695,356 615,360 500,360 
+           C 385,360 305,356 255,348 
+           C 188,356 118,350 72,315 
+           C 42,290 42,250 72,225 
+           C 118,190 184,170 242,165 Z"
+        fill="#ffffff"
       />
-
-      {/* Gold star decorations */}
-      <text x="50" y="220" fontSize="20" fill="#d97706" opacity="0.8" textAnchor="middle">✦</text>
-      <text x="950" y="220" fontSize="20" fill="#d97706" opacity="0.8" textAnchor="middle">✦</text>
-      <text x="500" y="80" fontSize="14" fill="#d97706" opacity="0.6" textAnchor="middle">✦ ✦ ✦</text>
-      <text x="500" y="358" fontSize="14" fill="#d97706" opacity="0.6" textAnchor="middle">✦ ✦ ✦</text>
-
-      {/* Golden rose flowers */}
-      <g transform="translate(490, 338)">
-        <ellipse cx="-22" cy="-5" rx="14" ry="7" fill="#166534" transform="rotate(-30, -22, -5)" />
-        <ellipse cx="22" cy="-5" rx="14" ry="7" fill="#166534" transform="rotate(30, 22, -5)" />
-        <circle cx="0" cy="-20" r="12" fill="#fbbf24" opacity="0.85" />
-        <circle cx="10" cy="-14" r="11" fill="#f59e0b" opacity="0.9" />
-        <circle cx="-10" cy="-14" r="11" fill="#f59e0b" opacity="0.9" />
-        <circle cx="12" cy="-24" r="10" fill="#fcd34d" opacity="0.85" />
-        <circle cx="-12" cy="-24" r="10" fill="#fcd34d" opacity="0.85" />
-        <circle cx="0" cy="-30" r="10" fill="#fde68a" opacity="0.9" />
-        <circle cx="0" cy="-20" r="5" fill="#92400e" />
-      </g>
-
-      <g transform="translate(420, 348)">
-        <ellipse cx="-18" cy="-4" rx="12" ry="6" fill="#166534" transform="rotate(-35, -18, -4)" />
-        <ellipse cx="18" cy="-4" rx="12" ry="6" fill="#166534" transform="rotate(35, 18, -4)" />
-        <circle cx="0" cy="-16" r="10" fill="#fbbf24" opacity="0.85" />
-        <circle cx="8" cy="-11" r="9" fill="#f59e0b" opacity="0.9" />
-        <circle cx="-8" cy="-11" r="9" fill="#f59e0b" opacity="0.9" />
-        <circle cx="0" cy="-24" r="9" fill="#fde68a" opacity="0.9" />
-        <circle cx="0" cy="-16" r="4" fill="#92400e" />
-      </g>
-
-      <g transform="translate(560, 348)">
-        <ellipse cx="-18" cy="-4" rx="12" ry="6" fill="#166534" transform="rotate(-35, -18, -4)" />
-        <ellipse cx="18" cy="-4" rx="12" ry="6" fill="#166534" transform="rotate(35, 18, -4)" />
-        <circle cx="0" cy="-16" r="10" fill="#fbbf24" opacity="0.85" />
-        <circle cx="8" cy="-11" r="9" fill="#f59e0b" opacity="0.9" />
-        <circle cx="-8" cy="-11" r="9" fill="#f59e0b" opacity="0.9" />
-        <circle cx="0" cy="-24" r="9" fill="#fde68a" opacity="0.9" />
-        <circle cx="0" cy="-16" r="4" fill="#92400e" />
-      </g>
-
-      {/* Left & Right folds */}
-      <path d="M 0,60 L -28,8 L 0,28 Z" fill="#b45309" opacity="0.85" />
-      <path d="M 0,360 L -28,412 L 0,392 Z" fill="#b45309" opacity="0.85" />
-      <path d="M 1000,60 L 1028,8 L 1000,28 Z" fill="#b45309" opacity="0.85" />
-      <path d="M 1000,360 L 1028,412 L 1000,392 Z" fill="#b45309" opacity="0.85" />
     </g>
   );
 }
 
-function FanPinkTemplate() {
+// 3. Die-cut Sticker Blue Fresh Template
+function DiecutBlueFreshTemplate() {
   return (
     <g>
       <defs>
-        <linearGradient id="fanPinkGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#fdf2f8" />
-          <stop offset="100%" stopColor="#fce7f3" />
+        <linearGradient id="blueGlowGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#bfdbfe" />
+          <stop offset="50%" stopColor="#93c5fd" />
+          <stop offset="100%" stopColor="#60a5fa" />
         </linearGradient>
       </defs>
 
-      {/* Fan-shaped semicircle - main body */}
       <path
-        d="M 50,420 Q 50,30 500,20 Q 950,30 950,420 Z"
-        fill="url(#fanPinkGrad)"
-        stroke="#ec4899"
-        strokeWidth="3.5"
+        d="M 220,160 
+           C 210,95 270,55 350,55 
+           C 380,40 430,30 500,30 
+           C 570,30 620,40 650,55 
+           C 730,55 790,95 780,160 
+           C 840,165 910,185 960,225 
+           C 995,255 995,305 960,335 
+           C 910,375 830,385 750,375 
+           C 700,385 620,390 500,390 
+           C 380,390 300,385 250,375 
+           C 170,385 90,375 40,335 
+           C 5,305 5,255 40,225 
+           C 90,185 160,165 220,160 Z"
+        fill="#1d4ed8"
       />
-
-      {/* Fan ribs */}
-      <line x1="500" y1="420" x2="170" y2="45" stroke="#fbcfe8" strokeWidth="1.5" opacity="0.7" />
-      <line x1="500" y1="420" x2="290" y2="28" stroke="#fbcfe8" strokeWidth="1.5" opacity="0.7" />
-      <line x1="500" y1="420" x2="500" y2="22" stroke="#fbcfe8" strokeWidth="1.5" opacity="0.7" />
-      <line x1="500" y1="420" x2="710" y2="28" stroke="#fbcfe8" strokeWidth="1.5" opacity="0.7" />
-      <line x1="500" y1="420" x2="830" y2="45" stroke="#fbcfe8" strokeWidth="1.5" opacity="0.7" />
-
-      {/* Wavy border decoration */}
       <path
-        d="M 55,415 Q 70,380 90,400 Q 110,420 130,390 Q 150,360 170,385 Q 190,410 210,378 Q 230,346 260,370 Q 290,394 330,360 Q 370,326 420,352 Q 470,378 500,355 Q 530,332 580,358 Q 630,384 670,352 Q 710,320 750,346 Q 790,372 820,345 Q 850,318 870,342 Q 890,366 920,340 Q 940,320 960,345 Q 975,365 945,415"
-        fill="none"
-        stroke="#ec4899"
-        strokeWidth="2"
-        opacity="0.5"
+        d="M 230,162 
+           C 222,105 275,70 350,70 
+           C 380,55 430,46 500,46 
+           C 570,46 620,55 650,70 
+           C 725,70 778,105 770,162 
+           C 830,167 898,187 945,225 
+           C 978,252 978,298 945,325 
+           C 898,363 822,371 748,362 
+           C 698,371 618,375 500,375 
+           C 382,375 302,371 252,362 
+           C 178,371 102,363 55,325 
+           C 22,298 22,252 55,225 
+           C 102,187 170,167 230,162 Z"
+        fill="url(#blueGlowGrad)"
       />
-
-      {/* Small flowers - left corner */}
-      <g transform="translate(130, 350)">
-        <circle cx="0" cy="0" r="8" fill="#f9a8d4" />
-        <circle cx="12" cy="-6" r="7" fill="#ec4899" opacity="0.8" />
-        <circle cx="-12" cy="-6" r="7" fill="#ec4899" opacity="0.8" />
-        <circle cx="0" cy="-14" r="7" fill="#f472b6" />
-        <circle cx="0" cy="0" r="3" fill="#be185d" />
-        <ellipse cx="-18" cy="8" rx="10" ry="5" fill="#16a34a" transform="rotate(-20, -18, 8)" />
-        <ellipse cx="18" cy="8" rx="10" ry="5" fill="#16a34a" transform="rotate(20, 18, 8)" />
-      </g>
-
-      {/* Small flowers - right corner */}
-      <g transform="translate(870, 350)">
-        <circle cx="0" cy="0" r="8" fill="#f9a8d4" />
-        <circle cx="12" cy="-6" r="7" fill="#ec4899" opacity="0.8" />
-        <circle cx="-12" cy="-6" r="7" fill="#ec4899" opacity="0.8" />
-        <circle cx="0" cy="-14" r="7" fill="#f472b6" />
-        <circle cx="0" cy="0" r="3" fill="#be185d" />
-        <ellipse cx="-18" cy="8" rx="10" ry="5" fill="#16a34a" transform="rotate(-20, -18, 8)" />
-        <ellipse cx="18" cy="8" rx="10" ry="5" fill="#16a34a" transform="rotate(20, 18, 8)" />
-      </g>
-
-      {/* Center dot decoration */}
-      <circle cx="500" cy="420" r="12" fill="#ec4899" />
-      <circle cx="500" cy="420" r="7" fill="#be185d" />
-
-      {/* Decorative dots along arc */}
-      <circle cx="200" cy="110" r="4" fill="#f9a8d4" opacity="0.8" />
-      <circle cx="350" cy="50" r="4" fill="#f9a8d4" opacity="0.8" />
-      <circle cx="500" cy="35" r="4" fill="#f9a8d4" opacity="0.8" />
-      <circle cx="650" cy="50" r="4" fill="#f9a8d4" opacity="0.8" />
-      <circle cx="800" cy="110" r="4" fill="#f9a8d4" opacity="0.8" />
+      <path
+        d="M 242,165 
+           C 236,118 282,86 350,86 
+           C 380,72 430,64 500,64 
+           C 570,64 620,72 650,86 
+           C 718,86 764,118 758,165 
+           C 816,170 882,190 928,225 
+           C 958,250 958,290 928,315 
+           C 882,350 812,356 745,348 
+           C 695,356 615,360 500,360 
+           C 385,360 305,356 255,348 
+           C 188,356 118,350 72,315 
+           C 42,290 42,250 72,225 
+           C 118,190 184,170 242,165 Z"
+        fill="#ffffff"
+      />
     </g>
   );
 }
 
-function CloudMintTemplate() {
+// 4. Die-cut Sticker Purple Sweet Template
+function DiecutPurpleSweetTemplate() {
   return (
     <g>
       <defs>
-        <linearGradient id="cloudMintGrad" x1="0%" y1="0%" x2="0%" y2="100%">
-          <stop offset="0%" stopColor="#f0fdf4" />
-          <stop offset="100%" stopColor="#d1fae5" />
+        <linearGradient id="purpleGlowGrad" x1="0%" y1="0%" x2="0%" y2="100%">
+          <stop offset="0%" stopColor="#f5d0fe" />
+          <stop offset="50%" stopColor="#e879f9" />
+          <stop offset="100%" stopColor="#c026d3" />
         </linearGradient>
       </defs>
 
-      {/* Cloud/oval wavy shape */}
       <path
-        d="M 80,210 
-           C 80,80 180,30 280,40 
-           C 330,20 380,10 420,15 
-           C 450,5 480,0 500,0 
-           C 520,0 550,5 580,15 
-           C 620,10 670,20 720,40 
-           C 820,30 920,80 920,210 
-           C 920,340 820,400 720,390 
-           C 670,410 620,420 580,415 
-           C 550,425 520,430 500,430 
-           C 480,430 450,425 420,415 
-           C 380,420 330,410 280,390 
-           C 180,400 80,340 80,210 Z"
-        fill="url(#cloudMintGrad)"
-        stroke="#059669"
-        strokeWidth="3"
+        d="M 220,160 
+           C 210,95 270,55 350,55 
+           C 380,40 430,30 500,30 
+           C 570,30 620,40 650,55 
+           C 730,55 790,95 780,160 
+           C 840,165 910,185 960,225 
+           C 995,255 995,305 960,335 
+           C 910,375 830,385 750,375 
+           C 700,385 620,390 500,390 
+           C 380,390 300,385 250,375 
+           C 170,385 90,375 40,335 
+           C 5,305 5,255 40,225 
+           C 90,185 160,165 220,160 Z"
+        fill="#7e22ce"
       />
-
-      {/* Inner wavy border */}
       <path
-        d="M 105,210 
-           C 105,95 198,50 293,60 
-           C 340,42 388,33 425,38 
-           C 455,28 482,23 500,23 
-           C 518,23 545,28 575,38 
-           C 612,33 660,42 707,60 
-           C 802,50 895,95 895,210 
-           C 895,325 802,370 707,360 
-           C 660,378 612,387 575,382 
-           C 545,392 518,397 500,397 
-           C 482,397 455,392 425,382 
-           C 388,387 340,378 293,360 
-           C 198,370 105,325 105,210 Z"
-        fill="none"
-        stroke="#34d399"
-        strokeWidth="1.5"
-        strokeDasharray="8,5"
-        opacity="0.7"
+        d="M 230,162 
+           C 222,105 275,70 350,70 
+           C 380,55 430,46 500,46 
+           C 570,46 620,55 650,70 
+           C 725,70 778,105 770,162 
+           C 830,167 898,187 945,225 
+           C 978,252 978,298 945,325 
+           C 898,363 822,371 748,362 
+           C 698,371 618,375 500,375 
+           C 382,375 302,371 252,362 
+           C 178,371 102,363 55,325 
+           C 22,298 22,252 55,225 
+           C 102,187 170,167 230,162 Z"
+        fill="url(#purpleGlowGrad)"
       />
-
-      {/* Decorative mint stars */}
-      <text x="160" y="200" fontSize="18" fill="#059669" opacity="0.7" textAnchor="middle">❋</text>
-      <text x="840" y="200" fontSize="18" fill="#059669" opacity="0.7" textAnchor="middle">❋</text>
-      <text x="500" y="60" fontSize="14" fill="#10b981" opacity="0.6" textAnchor="middle">✿ ✿ ✿</text>
-      <text x="500" y="390" fontSize="14" fill="#10b981" opacity="0.6" textAnchor="middle">✿ ✿ ✿</text>
-
-      {/* Small leaf decorations */}
-      <ellipse cx="150" cy="350" rx="18" ry="8" fill="#16a34a" transform="rotate(-30, 150, 350)" opacity="0.8" />
-      <ellipse cx="185" cy="365" rx="15" ry="7" fill="#15803d" transform="rotate(-15, 185, 365)" opacity="0.8" />
-      <ellipse cx="850" cy="350" rx="18" ry="8" fill="#16a34a" transform="rotate(30, 850, 350)" opacity="0.8" />
-      <ellipse cx="815" cy="365" rx="15" ry="7" fill="#15803d" transform="rotate(15, 815, 365)" opacity="0.8" />
+      <path
+        d="M 242,165 
+           C 236,118 282,86 350,86 
+           C 380,72 430,64 500,64 
+           C 570,64 620,72 650,86 
+           C 718,86 764,118 758,165 
+           C 816,170 882,190 928,225 
+           C 958,250 958,290 928,315 
+           C 882,350 812,356 745,348 
+           C 695,356 615,360 500,360 
+           C 385,360 305,356 255,348 
+           C 188,356 118,350 72,315 
+           C 42,290 42,250 72,225 
+           C 118,190 184,170 242,165 Z"
+        fill="#ffffff"
+      />
     </g>
   );
 }
 
+// 5. Oval Mourning Template (Tang lễ / Kính viếng)
 function OvalMourningTemplate() {
   return (
     <g>
@@ -381,15 +344,11 @@ function OvalMourningTemplate() {
         </linearGradient>
       </defs>
 
-      {/* Outer oval frame */}
       <ellipse cx="500" cy="210" rx="460" ry="195" fill="url(#mourningGrad)" stroke="#1e293b" strokeWidth="5" />
-      {/* Middle oval border */}
       <ellipse cx="500" cy="210" rx="445" ry="180" fill="none" stroke="#475569" strokeWidth="2" />
-      {/* Inner oval border */}
       <ellipse cx="500" cy="210" rx="430" ry="165" fill="none" stroke="#1e293b" strokeWidth="1.5" strokeDasharray="10,6" />
 
-      {/* Lotus/chrysanthemum flowers at bottom center */}
-      {/* Center flower */}
+      {/* Lotus / Chrysanthemum flower ornament */}
       <g transform="translate(500, 360)">
         <circle cx="0" cy="0" r="12" fill="#cbd5e1" />
         {[0, 45, 90, 135, 180, 225, 270, 315].map((angle, i) => (
@@ -408,7 +367,6 @@ function OvalMourningTemplate() {
         <circle cx="0" cy="0" r="7" fill="#f1f5f9" stroke="#94a3b8" strokeWidth="1" />
       </g>
 
-      {/* Left flower */}
       <g transform="translate(380, 368)">
         <circle cx="0" cy="0" r="9" fill="#cbd5e1" />
         {[0, 60, 120, 180, 240, 300].map((angle, i) => (
@@ -424,10 +382,8 @@ function OvalMourningTemplate() {
             transform={`rotate(${angle}, ${Math.cos((angle * Math.PI) / 180) * 15}, ${Math.sin((angle * Math.PI) / 180) * 15})`}
           />
         ))}
-        <circle cx="0" cy="0" r="5" fill="#f1f5f9" stroke="#94a3b8" strokeWidth="1" />
       </g>
 
-      {/* Right flower */}
       <g transform="translate(620, 368)">
         <circle cx="0" cy="0" r="9" fill="#cbd5e1" />
         {[0, 60, 120, 180, 240, 300].map((angle, i) => (
@@ -443,13 +399,10 @@ function OvalMourningTemplate() {
             transform={`rotate(${angle}, ${Math.cos((angle * Math.PI) / 180) * 15}, ${Math.sin((angle * Math.PI) / 180) * 15})`}
           />
         ))}
-        <circle cx="0" cy="0" r="5" fill="#f1f5f9" stroke="#94a3b8" strokeWidth="1" />
       </g>
 
-      {/* Top small ornament */}
       <text x="500" y="50" fontSize="16" fill="#334155" opacity="0.8" textAnchor="middle">✦ ✦ ✦</text>
 
-      {/* Candle icons at sides */}
       <rect x="75" y="170" width="8" height="40" rx="2" fill="#e2e8f0" stroke="#94a3b8" strokeWidth="1" />
       <path d="M 79,170 C 79,160 83,155 79,148 C 75,155 79,160 79,170" fill="#fbbf24" />
       <rect x="917" y="170" width="8" height="40" rx="2" fill="#e2e8f0" stroke="#94a3b8" strokeWidth="1" />
@@ -459,6 +412,8 @@ function OvalMourningTemplate() {
 }
 
 const SvgCardCanvas: React.FC<SvgCardCanvasProps> = ({ config, uid }) => {
+  const isDiecut = config.templateId.startsWith('diecut');
+
   const renderTemplate = () => {
     if (config.templateId === 'custom-upload' && config.customBgUrl) {
       return (
@@ -471,20 +426,38 @@ const SvgCardCanvas: React.FC<SvgCardCanvasProps> = ({ config, uid }) => {
       );
     }
     switch (config.templateId) {
-      case 'ribbon-red':
-        return <RibbonRedTemplate />;
-      case 'ribbon-gold':
-        return <RibbonGoldTemplate />;
-      case 'fan-pink':
-        return <FanPinkTemplate />;
-      case 'cloud-mint':
-        return <CloudMintTemplate />;
+      case 'diecut-red-heart':
+        return <DiecutRedHeartTemplate />;
+      case 'diecut-gold-luxury':
+        return <DiecutGoldLuxuryTemplate />;
+      case 'diecut-blue-fresh':
+        return <DiecutBlueFreshTemplate />;
+      case 'diecut-purple-sweet':
+        return <DiecutPurpleSweetTemplate />;
       case 'oval-mourning':
         return <OvalMourningTemplate />;
       default:
-        return <RibbonRedTemplate />;
+        return <DiecutRedHeartTemplate />;
     }
   };
+
+  // Determine stroke colors based on template
+  const getOutlineColors = () => {
+    switch (config.templateId) {
+      case 'diecut-red-heart':
+        return { outer: '#dc2626', middle: '#fda4af', inner: '#ffffff' };
+      case 'diecut-gold-luxury':
+        return { outer: '#b45309', middle: '#fde047', inner: '#ffffff' };
+      case 'diecut-blue-fresh':
+        return { outer: '#1d4ed8', middle: '#93c5fd', inner: '#ffffff' };
+      case 'diecut-purple-sweet':
+        return { outer: '#7e22ce', middle: '#f0abfc', inner: '#ffffff' };
+      default:
+        return { outer: '#dc2626', middle: '#fda4af', inner: '#ffffff' };
+    }
+  };
+
+  const outlines = getOutlineColors();
 
   return (
     <svg
@@ -503,13 +476,93 @@ const SvgCardCanvas: React.FC<SvgCardCanvasProps> = ({ config, uid }) => {
         ))}
       </defs>
 
-      {/* Background template */}
+      {/* 1. Background silhouette template */}
       {renderTemplate()}
 
-      {/* Text layers */}
+      {/* 2. For Die-cut templates, render multi-layered stroke passes for compound sticker effect */}
+      {isDiecut && (
+        <>
+          {/* Pass A: Outer bold stroke contour */}
+          {config.lines.map((line) => (
+            <text
+              key={`outer-stroke-${line.id}`}
+              fontFamily={line.fontFamily}
+              fontSize={line.fontSize}
+              fontWeight={line.fontWeight}
+              fontStyle={line.fontStyle}
+              fill="none"
+              stroke={outlines.outer}
+              strokeWidth={Math.max(line.fontSize * 0.45, 26)}
+              strokeLinejoin="round"
+              strokeLinecap="round"
+              letterSpacing={line.letterSpacing}
+            >
+              <textPath
+                href={`#path-${uid}-${line.id}`}
+                startOffset="50%"
+                textAnchor="middle"
+              >
+                {line.text}
+              </textPath>
+            </text>
+          ))}
+
+          {/* Pass B: Middle soft glow stroke contour */}
+          {config.lines.map((line) => (
+            <text
+              key={`middle-stroke-${line.id}`}
+              fontFamily={line.fontFamily}
+              fontSize={line.fontSize}
+              fontWeight={line.fontWeight}
+              fontStyle={line.fontStyle}
+              fill="none"
+              stroke={outlines.middle}
+              strokeWidth={Math.max(line.fontSize * 0.28, 16)}
+              strokeLinejoin="round"
+              strokeLinecap="round"
+              letterSpacing={line.letterSpacing}
+            >
+              <textPath
+                href={`#path-${uid}-${line.id}`}
+                startOffset="50%"
+                textAnchor="middle"
+              >
+                {line.text}
+              </textPath>
+            </text>
+          ))}
+
+          {/* Pass C: Inner white halo stroke */}
+          {config.lines.map((line) => (
+            <text
+              key={`inner-stroke-${line.id}`}
+              fontFamily={line.fontFamily}
+              fontSize={line.fontSize}
+              fontWeight={line.fontWeight}
+              fontStyle={line.fontStyle}
+              fill="none"
+              stroke={outlines.inner}
+              strokeWidth={Math.max(line.fontSize * 0.14, 8)}
+              strokeLinejoin="round"
+              strokeLinecap="round"
+              letterSpacing={line.letterSpacing}
+            >
+              <textPath
+                href={`#path-${uid}-${line.id}`}
+                startOffset="50%"
+                textAnchor="middle"
+              >
+                {line.text}
+              </textPath>
+            </text>
+          ))}
+        </>
+      )}
+
+      {/* 3. Foreground Text Layer (Sharp vector face) */}
       {config.lines.map((line) => (
         <text
-          key={line.id}
+          key={`fg-${line.id}`}
           fontFamily={line.fontFamily}
           fontSize={line.fontSize}
           fontWeight={line.fontWeight}
@@ -518,7 +571,7 @@ const SvgCardCanvas: React.FC<SvgCardCanvasProps> = ({ config, uid }) => {
           stroke={line.strokeWidth > 0 ? line.strokeColor : 'none'}
           strokeWidth={line.strokeWidth}
           strokeLinejoin="round"
-          paintOrder="stroke"
+          paintOrder="stroke fill"
           letterSpacing={line.letterSpacing}
         >
           <textPath
@@ -530,6 +583,35 @@ const SvgCardCanvas: React.FC<SvgCardCanvasProps> = ({ config, uid }) => {
           </textPath>
         </text>
       ))}
+
+      {/* 4. Decorative Hearts / Stars on accents (Giống hệt mẫu thực tế) */}
+      {config.decorationType === 'hearts' && isDiecut && (
+        <g>
+          {/* Hearts on top line (Chúc Mừng) */}
+          <HeartIcon x={310} y={105} size={24} rotate={-15} fill={outlines.outer} />
+          <HeartIcon x={520} y={88} size={26} rotate={10} fill={outlines.outer} />
+          <HeartIcon x={690} y={130} size={22} rotate={20} fill={outlines.outer} />
+
+          {/* Hearts on bottom line (Ngày Phụ Nữ Việt Nam 20-10) */}
+          <HeartIcon x={115} y={235} size={22} rotate={-10} fill={outlines.outer} />
+          <HeartIcon x={270} y={225} size={25} rotate={15} fill={outlines.outer} />
+          <HeartIcon x={420} y={228} size={23} rotate={-8} fill={outlines.outer} />
+          <HeartIcon x={540} y={230} size={22} rotate={12} fill={outlines.outer} />
+          <HeartIcon x={675} y={232} size={24} rotate={-15} fill={outlines.outer} />
+        </g>
+      )}
+
+      {config.decorationType === 'stars' && isDiecut && (
+        <g>
+          <StarIcon x={310} y={105} size={14} fill={outlines.outer} />
+          <StarIcon x={520} y={85} size={16} fill={outlines.outer} />
+          <StarIcon x={690} y={130} size={12} fill={outlines.outer} />
+          <StarIcon x={115} y={235} size={13} fill={outlines.outer} />
+          <StarIcon x={270} y={225} size={15} fill={outlines.outer} />
+          <StarIcon x={420} y={228} size={14} fill={outlines.outer} />
+          <StarIcon x={675} y={232} size={14} fill={outlines.outer} />
+        </g>
+      )}
     </svg>
   );
 };

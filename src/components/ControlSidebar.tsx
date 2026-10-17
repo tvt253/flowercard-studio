@@ -1,6 +1,6 @@
 import React, { useRef } from 'react';
 import { useCardStore } from '../store/useCardStore';
-import { TextLine, CardConfig, PresetName } from '../types/card';
+import { TextLine, PresetName, TemplateId } from '../types/card';
 import {
   Plus,
   Trash2,
@@ -10,24 +10,26 @@ import {
   Upload,
   Printer,
   FileDown,
+  Heart,
+  Sparkles,
 } from 'lucide-react';
 import { clsx } from 'clsx';
 
 const FONT_OPTIONS = [
-  { label: 'Great Vibes', value: 'Great Vibes' },
-  { label: 'Dancing Script', value: 'Dancing Script' },
-  { label: 'Alex Brush', value: 'Alex Brush' },
-  { label: 'Pacifico', value: 'Pacifico' },
-  { label: 'Playfair Display', value: 'Playfair Display' },
-  { label: 'Cormorant Garamond', value: 'Cormorant Garamond' },
-  { label: 'Montserrat', value: 'Montserrat' },
+  { label: 'Dancing Script (Đẹp chuẩn mẫu)', value: 'Dancing Script' },
+  { label: 'Great Vibes (Thư pháp bay)', value: 'Great Vibes' },
+  { label: 'Alex Brush (Mềm mại)', value: 'Alex Brush' },
+  { label: 'Pacifico (Trẻ trung)', value: 'Pacifico' },
+  { label: 'Playfair Display (Sang trọng)', value: 'Playfair Display' },
+  { label: 'Cormorant Garamond (Trang nghiêm)', value: 'Cormorant Garamond' },
+  { label: 'Montserrat (Hiện đại)', value: 'Montserrat' },
 ];
 
-const TEMPLATE_OPTIONS = [
-  { label: '🎀 Ruy-băng Đỏ (Mẫu gốc)', value: 'ribbon-red' },
-  { label: '✨ Ruy-băng Vàng Kim', value: 'ribbon-gold' },
-  { label: '🌸 Quạt Hồng Pastel', value: 'fan-pink' },
-  { label: '🍃 Đám Mây Bạc Hà', value: 'cloud-mint' },
+const TEMPLATE_OPTIONS: { label: string; value: TemplateId }[] = [
+  { label: '❤️ Bế Viền Đỏ - Trái Tim (Mẫu gốc)', value: 'diecut-red-heart' },
+  { label: '✨ Bế Viền Vàng Kim - Khai Trương', value: 'diecut-gold-luxury' },
+  { label: '🌊 Bế Viền Xanh Dương Tươi Mát', value: 'diecut-blue-fresh' },
+  { label: '💜 Bế Viền Tím Ngọt Ngào', value: 'diecut-purple-sweet' },
   { label: '🕯️ Khung Oval Chia Buồn', value: 'oval-mourning' },
 ];
 
@@ -41,9 +43,9 @@ const PRESET_OPTIONS: { label: string; value: PresetName }[] = [
 ];
 
 const CURVE_TYPE_OPTIONS = [
-  { label: 'Lượn Sóng Ruy-băng', value: 'wave' },
-  { label: 'Vòm Cung', value: 'arc' },
+  { label: 'Vòm Cung Tự Nhiên', value: 'arc' },
   { label: 'Thẳng Ngang', value: 'flat' },
+  { label: 'Lượn Sóng Nhẹ', value: 'wave' },
 ];
 
 interface LineEditorProps {
@@ -63,12 +65,15 @@ const LineEditor: React.FC<LineEditorProps> = ({ line, index, onUpdate, onRemove
         className="flex items-center justify-between px-3 py-2 bg-slate-50 cursor-pointer hover:bg-slate-100 transition-colors"
         onClick={() => setExpanded(!expanded)}
       >
-        <span className="text-xs font-semibold text-slate-600 uppercase tracking-wide">
-          Dòng {index + 1}: {line.text.substring(0, 20)}{line.text.length > 20 ? '...' : ''}
+        <span className="text-xs font-semibold text-slate-700">
+          Dòng {index + 1}: <span className="font-normal text-slate-500">"{line.text}"</span>
         </span>
         <div className="flex items-center gap-1">
           <button
-            onClick={(e) => { e.stopPropagation(); onRemove(line.id); }}
+            onClick={(e) => {
+              e.stopPropagation();
+              onRemove(line.id);
+            }}
             className="p-1 text-red-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors"
             title="Xóa dòng này"
           >
@@ -99,7 +104,7 @@ const LineEditor: React.FC<LineEditorProps> = ({ line, index, onUpdate, onRemove
               <select
                 value={line.fontFamily}
                 onChange={(e) => onUpdate(line.id, { fontFamily: e.target.value })}
-                className="w-full px-2 py-1.5 text-sm border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-rose-400"
+                className="w-full px-2 py-1.5 text-xs border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-rose-400"
                 style={{ fontFamily: line.fontFamily }}
               >
                 {FONT_OPTIONS.map((f) => (
@@ -113,7 +118,7 @@ const LineEditor: React.FC<LineEditorProps> = ({ line, index, onUpdate, onRemove
               <button
                 onClick={() => onUpdate(line.id, { fontWeight: line.fontWeight === 'bold' ? 'normal' : 'bold' })}
                 className={clsx(
-                  'px-2 py-1.5 text-sm border rounded font-bold transition-colors',
+                  'px-2 py-1.5 text-xs border rounded font-bold transition-colors',
                   line.fontWeight === 'bold'
                     ? 'bg-rose-500 border-rose-500 text-white'
                     : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
@@ -125,7 +130,7 @@ const LineEditor: React.FC<LineEditorProps> = ({ line, index, onUpdate, onRemove
               <button
                 onClick={() => onUpdate(line.id, { fontStyle: line.fontStyle === 'italic' ? 'normal' : 'italic' })}
                 className={clsx(
-                  'px-2 py-1.5 text-sm border rounded italic transition-colors',
+                  'px-2 py-1.5 text-xs border rounded italic transition-colors',
                   line.fontStyle === 'italic'
                     ? 'bg-rose-500 border-rose-500 text-white'
                     : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
@@ -153,7 +158,7 @@ const LineEditor: React.FC<LineEditorProps> = ({ line, index, onUpdate, onRemove
             </div>
             <div className="flex-1">
               <label className="block text-xs font-medium text-slate-500 mb-1">
-                Viền chữ ({line.strokeWidth}px)
+                Viền nét ({line.strokeWidth}px)
               </label>
               <div className="flex items-center gap-2">
                 <input
@@ -165,7 +170,7 @@ const LineEditor: React.FC<LineEditorProps> = ({ line, index, onUpdate, onRemove
                 <input
                   type="range"
                   min={0}
-                  max={8}
+                  max={6}
                   step={0.5}
                   value={line.strokeWidth}
                   onChange={(e) => onUpdate(line.id, { strokeWidth: parseFloat(e.target.value) })}
@@ -177,12 +182,13 @@ const LineEditor: React.FC<LineEditorProps> = ({ line, index, onUpdate, onRemove
 
           {/* Font size slider */}
           <div>
-            <label className="block text-xs font-medium text-slate-500 mb-1">
-              Cỡ chữ: <span className="text-rose-500 font-bold">{line.fontSize}px</span>
-            </label>
+            <div className="flex justify-between text-xs font-medium text-slate-500 mb-1">
+              <span>Cỡ chữ:</span>
+              <span className="text-rose-500 font-bold">{line.fontSize}px</span>
+            </div>
             <input
               type="range"
-              min={18}
+              min={24}
               max={110}
               value={line.fontSize}
               onChange={(e) => onUpdate(line.id, { fontSize: parseInt(e.target.value) })}
@@ -191,13 +197,14 @@ const LineEditor: React.FC<LineEditorProps> = ({ line, index, onUpdate, onRemove
 
           {/* Letter spacing */}
           <div>
-            <label className="block text-xs font-medium text-slate-500 mb-1">
-              Khoảng cách chữ: <span className="text-rose-500 font-bold">{line.letterSpacing}</span>
-            </label>
+            <div className="flex justify-between text-xs font-medium text-slate-500 mb-1">
+              <span>Khoảng cách chữ:</span>
+              <span className="text-rose-500 font-bold">{line.letterSpacing}px</span>
+            </div>
             <input
               type="range"
               min={-2}
-              max={20}
+              max={15}
               step={0.5}
               value={line.letterSpacing}
               onChange={(e) => onUpdate(line.id, { letterSpacing: parseFloat(e.target.value) })}
@@ -228,13 +235,14 @@ const LineEditor: React.FC<LineEditorProps> = ({ line, index, onUpdate, onRemove
           {/* Curve strength */}
           {line.curveType !== 'flat' && (
             <div>
-              <label className="block text-xs font-medium text-slate-500 mb-1">
-                Độ cong: <span className="text-rose-500 font-bold">{line.curveStrength}</span>
-              </label>
+              <div className="flex justify-between text-xs font-medium text-slate-500 mb-1">
+                <span>Độ cong:</span>
+                <span className="text-rose-500 font-bold">{line.curveStrength}</span>
+              </div>
               <input
                 type="range"
-                min={-100}
-                max={100}
+                min={-60}
+                max={60}
                 value={line.curveStrength}
                 onChange={(e) => onUpdate(line.id, { curveStrength: parseInt(e.target.value) })}
               />
@@ -243,13 +251,14 @@ const LineEditor: React.FC<LineEditorProps> = ({ line, index, onUpdate, onRemove
 
           {/* Offset Y */}
           <div>
-            <label className="block text-xs font-medium text-slate-500 mb-1">
-              Vị trí dòng (Offset Y): <span className="text-rose-500 font-bold">{line.offsetY}</span>
-            </label>
+            <div className="flex justify-between text-xs font-medium text-slate-500 mb-1">
+              <span>Vị trí dòng (Offset Y):</span>
+              <span className="text-rose-500 font-bold">{line.offsetY}px</span>
+            </div>
             <input
               type="range"
-              min={40}
-              max={380}
+              min={60}
+              max={360}
               value={line.offsetY}
               onChange={(e) => onUpdate(line.id, { offsetY: parseInt(e.target.value) })}
             />
@@ -283,7 +292,7 @@ const ControlSidebar: React.FC = () => {
     const html2pdf = (await import('html2pdf.js')).default;
     const opt = {
       margin: 0,
-      filename: 'flower-card.pdf',
+      filename: 'flowercard-sticker.pdf',
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: { scale: 3, useCORS: true, logging: false },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
@@ -292,35 +301,83 @@ const ControlSidebar: React.FC = () => {
   };
 
   return (
-    <aside className="w-[320px] h-screen bg-white border-r border-slate-200 flex flex-col overflow-hidden shadow-sm">
+    <aside className="w-[330px] h-screen bg-white border-r border-slate-200 flex flex-col overflow-hidden shadow-sm">
       {/* Header */}
       <div className="px-4 py-3 bg-gradient-to-r from-rose-500 to-rose-600 text-white flex-shrink-0">
-        <h1 className="text-base font-bold tracking-wide">🌸 FlowerCard Studio</h1>
-        <p className="text-xs text-rose-200 mt-0.5">Thiết kế thiệp hoa chuyên nghiệp</p>
+        <h1 className="text-base font-bold tracking-wide flex items-center gap-1.5">
+          🌸 FlowerCard Studio
+        </h1>
+        <p className="text-xs text-rose-200 mt-0.5">Bế viền chữ nghệ thuật & in thiệp giỏ hoa</p>
       </div>
 
       <div className="flex-1 overflow-y-auto">
         {/* Section 1: Template & Quick Fill */}
         <div className="p-4 border-b border-slate-100">
-          <h2 className="text-xs font-bold text-slate-700 uppercase tracking-widest mb-3">📋 Chọn Mẫu & Điền Nhanh</h2>
+          <h2 className="text-xs font-bold text-slate-700 uppercase tracking-widest mb-3">
+            📋 Mẫu Bế Viền & Dịp Lễ
+          </h2>
 
-          <div className="space-y-2">
+          <div className="space-y-3">
             <div>
               <label className="block text-xs font-medium text-slate-500 mb-1">Mẫu phôi thiệp</label>
               <select
                 value={config.templateId}
                 onChange={(e) =>
-                  updateConfig({ templateId: e.target.value as CardConfig['templateId'], customBgUrl: null })
+                  updateConfig({ templateId: e.target.value as TemplateId, customBgUrl: null })
                 }
-                className="w-full px-2 py-1.5 text-sm border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-rose-400"
+                className="w-full px-2 py-1.5 text-xs font-medium border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-rose-400 bg-white"
               >
                 {TEMPLATE_OPTIONS.map((t) => (
-                  <option key={t.value} value={t.value}>{t.label}</option>
+                  <option key={t.value} value={t.value}>
+                    {t.label}
+                  </option>
                 ))}
                 {config.templateId === 'custom-upload' && (
-                  <option value="custom-upload">📷 Ảnh phôi riêng</option>
+                  <option value="custom-upload">📷 Ảnh phôi riêng của shop</option>
                 )}
               </select>
+            </div>
+
+            {/* Họa tiết trang trí */}
+            <div>
+              <label className="block text-xs font-medium text-slate-500 mb-1.5">
+                Họa tiết trang trí dấu chữ
+              </label>
+              <div className="grid grid-cols-3 gap-1">
+                <button
+                  onClick={() => updateConfig({ decorationType: 'hearts' })}
+                  className={clsx(
+                    'py-1.5 text-xs border rounded font-medium flex items-center justify-center gap-1 transition-colors',
+                    config.decorationType === 'hearts'
+                      ? 'bg-rose-500 border-rose-500 text-white'
+                      : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                  )}
+                >
+                  <Heart size={12} /> Trái tim
+                </button>
+                <button
+                  onClick={() => updateConfig({ decorationType: 'stars' })}
+                  className={clsx(
+                    'py-1.5 text-xs border rounded font-medium flex items-center justify-center gap-1 transition-colors',
+                    config.decorationType === 'stars'
+                      ? 'bg-rose-500 border-rose-500 text-white'
+                      : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                  )}
+                >
+                  <Sparkles size={12} /> Ngôi sao
+                </button>
+                <button
+                  onClick={() => updateConfig({ decorationType: 'none' })}
+                  className={clsx(
+                    'py-1.5 text-xs border rounded font-medium transition-colors',
+                    config.decorationType === 'none'
+                      ? 'bg-rose-500 border-rose-500 text-white'
+                      : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                  )}
+                >
+                  Tắt
+                </button>
+              </div>
             </div>
 
             <button
@@ -339,7 +396,7 @@ const ControlSidebar: React.FC = () => {
 
             {/* Quick preset buttons */}
             <div>
-              <label className="block text-xs font-medium text-slate-500 mb-1.5">Chọn nhanh dịp lễ</label>
+              <label className="block text-xs font-medium text-slate-500 mb-1.5">Chọn nhanh nội dung</label>
               <div className="grid grid-cols-2 gap-1.5">
                 {PRESET_OPTIONS.map((p) => (
                   <button
@@ -357,13 +414,16 @@ const ControlSidebar: React.FC = () => {
 
         {/* Section 2: A4 Layout */}
         <div className="p-4 border-b border-slate-100">
-          <h2 className="text-xs font-bold text-slate-700 uppercase tracking-widest mb-3">📄 Kích Thước & Dàn Trang A4</h2>
+          <h2 className="text-xs font-bold text-slate-700 uppercase tracking-widest mb-3">
+            📄 Kích Thước & Dàn Trang A4
+          </h2>
 
           <div className="space-y-3">
             <div>
-              <label className="block text-xs font-medium text-slate-500 mb-1">
-                Kích thước thiệp: <span className="text-rose-500 font-bold">{config.scalePercent}%</span> chiều ngang A4
-              </label>
+              <div className="flex justify-between text-xs font-medium text-slate-500 mb-1">
+                <span>Kích thước thiệp:</span>
+                <span className="text-rose-500 font-bold">{config.scalePercent}%</span>
+              </div>
               <input
                 type="range"
                 min={30}
@@ -391,7 +451,7 @@ const ControlSidebar: React.FC = () => {
                   </button>
                 ))}
               </div>
-              <p className="text-xs text-slate-400 mt-1">✓ = Chuẩn mẫu gốc (2 bản/tờ)</p>
+              <p className="text-xs text-slate-400 mt-1">✓ = Chuẩn mẫu thực tế (2 bản / 1 tờ A4)</p>
             </div>
 
             <label className="flex items-center gap-2 cursor-pointer">
@@ -401,7 +461,7 @@ const ControlSidebar: React.FC = () => {
                 onChange={(e) => updateConfig({ showCutLines: e.target.checked })}
                 className="w-4 h-4 accent-rose-500"
               />
-              <span className="text-xs text-slate-600">Hiển thị đường kẻ cắt nét đứt ✂️</span>
+              <span className="text-xs text-slate-600">Đường kẻ nét đứt hướng dẫn cắt ✂️</span>
             </label>
           </div>
         </div>
@@ -409,7 +469,9 @@ const ControlSidebar: React.FC = () => {
         {/* Section 3: Line Editors */}
         <div className="p-4">
           <div className="flex items-center justify-between mb-3">
-            <h2 className="text-xs font-bold text-slate-700 uppercase tracking-widest">✍️ Chỉnh Sửa Dòng Chữ</h2>
+            <h2 className="text-xs font-bold text-slate-700 uppercase tracking-widest">
+              ✍️ Chỉnh Sửa Dòng Chữ
+            </h2>
             <button
               onClick={addLine}
               className="flex items-center gap-1 px-2 py-1 text-xs bg-rose-500 text-white rounded hover:bg-rose-600 transition-colors"
@@ -443,13 +505,13 @@ const ControlSidebar: React.FC = () => {
         <div className="flex gap-2">
           <button
             onClick={handlePrint}
-            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-rose-500 hover:bg-rose-600 text-white text-xs font-semibold rounded transition-colors"
+            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-rose-500 hover:bg-rose-600 text-white text-xs font-semibold rounded transition-colors shadow-sm"
           >
             <Printer size={13} /> In Trực Tiếp (A4)
           </button>
           <button
             onClick={handleExportPDF}
-            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-slate-700 hover:bg-slate-800 text-white text-xs font-semibold rounded transition-colors"
+            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-slate-700 hover:bg-slate-800 text-white text-xs font-semibold rounded transition-colors shadow-sm"
           >
             <FileDown size={13} /> Xuất PDF
           </button>
@@ -458,7 +520,7 @@ const ControlSidebar: React.FC = () => {
           onClick={resetDefault}
           className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs text-slate-500 hover:text-rose-500 border border-slate-200 hover:border-rose-300 rounded transition-colors bg-white"
         >
-          <RotateCcw size={11} /> Đặt lại mặc định
+          <RotateCcw size={11} /> Đặt lại mẫu gốc (20/10)
         </button>
       </div>
     </aside>

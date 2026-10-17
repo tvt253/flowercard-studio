@@ -116,3 +116,4 @@ git push -u origin main
 Từ thời điểm này, mỗi khi bạn commit và `git push` lên nhánh `main`, Render sẽ tự động kéo code mới nhất, build Docker image và phát hành phiên bản mới chỉ trong vòng 2-3 phút hoàn toàn tự động!
 
 *(Ứng dụng cũng có thể triển khai lên **Hugging Face Spaces** dạng Docker Space với cấu hình cổng 7860 mặc định).*
+
