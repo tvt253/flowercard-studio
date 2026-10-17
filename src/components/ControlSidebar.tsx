@@ -31,7 +31,9 @@ const FONT_OPTIONS = [
 ];
 
 const STYLE_OPTIONS: { label: string; value: StyleType }[] = [
-  { label: 'Kiểu Đám Mây', value: 'cloud' },
+  { label: '☁️ Kiểu Đám Mây (Chữ Viền Stroke)', value: 'cloud' },
+  { label: '🔴 Kiểu Oval Đỏ (Khai Trương / Chúc Mừng)', value: 'oval-red' },
+  { label: '⚫ Kiểu Oval Đen (Chia Buồn / Tang Lễ)', value: 'oval-black' },
 ];
 
 const PRESET_OPTIONS: { label: string; value: PresetName }[] = [
@@ -63,7 +65,7 @@ const ControlSidebar: React.FC = () => {
     removeLine,
     updateLine,
     toggleLineTextCase,
-    updateConfig,
+    setStyleType,
     updateGlobalTypography,
     updateStrokeSettings,
     setQuickColorGroup,
@@ -71,6 +73,8 @@ const ControlSidebar: React.FC = () => {
     applyPreset,
     resetDefault,
   } = useCardStore();
+
+  const isOval = config.styleType === 'oval-red' || config.styleType === 'oval-black';
 
   const handlePrint = () => {
     window.print();
@@ -113,13 +117,13 @@ const ControlSidebar: React.FC = () => {
           </div>
 
           <div className="space-y-3">
-            {/* Chọn Kiểu Thiệp */}
+            {/* Chọn Kiểu Thiệp (Đám mây / Oval Đỏ / Oval Đen) */}
             <div>
               <label className="block text-xs font-medium text-slate-500 mb-1">Kiểu thiệp</label>
               <select
                 value={config.styleType}
-                onChange={(e) => updateConfig({ styleType: e.target.value as StyleType })}
-                className="w-full px-2.5 py-1.5 text-xs font-medium border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-rose-400 bg-white"
+                onChange={(e) => setStyleType(e.target.value as StyleType)}
+                className="w-full px-2.5 py-1.5 text-xs font-semibold border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-rose-400 bg-white"
               >
                 {STYLE_OPTIONS.map((s) => (
                   <option key={s.value} value={s.value}>
@@ -187,7 +191,7 @@ const ControlSidebar: React.FC = () => {
               />
             </div>
 
-            {/* Font chữ chung - Charm mặc định giống mẫu nhất */}
+            {/* Font chữ chung */}
             <div>
               <label className="block text-xs font-medium text-slate-500 mb-1">Font chữ</label>
               <select
@@ -242,7 +246,7 @@ const ControlSidebar: React.FC = () => {
                     placeholder={`Nhập dòng ${index + 1}...`}
                   />
                   <div className="flex items-center gap-0.5">
-                    {/* Nút chuyển kiểu chữ Aa: Viết hoa đầu từ (Mặc định) -> In hoa toàn bộ -> Thường */}
+                    {/* Nút chuyển kiểu chữ Aa: Viết hoa đầu từ -> In hoa toàn bộ -> Thường */}
                     <button
                       onClick={() => toggleLineTextCase(line.id)}
                       className={clsx(
@@ -255,7 +259,7 @@ const ControlSidebar: React.FC = () => {
                       )}
                       title={
                         (!line.textCase || line.textCase === 'capitalize')
-                          ? 'Đang bật: Viết Hoa Đầu Từ (Chuẩn mẫu thiệp) - Bấm để chuyển'
+                          ? 'Đang bật: Viết Hoa Đầu Từ (Chuẩn mẫu) - Bấm để chuyển'
                           : line.textCase === 'uppercase'
                           ? 'Đang bật: IN HOA TOÀN BỘ (CAPSLOCK) - Bấm để chuyển'
                           : 'Đang bật: Chữ thường - Bấm để chuyển'
@@ -346,20 +350,20 @@ const ControlSidebar: React.FC = () => {
           </div>
         </div>
 
-        {/* MỤC 3: HỆ THỐNG LỚP VIỀN STROKE (3 OPTION 4, 5, 6 & CHỌN NHANH NHÓM MÀU) */}
+        {/* MỤC 3: MÀU SẮC & LỚP VIỀN STROKE */}
         <div className="p-4 border-b border-slate-100">
           <div className="flex items-center gap-1.5 mb-2.5">
             <Layers size={14} className="text-rose-600" />
             <h2 className="text-xs font-bold text-slate-700 uppercase tracking-widest">
-              3. Lớp Viền Stroke
+              {isOval ? '3. Màu Sắc Thiệp Oval' : '3. Lớp Viền Stroke'}
             </h2>
           </div>
 
           <div className="space-y-3">
-            {/* Chọn nhanh nhóm màu: Bỏ text, thu gọn chỉ hiển thị ô màu tròn */}
+            {/* Chọn nhanh nhóm màu */}
             <div>
               <label className="block text-xs font-medium text-slate-500 mb-1.5">
-                Chọn nhanh nhóm màu
+                {isOval ? 'Chọn màu nền Oval' : 'Chọn nhanh nhóm màu'}
               </label>
               <div className="flex items-center gap-2 flex-wrap">
                 {COLOR_GROUPS.map((g) => {
@@ -385,106 +389,121 @@ const ControlSidebar: React.FC = () => {
               </div>
             </div>
 
-            {/* Chọn số lượng lớp viền: 3 option 4, 5, 6 */}
-            <div>
-              <label className="block text-xs font-medium text-slate-500 mb-1.5">
-                Số lớp viền: <span className="font-bold text-rose-600">{config.strokeLayerCount} lớp</span>
-              </label>
-              <div className="grid grid-cols-3 gap-1.5">
-                {LAYER_COUNT_OPTIONS.map((n) => (
-                  <button
-                    key={n}
-                    onClick={() => updateStrokeSettings({ strokeLayerCount: n })}
-                    className={clsx(
-                      'py-1.5 text-xs border rounded-md font-bold text-center transition-colors',
-                      config.strokeLayerCount === n
-                        ? 'bg-rose-500 border-rose-500 text-white shadow-sm'
-                        : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
-                    )}
-                  >
-                    {n} lớp
-                  </button>
-                ))}
+            {isOval ? (
+              /* THÔNG BÁO DÀNH CHO KIỂU OVAL */
+              <div className="p-2.5 bg-rose-50/60 border border-rose-200 rounded-lg text-xs text-rose-800 space-y-1">
+                <p className="font-semibold flex items-center gap-1">
+                  ✨ Mẫu Oval đặc trưng
+                </p>
+                <p className="text-[11px] text-slate-600">
+                  Khung viền kép với nền màu đặc và chữ màu trắng nổi bật, phù hợp cho lẵng hoa Khai Trương và Chia Buồn.
+                </p>
               </div>
-            </div>
-
-            {/* Màu lớp ngoài cùng & lớp trong cùng */}
-            <div className="grid grid-cols-2 gap-2 p-2.5 bg-slate-50 border border-slate-200 rounded-lg">
-              <div>
-                <label className="block text-[11px] font-semibold text-slate-600 mb-1">
-                  Màu ngoài cùng:
-                </label>
-                <div className="flex items-center gap-1.5">
-                  <input
-                    type="color"
-                    value={config.outerStrokeColor}
-                    onChange={(e) => updateStrokeSettings({ outerStrokeColor: e.target.value })}
-                    className="w-7 h-6 rounded cursor-pointer border border-slate-300"
-                  />
-                  <span className="text-xs font-mono text-slate-600">{config.outerStrokeColor}</span>
+            ) : (
+              /* CÁC ĐIỀU CHỈNH VIỀN DÀNH CHO KIỂU ĐÁM MÂY */
+              <>
+                {/* Chọn số lượng lớp viền: 3 option 4, 5, 6 */}
+                <div>
+                  <label className="block text-xs font-medium text-slate-500 mb-1.5">
+                    Số lớp viền: <span className="font-bold text-rose-600">{config.strokeLayerCount} lớp</span>
+                  </label>
+                  <div className="grid grid-cols-3 gap-1.5">
+                    {LAYER_COUNT_OPTIONS.map((n) => (
+                      <button
+                        key={n}
+                        onClick={() => updateStrokeSettings({ strokeLayerCount: n })}
+                        className={clsx(
+                          'py-1.5 text-xs border rounded-md font-bold text-center transition-colors',
+                          config.strokeLayerCount === n
+                            ? 'bg-rose-500 border-rose-500 text-white shadow-sm'
+                            : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
+                        )}
+                      >
+                        {n} lớp
+                      </button>
+                    ))}
+                  </div>
                 </div>
-              </div>
 
-              <div>
-                <label className="block text-[11px] font-semibold text-slate-600 mb-1">
-                  Màu sát chữ:
-                </label>
-                <div className="flex items-center gap-1.5">
-                  <input
-                    type="color"
-                    value={config.innerStrokeColor}
-                    onChange={(e) => updateStrokeSettings({ innerStrokeColor: e.target.value })}
-                    className="w-7 h-6 rounded cursor-pointer border border-slate-300"
-                  />
-                  <span className="text-xs font-mono text-slate-600">{config.innerStrokeColor}</span>
+                {/* Màu lớp ngoài cùng & lớp trong cùng */}
+                <div className="grid grid-cols-2 gap-2 p-2.5 bg-slate-50 border border-slate-200 rounded-lg">
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                      Màu ngoài cùng:
+                    </label>
+                    <div className="flex items-center gap-1.5">
+                      <input
+                        type="color"
+                        value={config.outerStrokeColor}
+                        onChange={(e) => updateStrokeSettings({ outerStrokeColor: e.target.value })}
+                        className="w-7 h-6 rounded cursor-pointer border border-slate-300"
+                      />
+                      <span className="text-xs font-mono text-slate-600">{config.outerStrokeColor}</span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                      Màu sát chữ:
+                    </label>
+                    <div className="flex items-center gap-1.5">
+                      <input
+                        type="color"
+                        value={config.innerStrokeColor}
+                        onChange={(e) => updateStrokeSettings({ innerStrokeColor: e.target.value })}
+                        className="w-7 h-6 rounded cursor-pointer border border-slate-300"
+                      />
+                      <span className="text-xs font-mono text-slate-600">{config.innerStrokeColor}</span>
+                    </div>
+                  </div>
                 </div>
-              </div>
-            </div>
 
-            {/* Dải màu chuyển tiếp */}
-            <div>
-              <div className="flex h-3 rounded overflow-hidden border border-slate-200 shadow-inner">
-                {config.strokeLayers.map((layer) => (
-                  <div
-                    key={layer.id}
-                    className="flex-1"
-                    style={{ backgroundColor: layer.color }}
-                    title={`${layer.name}: ${layer.color}`}
-                  />
-                ))}
-              </div>
-            </div>
-
-            {/* Kích thước độ dày viền ngoài cùng (lên đến 150) và sát chữ (lên đến 50) */}
-            <div className="space-y-2">
-              <div>
-                <div className="flex justify-between text-xs font-medium text-slate-500 mb-1">
-                  <span>Độ dày viền ngoài cùng:</span>
-                  <span className="font-bold text-rose-600">{config.outerStrokeWidth}px</span>
+                {/* Dải màu chuyển tiếp */}
+                <div>
+                  <div className="flex h-3 rounded overflow-hidden border border-slate-200 shadow-inner">
+                    {config.strokeLayers.map((layer) => (
+                      <div
+                        key={layer.id}
+                        className="flex-1"
+                        style={{ backgroundColor: layer.color }}
+                        title={`${layer.name}: ${layer.color}`}
+                      />
+                    ))}
+                  </div>
                 </div>
-                <input
-                  type="range"
-                  min={20}
-                  max={150}
-                  value={config.outerStrokeWidth}
-                  onChange={(e) => updateStrokeSettings({ outerStrokeWidth: parseInt(e.target.value) })}
-                />
-              </div>
 
-              <div>
-                <div className="flex justify-between text-xs font-medium text-slate-500 mb-1">
-                  <span>Độ dày viền sát chữ:</span>
-                  <span className="font-bold text-rose-600">{config.innerStrokeWidth}px</span>
+                {/* Kích thước độ dày viền ngoài cùng (130px) và sát chữ (30px) */}
+                <div className="space-y-2">
+                  <div>
+                    <div className="flex justify-between text-xs font-medium text-slate-500 mb-1">
+                      <span>Độ dày viền ngoài cùng:</span>
+                      <span className="font-bold text-rose-600">{config.outerStrokeWidth}px</span>
+                    </div>
+                    <input
+                      type="range"
+                      min={20}
+                      max={150}
+                      value={config.outerStrokeWidth}
+                      onChange={(e) => updateStrokeSettings({ outerStrokeWidth: parseInt(e.target.value) })}
+                    />
+                  </div>
+
+                  <div>
+                    <div className="flex justify-between text-xs font-medium text-slate-500 mb-1">
+                      <span>Độ dày viền sát chữ:</span>
+                      <span className="font-bold text-rose-600">{config.innerStrokeWidth}px</span>
+                    </div>
+                    <input
+                      type="range"
+                      min={2}
+                      max={50}
+                      value={config.innerStrokeWidth}
+                      onChange={(e) => updateStrokeSettings({ innerStrokeWidth: parseInt(e.target.value) })}
+                    />
+                  </div>
                 </div>
-                <input
-                  type="range"
-                  min={2}
-                  max={50}
-                  value={config.innerStrokeWidth}
-                  onChange={(e) => updateStrokeSettings({ innerStrokeWidth: parseInt(e.target.value) })}
-                />
-              </div>
-            </div>
+              </>
+            )}
           </div>
         </div>
 

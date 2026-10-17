@@ -1,6 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
-import { CardConfig, TextLine, StrokeLayer, PresetName } from '../types/card';
+import { CardConfig, TextLine, StrokeLayer, PresetName, StyleType } from '../types/card';
 
 const generateId = () => Math.random().toString(36).substring(2, 9);
 
@@ -72,8 +72,9 @@ export function generateAutoStrokeLayers(
 const initialOuterColor = '#c81e2b';
 const initialInnerColor = '#ffffff';
 const initialLayerCount: 4 | 5 | 6 = 5;
-const initialOuterWidth = 56;
-const initialInnerWidth = 12;
+// Cập nhật thông số mặc định theo yêu cầu: ngoài cùng 130, sát chữ 30
+const initialOuterWidth = 130;
+const initialInnerWidth = 30;
 
 const defaultStrokeLayers = generateAutoStrokeLayers(
   initialLayerCount,
@@ -83,12 +84,12 @@ const defaultStrokeLayers = generateAutoStrokeLayers(
   initialInnerWidth
 );
 
-// Mẫu chữ mặc định: Charm (Thư pháp nét chuẩn giống file mẫu nhất)
+// Mẫu chữ mặc định: Charm (Thư pháp), kích thước chữ 70px
 const defaultLine1: TextLine = {
   id: generateId(),
   text: 'Chúc Mừng',
-  fontSize: 90,
-  offsetY: 146,
+  fontSize: 70,
+  offsetY: 155,
   fontWeight: 'bold',
   fontStyle: 'normal',
   letterSpacing: 2,
@@ -98,8 +99,8 @@ const defaultLine1: TextLine = {
 const defaultLine2: TextLine = {
   id: generateId(),
   text: 'Ngày Phụ Nữ Việt Nam 20-10',
-  fontSize: 58,
-  offsetY: 250,
+  fontSize: 70,
+  offsetY: 260,
   fontWeight: 'bold',
   fontStyle: 'normal',
   letterSpacing: 1.5,
@@ -119,7 +120,7 @@ const defaultConfig: CardConfig = {
   globalStrokeColor: '#ffffff',
   globalStrokeWidth: 2.5,
 
-  // Cài đặt viền tự động (màu mặt chữ luôn lấy giống outerStrokeColor)
+  // Cài đặt viền tự động: viền ngoài 130px, viền sát chữ 30px
   strokeLayerCount: initialLayerCount,
   outerStrokeWidth: initialOuterWidth,
   innerStrokeWidth: initialInnerWidth,
@@ -144,8 +145,8 @@ const PRESETS: Record<
     innerColor: '#ffffff',
     globalFontFamily: 'Charm',
     lines: [
-      { text: 'Chúc Mừng', fontSize: 90, offsetY: 146, fontWeight: 'bold' },
-      { text: 'Ngày Phụ Nữ Việt Nam 20-10', fontSize: 58, offsetY: 250, fontWeight: 'bold' },
+      { text: 'Chúc Mừng', fontSize: 70, offsetY: 155, fontWeight: 'bold' },
+      { text: 'Ngày Phụ Nữ Việt Nam 20-10', fontSize: 70, offsetY: 260, fontWeight: 'bold' },
     ],
   },
   '20-11': {
@@ -153,8 +154,8 @@ const PRESETS: Record<
     innerColor: '#ffffff',
     globalFontFamily: 'Charm',
     lines: [
-      { text: 'Chúc Mừng', fontSize: 90, offsetY: 146, fontWeight: 'bold' },
-      { text: 'Ngày Nhà Giáo Việt Nam 20/11', fontSize: 56, offsetY: 250, fontWeight: 'bold' },
+      { text: 'Chúc Mừng', fontSize: 70, offsetY: 155, fontWeight: 'bold' },
+      { text: 'Ngày Nhà Giáo Việt Nam 20/11', fontSize: 70, offsetY: 260, fontWeight: 'bold' },
     ],
   },
   '8-3': {
@@ -162,8 +163,8 @@ const PRESETS: Record<
     innerColor: '#ffffff',
     globalFontFamily: 'Charm',
     lines: [
-      { text: 'Chúc Mừng', fontSize: 90, offsetY: 146, fontWeight: 'bold' },
-      { text: 'Ngày Quốc Tế Phụ Nữ 8-3', fontSize: 58, offsetY: 250, fontWeight: 'bold' },
+      { text: 'Chúc Mừng', fontSize: 70, offsetY: 155, fontWeight: 'bold' },
+      { text: 'Ngày Quốc Tế Phụ Nữ 8-3', fontSize: 70, offsetY: 260, fontWeight: 'bold' },
     ],
   },
   'khai-truong': {
@@ -171,8 +172,8 @@ const PRESETS: Record<
     innerColor: '#ffffff',
     globalFontFamily: 'Playfair Display',
     lines: [
-      { text: 'Chúc Mừng', fontSize: 78, offsetY: 146, fontWeight: 'bold' },
-      { text: 'Khai Trương Hồng Phát', fontSize: 58, offsetY: 250, fontWeight: 'bold' },
+      { text: 'Chúc Mừng', fontSize: 70, offsetY: 155, fontWeight: 'bold' },
+      { text: 'Khai Trương Hồng Phát', fontSize: 70, offsetY: 260, fontWeight: 'bold' },
     ],
   },
   'sinh-nhat': {
@@ -180,8 +181,8 @@ const PRESETS: Record<
     innerColor: '#ffffff',
     globalFontFamily: 'Charm',
     lines: [
-      { text: 'Happy Birthday', fontSize: 78, offsetY: 146, fontWeight: 'bold' },
-      { text: 'Chúc Mừng Sinh Nhật', fontSize: 58, offsetY: 250, fontWeight: 'bold' },
+      { text: 'Happy Birthday', fontSize: 70, offsetY: 155, fontWeight: 'bold' },
+      { text: 'Chúc Mừng Sinh Nhật', fontSize: 70, offsetY: 260, fontWeight: 'bold' },
     ],
   },
   'chia-buon': {
@@ -189,8 +190,8 @@ const PRESETS: Record<
     innerColor: '#ffffff',
     globalFontFamily: 'Cormorant Garamond',
     lines: [
-      { text: 'Thành Kính Phân Ưu', fontSize: 64, offsetY: 155, fontWeight: 'bold' },
-      { text: 'Vô Cùng Thương Tiếc', fontSize: 52, offsetY: 250, fontWeight: 'normal' },
+      { text: 'Thành Kính Phân Ưu', fontSize: 70, offsetY: 155, fontWeight: 'bold' },
+      { text: 'Vô Cùng Thương Tiếc', fontSize: 70, offsetY: 260, fontWeight: 'normal' },
     ],
   },
 };
@@ -202,6 +203,7 @@ interface CardStore {
   updateLine: (id: string, updates: Partial<TextLine>) => void;
   toggleLineTextCase: (id: string) => void;
   updateConfig: (updates: Partial<Omit<CardConfig, 'lines' | 'strokeLayers'>>) => void;
+  setStyleType: (style: StyleType) => void;
   setCopiesPerPage: (copies: 1 | 2) => void;
   updateGlobalTypography: (updates: {
     globalFontFamily?: string;
@@ -236,7 +238,7 @@ export const useCardStore = create<CardStore>()(
               {
                 id: generateId(),
                 text: 'Dòng Chữ Mới',
-                fontSize: 54,
+                fontSize: 70,
                 offsetY: 315,
                 fontWeight: 'bold',
                 fontStyle: 'normal',
@@ -292,6 +294,116 @@ export const useCardStore = create<CardStore>()(
         set((state) => ({
           config: { ...state.config, ...updates },
         })),
+
+      setStyleType: (style: StyleType) =>
+        set((state) => {
+          if (style === 'oval-red') {
+            return {
+              config: {
+                ...state.config,
+                styleType: 'oval-red',
+                outerStrokeColor: '#dc2626',
+                globalFontFamily: 'Playfair Display',
+                globalCurveStrength: 0,
+                lines: [
+                  {
+                    id: generateId(),
+                    text: 'GIA ĐÌNH A BÌNH',
+                    fontSize: 70,
+                    offsetY: 165,
+                    fontWeight: 'bold',
+                    fontStyle: 'normal',
+                    letterSpacing: 2,
+                    textCase: 'uppercase',
+                  },
+                  {
+                    id: generateId(),
+                    text: 'CHÚC MỪNG KHAI TRƯƠNG',
+                    fontSize: 70,
+                    offsetY: 265,
+                    fontWeight: 'bold',
+                    fontStyle: 'normal',
+                    letterSpacing: 1.5,
+                    textCase: 'uppercase',
+                  },
+                ],
+              },
+            };
+          } else if (style === 'oval-black') {
+            return {
+              config: {
+                ...state.config,
+                styleType: 'oval-black',
+                outerStrokeColor: '#09090b',
+                globalFontFamily: 'Playfair Display',
+                globalCurveStrength: 0,
+                lines: [
+                  {
+                    id: generateId(),
+                    text: 'ANH CHỊ EM CON CẬU',
+                    fontSize: 70,
+                    offsetY: 165,
+                    fontWeight: 'bold',
+                    fontStyle: 'normal',
+                    letterSpacing: 2,
+                    textCase: 'uppercase',
+                  },
+                  {
+                    id: generateId(),
+                    text: 'VÔ CÙNG THƯƠNG TIẾC',
+                    fontSize: 70,
+                    offsetY: 265,
+                    fontWeight: 'bold',
+                    fontStyle: 'normal',
+                    letterSpacing: 1.5,
+                    textCase: 'uppercase',
+                  },
+                ],
+              },
+            };
+          } else {
+            // Style đám mây (cloud)
+            const newLayers = generateAutoStrokeLayers(
+              state.config.strokeLayerCount,
+              '#c81e2b',
+              '#ffffff',
+              130,
+              30
+            );
+            return {
+              config: {
+                ...state.config,
+                styleType: 'cloud',
+                outerStrokeColor: '#c81e2b',
+                globalFontFamily: 'Charm',
+                globalCurveStrength: 18,
+                strokeLayers: newLayers,
+                lines: [
+                  {
+                    id: generateId(),
+                    text: 'Chúc Mừng',
+                    fontSize: 70,
+                    offsetY: 155,
+                    fontWeight: 'bold',
+                    fontStyle: 'normal',
+                    letterSpacing: 2,
+                    textCase: 'capitalize',
+                  },
+                  {
+                    id: generateId(),
+                    text: 'Ngày Phụ Nữ Việt Nam 20-10',
+                    fontSize: 70,
+                    offsetY: 260,
+                    fontWeight: 'bold',
+                    fontStyle: 'normal',
+                    letterSpacing: 1.5,
+                    textCase: 'capitalize',
+                  },
+                ],
+              },
+            };
+          }
+        }),
 
       setCopiesPerPage: (copies: 1 | 2) =>
         set((state) => ({
@@ -410,8 +522,8 @@ export const useCardStore = create<CardStore>()(
         }),
     }),
     {
-      name: 'flower-card-studio-storage-v11',
-      version: 11,
+      name: 'flower-card-studio-storage-v12',
+      version: 12,
     }
   )
 );

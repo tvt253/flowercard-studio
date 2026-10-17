@@ -9,7 +9,7 @@ interface SvgCardCanvasProps {
   selectedLineId?: string | null;
 }
 
-// Đường cong Vòm Cung chuẩn nét thiệp hoa (độ cong từ 0 đến 80)
+// Đường cong dẫn hướng (khi curveStrength = 0 thì thẳng ngang)
 function calculatePathD(line: TextLine, config: CardConfig): string {
   const y = line.offsetY;
   const c = line.curveStrength !== undefined ? line.curveStrength : config.globalCurveStrength;
@@ -26,15 +26,21 @@ const SvgCardCanvas: React.FC<SvgCardCanvasProps> = ({
   onSelectLine,
   selectedLineId,
 }) => {
+  const isOval = config.styleType === 'oval-red' || config.styleType === 'oval-black';
+  const ovalColor =
+    config.styleType === 'oval-black'
+      ? '#09090b'
+      : config.outerStrokeColor || '#dc2626';
+
   // Sắp xếp các lớp stroke từ ngoài cùng (width lớn nhất) vào trong (width nhỏ nhất)
   const activeLayers: StrokeLayer[] = [...config.strokeLayers]
     .filter((layer) => layer.enabled && layer.width > 0)
     .sort((a, b) => b.width - a.width);
 
-  const maxLayerWidth = activeLayers[0]?.width || 56;
+  const maxLayerWidth = activeLayers[0]?.width || 130;
 
-  // Màu mặt chữ luôn lấy đồng nhất theo màu stroke ngoài cùng
-  const primaryTextColor = config.outerStrokeColor;
+  // Màu mặt chữ: kiểu Oval chữ màu trắng, kiểu Đám mây chữ trùng màu viền ngoài cùng
+  const primaryTextColor = isOval ? '#ffffff' : config.outerStrokeColor;
 
   return (
     <svg
@@ -43,7 +49,12 @@ const SvgCardCanvas: React.FC<SvgCardCanvasProps> = ({
       style={{ width: '100%', height: 'auto', display: 'block', overflow: 'visible' }}
     >
       <defs>
-        {/* Các đường path dẫn hướng uốn cong cho từng dòng chữ */}
+        {/* Bóng mờ nhẹ cho khung thiệp */}
+        <filter id={`card-shadow-${uid}`} x="-10%" y="-10%" width="120%" height="120%">
+          <feDropShadow dx="0" dy="2" stdDeviation="4" floodColor="#000000" floodOpacity="0.08" />
+        </filter>
+
+        {/* Các đường path dẫn hướng cho từng dòng chữ */}
         {config.lines.map((line) => (
           <path
             key={`path-${uid}-${line.id}`}
@@ -54,45 +65,72 @@ const SvgCardCanvas: React.FC<SvgCardCanvasProps> = ({
         ))}
       </defs>
 
-      {/* 1. CÁC LỚP VIỀN STROKE XẾP TẦNG HÒA QUYỆN (CẢ 2 DÒNG CÙNG VẼ CHUNG MỖI LỚP) */}
-      {activeLayers.map((layer) => (
-        <g key={`stroke-layer-${layer.id}`}>
-          {config.lines.map((line) => {
-            const fontFamily = line.fontFamily || config.globalFontFamily;
-            const displayText = applyTextCase(line.text, line.textCase);
-            return (
-              <text
-                key={`stroke-${layer.id}-${line.id}`}
-                fontFamily={fontFamily}
-                fontSize={line.fontSize}
-                fontWeight={line.fontWeight}
-                fontStyle={line.fontStyle}
-                fill={layer.color}
-                stroke={layer.color}
-                strokeWidth={layer.width}
-                strokeLinejoin="round"
-                strokeLinecap="round"
-                letterSpacing={line.letterSpacing}
-              >
-                <textPath
-                  href={`#path-${uid}-${line.id}`}
-                  startOffset="50%"
-                  textAnchor="middle"
-                >
-                  {displayText}
-                </textPath>
-              </text>
-            );
-          })}
+      {/* 1. NỀN THIỆP: KIỂU OVAL (ĐỎ / ĐEN) HOẶC CÁC LỚP VIỀN STROKE ĐÁM MÂY */}
+      {isOval ? (
+        <g id={`oval-bg-${uid}`} filter={`url(#card-shadow-${uid})`}>
+          {/* Vòng viền ngoài cùng: nét viền đơn 6px màu oval */}
+          <ellipse
+            cx="500"
+            cy="210"
+            rx="484"
+            ry="198"
+            fill="none"
+            stroke={ovalColor}
+            strokeWidth="6"
+          />
+          {/* Thân khối Oval đặc màu bên trong (cách viền ngoài khoảng trắng 12px) */}
+          <ellipse
+            cx="500"
+            cy="210"
+            rx="466"
+            ry="182"
+            fill={ovalColor}
+          />
         </g>
-      ))}
+      ) : (
+        /* KIỂU ĐÁM MÂY: Các lớp viền stroke xếp tầng hòa quyện */
+        activeLayers.map((layer) => (
+          <g key={`stroke-layer-${layer.id}`}>
+            {config.lines.map((line) => {
+              const fontFamily = line.fontFamily || config.globalFontFamily;
+              const displayText = applyTextCase(line.text, line.textCase);
+              return (
+                <text
+                  key={`stroke-${layer.id}-${line.id}`}
+                  fontFamily={fontFamily}
+                  fontSize={line.fontSize}
+                  fontWeight={line.fontWeight}
+                  fontStyle={line.fontStyle}
+                  fill={layer.color}
+                  stroke={layer.color}
+                  strokeWidth={layer.width}
+                  strokeLinejoin="round"
+                  strokeLinecap="round"
+                  letterSpacing={line.letterSpacing}
+                >
+                  <textPath
+                    href={`#path-${uid}-${line.id}`}
+                    startOffset="50%"
+                    textAnchor="middle"
+                  >
+                    {displayText}
+                  </textPath>
+                </text>
+              );
+            })}
+          </g>
+        ))
+      )}
 
-      {/* 2. MẶT CHỮ CHÍNH - MÀU LUÔN ĂN THEO MÀU STROKE NGOÀI CÙNG (primaryTextColor) */}
+      {/* 2. MẶT CHỮ CHÍNH */}
       {config.lines.map((line) => {
         const fontFamily = line.fontFamily || config.globalFontFamily;
-        const textStrokeColor = line.strokeColor || config.globalStrokeColor;
-        const textStrokeWidth =
-          line.strokeWidth !== undefined ? line.strokeWidth : config.globalStrokeWidth;
+        const textStrokeColor = isOval ? 'none' : (line.strokeColor || config.globalStrokeColor);
+        const textStrokeWidth = isOval
+          ? 0
+          : line.strokeWidth !== undefined
+          ? line.strokeWidth
+          : config.globalStrokeWidth;
         const isSelected = selectedLineId === line.id;
         const displayText = applyTextCase(line.text, line.textCase);
 
@@ -132,11 +170,11 @@ const SvgCardCanvas: React.FC<SvgCardCanvasProps> = ({
                 fontWeight={line.fontWeight}
                 fontStyle={line.fontStyle}
                 fill="none"
-                stroke="#38bdf8"
+                stroke={isOval ? '#38bdf8' : '#38bdf8'}
                 strokeWidth={textStrokeWidth + 12}
                 strokeDasharray="6,4"
                 strokeLinejoin="round"
-                opacity={0.85}
+                opacity={0.9}
                 letterSpacing={line.letterSpacing}
               >
                 <textPath
@@ -149,7 +187,7 @@ const SvgCardCanvas: React.FC<SvgCardCanvasProps> = ({
               </text>
             )}
 
-            {/* Chữ hiển thị chính với viền sáng mỏng và màu ruột trùng stroke ngoài cùng */}
+            {/* Chữ hiển thị chính: màu trắng trên nền Oval, hoặc màu stroke ngoài trên Đám Mây */}
             <text
               fontFamily={fontFamily}
               fontSize={line.fontSize}

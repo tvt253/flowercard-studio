@@ -6,7 +6,7 @@ export interface TextLine {
   fontWeight: 'normal' | 'bold';
   fontStyle: 'normal' | 'italic';
   letterSpacing: number;
-  textCase?: 'uppercase' | 'capitalize' | 'normal'; // Mặc định là caplock (uppercase)
+  textCase?: 'uppercase' | 'capitalize' | 'normal';
 
   fontFamily?: string;
   color?: string;
@@ -23,7 +23,7 @@ export interface StrokeLayer {
   enabled: boolean;
 }
 
-export type StyleType = 'cloud';
+export type StyleType = 'cloud' | 'oval-red' | 'oval-black';
 
 export interface CardConfig {
   scalePercent: number; // Kích thước thiệp so với giấy (lên đến 120%)
@@ -40,8 +40,8 @@ export interface CardConfig {
 
   // Cài đặt viền Stroke tự động (mặt chữ luôn ăn theo outerStrokeColor)
   strokeLayerCount: 4 | 5 | 6; // 3 tùy chọn: 4, 5, 6 lớp
-  outerStrokeWidth: number; // Tối đa lên đến 150px
-  innerStrokeWidth: number; // Tối đa lên đến 50px
+  outerStrokeWidth: number; // Tối đa lên đến 150px (mặc định 130px)
+  innerStrokeWidth: number; // Tối đa lên đến 50px (mặc định 30px)
   outerStrokeColor: string;
   innerStrokeColor: string;
 
