@@ -6,18 +6,15 @@ interface SvgCardCanvasProps {
   uid: string;
 }
 
+// Cố định đường cong Vòm Cung chuẩn nét thiệp hoa (độ cong từ 0 đến 80)
 function calculatePathD(line: TextLine, config: CardConfig): string {
   const y = line.offsetY;
-  const curveType = line.curveType || config.globalCurveType;
   const c = line.curveStrength !== undefined ? line.curveStrength : config.globalCurveStrength;
 
-  if (curveType === 'wave') {
-    return `M 60,${y + c * 0.55} C 340,${y - c * 1.85} 660,${y + c * 1.85} 940,${y - c * 0.55}`;
-  } else if (curveType === 'arc') {
-    return `M 60,${y + c * 0.5} Q 500,${y - c * 1.7} 940,${y + c * 0.5}`;
-  } else {
+  if (c === 0) {
     return `M 60,${y} L 940,${y}`;
   }
+  return `M 60,${y + c * 0.5} Q 500,${y - c * 1.7} 940,${y + c * 0.5}`;
 }
 
 const SvgCardCanvas: React.FC<SvgCardCanvasProps> = ({ config, uid }) => {
@@ -47,32 +44,22 @@ const SvgCardCanvas: React.FC<SvgCardCanvasProps> = ({ config, uid }) => {
         ))}
       </defs>
 
-      {/* 1. Ảnh nền phôi riêng nếu người dùng tải lên */}
-      {config.customBgUrl && (
-        <image
-          href={config.customBgUrl}
-          width="1000"
-          height="420"
-          preserveAspectRatio="xMidYMid meet"
-        />
-      )}
-
-      {/* 2. ĐƯỜNG VIỀN CẮT NÉT ĐỨT CÁCH STROKE ĐÚNG 0.5CM (5mm) */}
+      {/* 1. ĐƯỜNG VIỀN CẮT: NỀN TRẮNG BÊN TRONG + ĐƯỜNG ĐỨT NÉT Ở NGOÀI RÌA */}
       {config.showCutLines && (
-        <g opacity={0.75}>
+        <g>
+          {/* Lớp nền màu trắng phủ kín bên trong đường viền cắt */}
           {config.lines.map((line) => {
             const fontFamily = line.fontFamily || config.globalFontFamily;
             return (
               <text
-                key={`cutline-${line.id}`}
+                key={`cutline-bg-${line.id}`}
                 fontFamily={fontFamily}
                 fontSize={line.fontSize}
                 fontWeight={line.fontWeight}
                 fontStyle={line.fontStyle}
-                fill="none"
-                stroke="#94a3b8"
+                fill="#ffffff"
+                stroke="#ffffff"
                 strokeWidth={cutLineWidth}
-                strokeDasharray="9,6"
                 strokeLinejoin="round"
                 strokeLinecap="round"
                 letterSpacing={line.letterSpacing}
@@ -87,14 +74,39 @@ const SvgCardCanvas: React.FC<SvgCardCanvasProps> = ({ config, uid }) => {
               </text>
             );
           })}
-          {/* Biểu tượng cây kéo chỉ dẫn cắt */}
-          <text x="65" y="85" fontSize="16" fill="#64748b" textAnchor="middle">
-            ✂
-          </text>
+
+          {/* Đường viền đứt nét ở mép cắt */}
+          {config.lines.map((line) => {
+            const fontFamily = line.fontFamily || config.globalFontFamily;
+            return (
+              <text
+                key={`cutline-border-${line.id}`}
+                fontFamily={fontFamily}
+                fontSize={line.fontSize}
+                fontWeight={line.fontWeight}
+                fontStyle={line.fontStyle}
+                fill="none"
+                stroke="#94a3b8"
+                strokeWidth={cutLineWidth}
+                strokeDasharray="8,6"
+                strokeLinejoin="round"
+                strokeLinecap="round"
+                letterSpacing={line.letterSpacing}
+              >
+                <textPath
+                  href={`#path-${uid}-${line.id}`}
+                  startOffset="50%"
+                  textAnchor="middle"
+                >
+                  {line.text}
+                </textPath>
+              </text>
+            );
+          })}
         </g>
       )}
 
-      {/* 3. CÁC LỚP VIỀN STROKE HÒA QUYỆN THEO TỪNG TẦNG MÀU (Giống 100% mẫu thực tế) */}
+      {/* 2. CÁC LỚP VIỀN STROKE XẾP TẦNG HÒA QUYỆN THEO TỪNG TẦNG MÀU CHUNG */}
       {activeLayers.map((layer) => (
         <g key={`stroke-layer-${layer.id}`}>
           {/* Cả 2 dòng cùng vẽ chung một màu ở cùng một tầng lớp stroke, tự động hòa vào nhau ở vùng giao */}
@@ -127,7 +139,7 @@ const SvgCardCanvas: React.FC<SvgCardCanvasProps> = ({ config, uid }) => {
         </g>
       ))}
 
-      {/* 4. MẶT CHỮ CHÍNH (Foreground Text) CỦA CÁC DÒNG */}
+      {/* 3. MẶT CHỮ CHÍNH CỦA CÁC DÒNG */}
       {config.lines.map((line) => {
         const fontFamily = line.fontFamily || config.globalFontFamily;
         const textColor = line.color || config.globalTextColor;

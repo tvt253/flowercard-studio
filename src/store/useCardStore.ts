@@ -4,13 +4,12 @@ import { CardConfig, TextLine, StrokeLayer, PresetName } from '../types/card';
 
 const generateId = () => Math.random().toString(36).substring(2, 9);
 
-// Hàm nội suy màu mượt mà giữa màu ngoài cùng và màu trong cùng
 function interpolateColor(color1: string, color2: string, factor: number): string {
   const clean1 = color1.startsWith('#') ? color1.slice(1) : color1;
   const clean2 = color2.startsWith('#') ? color2.slice(1) : color2;
 
-  const c1 = parseInt(clean1.length === 3 ? clean1.split('').map(x => x + x).join('') : clean1, 16);
-  const c2 = parseInt(clean2.length === 3 ? clean2.split('').map(x => x + x).join('') : clean2, 16);
+  const c1 = parseInt(clean1.length === 3 ? clean1.split('').map((x) => x + x).join('') : clean1, 16);
+  const c2 = parseInt(clean2.length === 3 ? clean2.split('').map((x) => x + x).join('') : clean2, 16);
 
   const r1 = (c1 >> 16) & 255;
   const g1 = (c1 >> 8) & 255;
@@ -27,7 +26,6 @@ function interpolateColor(color1: string, color2: string, factor: number): strin
   return `#${((1 << 24) + (r << 16) + (g << 8) + b).toString(16).slice(1)}`;
 }
 
-// Tự động tính toán các lớp stroke theo số lượng và khoảng màu
 export function generateAutoStrokeLayers(
   count: number,
   outerColor: string,
@@ -59,7 +57,7 @@ export function generateAutoStrokeLayers(
 
 const initialOuterColor = '#c81e2b';
 const initialInnerColor = '#ffffff';
-const initialLayerCount = 5;
+const initialLayerCount: 4 | 5 | 6 = 5;
 const initialOuterWidth = 56;
 const initialInnerWidth = 12;
 
@@ -92,17 +90,15 @@ const defaultLine2: TextLine = {
 };
 
 const defaultConfig: CardConfig = {
-  customBgUrl: null,
-  scalePercent: 95, // Mặc định 95% theo chiều ngang tờ A4 cho 2 bản
-  copiesPerPage: 2, // Mặc định 2 bản chuẩn mẫu
-  showCutLines: true, // Mặc định hiển thị đường viền cắt 0.5cm
+  scalePercent: 100, // Mặc định vừa khít 100% kích thước giấy
+  copiesPerPage: 2, // Mặc định 2 bản
+  showCutLines: true,
 
   styleType: 'cloud',
 
-  // Cài đặt chữ chung đồng nhất
+  // Cài đặt chung đồng nhất
   globalFontFamily: 'Dancing Script',
-  globalCurveType: 'arc',
-  globalCurveStrength: 14,
+  globalCurveStrength: 18, // Độ cong mặc định 18, tối đa đến 80
   globalTextColor: '#c81e2b',
   globalStrokeColor: '#ffffff',
   globalStrokeWidth: 2.5,
@@ -155,7 +151,7 @@ const PRESETS: Record<
     ],
   },
   'khai-truong': {
-    outerColor: '#78350f',
+    outerColor: '#b45309',
     innerColor: '#ffffff',
     globalFontFamily: 'Playfair Display',
     lines: [
@@ -164,7 +160,7 @@ const PRESETS: Record<
     ],
   },
   'sinh-nhat': {
-    outerColor: '#581c87',
+    outerColor: '#7e22ce',
     innerColor: '#ffffff',
     globalFontFamily: 'Dancing Script',
     lines: [
@@ -189,22 +185,23 @@ interface CardStore {
   removeLine: (id: string) => void;
   updateLine: (id: string, updates: Partial<TextLine>) => void;
   updateConfig: (updates: Partial<Omit<CardConfig, 'lines' | 'strokeLayers'>>) => void;
-  setCopiesPerPage: (copies: 1 | 2 | 3 | 4) => void;
+  setCopiesPerPage: (copies: 1 | 2) => void;
   updateGlobalTypography: (updates: {
     globalFontFamily?: string;
-    globalCurveType?: 'wave' | 'arc' | 'flat';
     globalCurveStrength?: number;
     globalTextColor?: string;
     globalStrokeColor?: string;
     globalStrokeWidth?: number;
+    scalePercent?: number;
   }) => void;
   updateStrokeSettings: (updates: {
-    strokeLayerCount?: number;
+    strokeLayerCount?: 4 | 5 | 6;
     outerStrokeWidth?: number;
     innerStrokeWidth?: number;
     outerStrokeColor?: string;
     innerStrokeColor?: string;
   }) => void;
+  setQuickColorGroup: (color: string) => void;
   applyPreset: (presetName: PresetName) => void;
   resetDefault: () => void;
 }
@@ -256,28 +253,14 @@ export const useCardStore = create<CardStore>()(
           config: { ...state.config, ...updates },
         })),
 
-      setCopiesPerPage: (copies: 1 | 2 | 3 | 4) =>
-        set((state) => {
-          // Tự động điều chỉnh tỷ lệ mặc định tối ưu theo số lượng bản in
-          let newScale = state.config.scalePercent;
-          if (copies === 1) {
-            newScale = 80; // 80% theo chiều dài dọc tờ giấy A4
-          } else if (copies === 2) {
-            newScale = 95; // 95% theo chiều ngang tờ giấy A4
-          } else if (copies === 3) {
-            newScale = 90;
-          } else if (copies === 4) {
-            newScale = 85;
-          }
-
-          return {
-            config: {
-              ...state.config,
-              copiesPerPage: copies,
-              scalePercent: newScale,
-            },
-          };
-        }),
+      setCopiesPerPage: (copies: 1 | 2) =>
+        set((state) => ({
+          config: {
+            ...state.config,
+            copiesPerPage: copies,
+            scalePercent: 100, // Luôn để 100% vừa khít giấy theo yêu cầu
+          },
+        })),
 
       updateGlobalTypography: (updates) =>
         set((state) => ({
@@ -312,6 +295,26 @@ export const useCardStore = create<CardStore>()(
           };
         }),
 
+      setQuickColorGroup: (color: string) =>
+        set((state) => {
+          const newLayers = generateAutoStrokeLayers(
+            state.config.strokeLayerCount,
+            color,
+            state.config.innerStrokeColor,
+            state.config.outerStrokeWidth,
+            state.config.innerStrokeWidth
+          );
+
+          return {
+            config: {
+              ...state.config,
+              outerStrokeColor: color,
+              globalTextColor: color,
+              strokeLayers: newLayers,
+            },
+          };
+        }),
+
       applyPreset: (presetName: PresetName) =>
         set((state) => {
           const preset = PRESETS[presetName];
@@ -328,7 +331,6 @@ export const useCardStore = create<CardStore>()(
           return {
             config: {
               ...state.config,
-              customBgUrl: null,
               outerStrokeColor: preset.outerColor,
               innerStrokeColor: preset.innerColor,
               globalFontFamily: preset.globalFontFamily,
@@ -369,8 +371,8 @@ export const useCardStore = create<CardStore>()(
         }),
     }),
     {
-      name: 'flower-card-studio-storage-v7',
-      version: 7,
+      name: 'flower-card-studio-storage-v8',
+      version: 8,
     }
   )
 );

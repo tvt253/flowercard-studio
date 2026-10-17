@@ -1,13 +1,12 @@
-import React, { useRef } from 'react';
+import React from 'react';
 import { useCardStore } from '../store/useCardStore';
-import { TextLine, PresetName, StyleType, CardConfig } from '../types/card';
+import { TextLine, PresetName, StyleType } from '../types/card';
 import {
   Plus,
   Trash2,
   Bold,
   Italic,
   RotateCcw,
-  Upload,
   Printer,
   FileDown,
   Layers,
@@ -18,37 +17,37 @@ import {
 import { clsx } from 'clsx';
 
 const FONT_OPTIONS = [
-  { label: 'Dancing Script (Đẹp chuẩn mẫu)', value: 'Dancing Script' },
-  { label: 'Great Vibes (Thư pháp bay)', value: 'Great Vibes' },
-  { label: 'Alex Brush (Mềm mại)', value: 'Alex Brush' },
-  { label: 'Pacifico (Trẻ trung)', value: 'Pacifico' },
-  { label: 'Playfair Display (Sang trọng)', value: 'Playfair Display' },
-  { label: 'Cormorant Garamond (Trang nghiêm)', value: 'Cormorant Garamond' },
-  { label: 'Montserrat (Hiện đại)', value: 'Montserrat' },
+  { label: 'Dancing Script', value: 'Dancing Script' },
+  { label: 'Great Vibes', value: 'Great Vibes' },
+  { label: 'Alex Brush', value: 'Alex Brush' },
+  { label: 'Pacifico', value: 'Pacifico' },
+  { label: 'Playfair Display', value: 'Playfair Display' },
+  { label: 'Cormorant Garamond', value: 'Cormorant Garamond' },
+  { label: 'Montserrat', value: 'Montserrat' },
 ];
 
-const STYLE_OPTIONS: { label: string; value: StyleType; disabled?: boolean; hint?: string }[] = [
-  { label: '☁️ Kiểu Đám Mây (Chuẩn mẫu tiệm hoa)', value: 'cloud' },
-  { label: '✨ Kiểu Vòm Cung Nhẹ (Sắp ra mắt)', value: 'minimal', disabled: true },
-  { label: '🎀 Kiểu Nơ Ruy-băng Hiện Đại (Sắp ra mắt)', value: 'modern', disabled: true },
+const STYLE_OPTIONS: { label: string; value: StyleType }[] = [
+  { label: 'Kiểu Đám Mây', value: 'cloud' },
 ];
 
 const PRESET_OPTIONS: { label: string; value: PresetName }[] = [
-  { label: '🌹 20/10 - Phụ Nữ VN', value: '20-10' },
-  { label: '📚 20/11 - Nhà Giáo VN', value: '20-11' },
-  { label: '💐 8/3 - Quốc Tế PN', value: '8-3' },
-  { label: '🎊 Khai Trương (Vàng Kim)', value: 'khai-truong' },
-  { label: '🎂 Sinh Nhật (Tím Pastel)', value: 'sinh-nhat' },
-  { label: '🕊️ Chia Buồn (Trang Nghiêm)', value: 'chia-buon' },
+  { label: '20/10 - Phụ Nữ VN', value: '20-10' },
+  { label: '20/11 - Nhà Giáo VN', value: '20-11' },
+  { label: '8/3 - Quốc Tế PN', value: '8-3' },
+  { label: 'Khai Trương', value: 'khai-truong' },
+  { label: 'Sinh Nhật', value: 'sinh-nhat' },
+  { label: 'Chia Buồn', value: 'chia-buon' },
 ];
 
-const CURVE_TYPE_OPTIONS = [
-  { label: 'Vòm Cung', value: 'arc' },
-  { label: 'Thẳng Ngang', value: 'flat' },
-  { label: 'Lượn Sóng', value: 'wave' },
+const COLOR_GROUPS = [
+  { name: 'Đỏ', color: '#c81e2b', bgClass: 'bg-red-600' },
+  { name: 'Xanh lá', color: '#15803d', bgClass: 'bg-green-700' },
+  { name: 'Xanh biển', color: '#1d4ed8', bgClass: 'bg-blue-700' },
+  { name: 'Tím', color: '#7e22ce', bgClass: 'bg-purple-700' },
+  { name: 'Hồng', color: '#db2777', bgClass: 'bg-pink-600' },
 ];
 
-const LAYER_COUNT_OPTIONS = [1, 2, 3, 4, 5, 6, 7, 8];
+const LAYER_COUNT_OPTIONS: (4 | 5 | 6)[] = [4, 5, 6];
 
 const ControlSidebar: React.FC = () => {
   const {
@@ -59,19 +58,11 @@ const ControlSidebar: React.FC = () => {
     updateConfig,
     updateGlobalTypography,
     updateStrokeSettings,
-    applyPreset,
+    setQuickColorGroup,
     setCopiesPerPage,
+    applyPreset,
     resetDefault,
   } = useCardStore();
-
-  const fileInputRef = useRef<HTMLInputElement>(null);
-
-  const handleFileUpload = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const file = e.target.files?.[0];
-    if (!file) return;
-    const url = URL.createObjectURL(file);
-    updateConfig({ customBgUrl: url });
-  };
 
   const handlePrint = () => {
     window.print();
@@ -84,7 +75,7 @@ const ControlSidebar: React.FC = () => {
     const html2pdf = (await import('html2pdf.js')).default;
     const opt = {
       margin: 0,
-      filename: 'flowercard-sticker.pdf',
+      filename: 'flowercard.pdf',
       image: { type: 'jpeg', quality: 0.98 },
       html2canvas: { scale: 3, useCORS: true, logging: false },
       jsPDF: { unit: 'mm', format: 'a4', orientation: 'portrait' },
@@ -93,13 +84,13 @@ const ControlSidebar: React.FC = () => {
   };
 
   return (
-    <aside className="w-[350px] h-screen bg-white border-r border-slate-200 flex flex-col overflow-hidden shadow-sm">
+    <aside className="w-[340px] h-screen bg-white border-r border-slate-200 flex flex-col overflow-hidden shadow-sm">
       {/* Header */}
       <div className="px-4 py-3 bg-gradient-to-r from-rose-500 to-rose-600 text-white flex-shrink-0">
         <h1 className="text-base font-bold tracking-wide flex items-center gap-1.5">
-          🌸 FlowerCard Studio
+          FlowerCard Studio
         </h1>
-        <p className="text-xs text-rose-100 mt-0.5">Thiết kế bế viền chữ & in thiệp giỏ hoa</p>
+        <p className="text-xs text-rose-100 mt-0.5">Thiết kế thiệp và băng rôn hoa</p>
       </div>
 
       <div className="flex-1 overflow-y-auto">
@@ -108,21 +99,21 @@ const ControlSidebar: React.FC = () => {
           <div className="flex items-center gap-1.5 mb-2.5">
             <Cloud size={14} className="text-rose-600" />
             <h2 className="text-xs font-bold text-slate-700 uppercase tracking-widest">
-              1. Chọn Kiểu Thiệp & Mẫu Dịp Lễ
+              1. Kiểu Thiệp & Dịp Lễ
             </h2>
           </div>
 
           <div className="space-y-3">
             {/* Chọn Kiểu Thiệp */}
             <div>
-              <label className="block text-xs font-medium text-slate-500 mb-1">Kiểu tạo hình thiệp</label>
+              <label className="block text-xs font-medium text-slate-500 mb-1">Kiểu thiệp</label>
               <select
                 value={config.styleType}
                 onChange={(e) => updateConfig({ styleType: e.target.value as StyleType })}
                 className="w-full px-2.5 py-1.5 text-xs font-medium border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-rose-400 bg-white"
               >
                 {STYLE_OPTIONS.map((s) => (
-                  <option key={s.value} value={s.value} disabled={s.disabled}>
+                  <option key={s.value} value={s.value}>
                     {s.label}
                   </option>
                 ))}
@@ -132,7 +123,7 @@ const ControlSidebar: React.FC = () => {
             {/* Chọn nhanh dịp lễ */}
             <div>
               <label className="block text-xs font-medium text-slate-500 mb-1.5">
-                Chọn nhanh dịp lễ & màu sắc chuẩn
+                Chọn nhanh dịp lễ
               </label>
               <div className="grid grid-cols-2 gap-1.5">
                 {PRESET_OPTIONS.map((p) => (
@@ -146,39 +137,21 @@ const ControlSidebar: React.FC = () => {
                 ))}
               </div>
             </div>
-
-            {/* Tải ảnh phôi riêng */}
-            <div>
-              <button
-                onClick={() => fileInputRef.current?.click()}
-                className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs border border-dashed border-slate-300 rounded hover:border-rose-400 hover:text-rose-500 text-slate-500 transition-colors"
-              >
-                <Upload size={12} /> Tải ảnh phôi riêng (.png, .jpg)
-              </button>
-              <input
-                ref={fileInputRef}
-                type="file"
-                accept=".png,.jpg,.jpeg"
-                className="hidden"
-                onChange={handleFileUpload}
-              />
-            </div>
           </div>
         </div>
 
-        {/* MỤC 2: NỘI DUNG CHỮ & CÀI ĐẶT ĐỒNG NHẤT */}
+        {/* MỤC 2: NỘI DUNG CHỮ & ĐIỀU CHỈNH CHUNG */}
         <div className="p-4 border-b border-slate-100 bg-slate-50/50">
           <div className="flex items-center justify-between mb-2.5">
             <div className="flex items-center gap-1.5">
               <Type size={14} className="text-rose-600" />
               <h2 className="text-xs font-bold text-slate-700 uppercase tracking-widest">
-                2. Nội Dung Chữ & Kiểu Dáng
+                2. Nội Dung & Cài Đặt Chung
               </h2>
             </div>
             <button
               onClick={addLine}
               className="flex items-center gap-1 px-2 py-1 text-xs bg-rose-500 text-white rounded hover:bg-rose-600 transition-colors shadow-sm"
-              title="Thêm dòng chữ mới"
             >
               <Plus size={11} /> Thêm dòng
             </button>
@@ -187,12 +160,27 @@ const ControlSidebar: React.FC = () => {
           {/* Cài đặt chung đồng nhất */}
           <div className="p-3 bg-white border border-slate-200 rounded-lg space-y-2.5 mb-3 shadow-sm">
             <div className="text-[11px] font-bold text-rose-600 uppercase tracking-wider flex items-center gap-1">
-              <Sparkles size={11} /> Điều chỉnh chung (áp dụng toàn bộ thiệp)
+              <Sparkles size={11} /> Cài đặt chung
+            </div>
+
+            {/* Kích thước toàn bộ thiệp so với giấy - chuyển lên điều chỉnh chung */}
+            <div>
+              <div className="flex justify-between text-xs font-medium text-slate-500 mb-1">
+                <span>Kích thước thiệp so với giấy:</span>
+                <span className="text-rose-600 font-bold">{config.scalePercent}%</span>
+              </div>
+              <input
+                type="range"
+                min={50}
+                max={110}
+                value={config.scalePercent}
+                onChange={(e) => updateGlobalTypography({ scalePercent: parseInt(e.target.value) })}
+              />
             </div>
 
             {/* Font chữ chung */}
             <div>
-              <label className="block text-xs font-medium text-slate-500 mb-1">Font chữ chung</label>
+              <label className="block text-xs font-medium text-slate-500 mb-1">Font chữ</label>
               <select
                 value={config.globalFontFamily}
                 onChange={(e) => updateGlobalTypography({ globalFontFamily: e.target.value })}
@@ -207,50 +195,26 @@ const ControlSidebar: React.FC = () => {
               </select>
             </div>
 
-            {/* Kiểu uốn cong & độ cong chung */}
+            {/* Độ cong tăng lên đến 80 */}
             <div>
-              <label className="block text-xs font-medium text-slate-500 mb-1">Kiểu uốn cong chung</label>
-              <div className="flex gap-1 mb-1.5">
-                {CURVE_TYPE_OPTIONS.map((opt) => (
-                  <button
-                    key={opt.value}
-                    onClick={() =>
-                      updateGlobalTypography({ globalCurveType: opt.value as CardConfig['globalCurveType'] })
-                    }
-                    className={clsx(
-                      'flex-1 py-1 text-xs border rounded transition-colors font-medium',
-                      config.globalCurveType === opt.value
-                        ? 'bg-rose-500 border-rose-500 text-white'
-                        : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-                    )}
-                  >
-                    {opt.label}
-                  </button>
-                ))}
+              <div className="flex justify-between text-xs font-medium text-slate-500 mb-1">
+                <span>Độ cong:</span>
+                <span className="text-rose-600 font-bold">{config.globalCurveStrength}</span>
               </div>
-
-              {config.globalCurveType !== 'flat' && (
-                <div>
-                  <div className="flex justify-between text-[11px] text-slate-500 mb-1">
-                    <span>Độ cong chung:</span>
-                    <span className="text-rose-600 font-bold">{config.globalCurveStrength}</span>
-                  </div>
-                  <input
-                    type="range"
-                    min={-50}
-                    max={50}
-                    value={config.globalCurveStrength}
-                    onChange={(e) =>
-                      updateGlobalTypography({ globalCurveStrength: parseInt(e.target.value) })
-                    }
-                  />
-                </div>
-              )}
+              <input
+                type="range"
+                min={0}
+                max={80}
+                value={config.globalCurveStrength}
+                onChange={(e) =>
+                  updateGlobalTypography({ globalCurveStrength: parseInt(e.target.value) })
+                }
+              />
             </div>
 
             {/* Màu mặt chữ chung */}
             <div className="flex items-center justify-between pt-1 border-t border-slate-100">
-              <span className="text-xs font-medium text-slate-600">Màu mặt chữ chính:</span>
+              <span className="text-xs font-medium text-slate-600">Màu mặt chữ:</span>
               <div className="flex items-center gap-2">
                 <input
                   type="color"
@@ -280,7 +244,7 @@ const ControlSidebar: React.FC = () => {
                     value={line.text}
                     onChange={(e) => updateLine(line.id, { text: e.target.value })}
                     className="flex-1 px-2 py-1.5 text-xs font-semibold border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-rose-400"
-                    placeholder={`Nhập nội dung dòng ${index + 1}...`}
+                    placeholder={`Nhập dòng ${index + 1}...`}
                   />
                   <div className="flex items-center gap-0.5">
                     <button
@@ -327,7 +291,7 @@ const ControlSidebar: React.FC = () => {
                   </div>
                 </div>
 
-                {/* Tinh chỉnh riêng: Cỡ chữ & Vị trí dọc (Offset Y) */}
+                {/* Tinh chỉnh riêng: Cỡ chữ & Vị trí dọc */}
                 <div className="grid grid-cols-2 gap-2 pt-1 border-t border-slate-50 text-[11px]">
                   <div>
                     <div className="flex justify-between text-slate-500 mb-0.5">
@@ -362,34 +326,56 @@ const ControlSidebar: React.FC = () => {
           </div>
         </div>
 
-        {/* MỤC 3: HỆ THỐNG LỚP VIỀN STROKE (TỰ ĐỘNG ĐIỀU CHỈNH CÙNG LÚC) */}
+        {/* MỤC 3: HỆ THỐNG LỚP VIỀN STROKE (3 OPTION 4, 5, 6 & CHỌN NHANH NHÓM MÀU) */}
         <div className="p-4 border-b border-slate-100">
           <div className="flex items-center gap-1.5 mb-2.5">
             <Layers size={14} className="text-rose-600" />
             <h2 className="text-xs font-bold text-slate-700 uppercase tracking-widest">
-              3. Lớp Viền Stroke (Tự Động Tính)
+              3. Lớp Viền Stroke
             </h2>
           </div>
 
           <div className="space-y-3">
-            {/* Chọn số lượng lớp viền */}
+            {/* Chọn nhanh nhóm màu cho stroke */}
             <div>
               <label className="block text-xs font-medium text-slate-500 mb-1.5">
-                Số lớp viền xếp tầng: <span className="font-bold text-rose-600">{config.strokeLayerCount} lớp</span>
+                Chọn nhanh nhóm màu
               </label>
-              <div className="grid grid-cols-8 gap-1">
+              <div className="grid grid-cols-5 gap-1.5">
+                {COLOR_GROUPS.map((g) => (
+                  <button
+                    key={g.color}
+                    onClick={() => setQuickColorGroup(g.color)}
+                    className={clsx(
+                      'py-1.5 px-1 rounded-md text-[11px] font-semibold text-white flex flex-col items-center gap-1 transition-transform hover:scale-105 shadow-sm',
+                      g.bgClass,
+                      config.outerStrokeColor === g.color && 'ring-2 ring-offset-1 ring-slate-900'
+                    )}
+                  >
+                    <span>{g.name}</span>
+                  </button>
+                ))}
+              </div>
+            </div>
+
+            {/* Chọn số lượng lớp viền: 3 option 4, 5, 6 */}
+            <div>
+              <label className="block text-xs font-medium text-slate-500 mb-1.5">
+                Số lớp viền: <span className="font-bold text-rose-600">{config.strokeLayerCount} lớp</span>
+              </label>
+              <div className="grid grid-cols-3 gap-1.5">
                 {LAYER_COUNT_OPTIONS.map((n) => (
                   <button
                     key={n}
                     onClick={() => updateStrokeSettings({ strokeLayerCount: n })}
                     className={clsx(
-                      'py-1 text-xs border rounded font-semibold text-center transition-colors',
+                      'py-1.5 text-xs border rounded-md font-bold text-center transition-colors',
                       config.strokeLayerCount === n
-                        ? 'bg-rose-500 border-rose-500 text-white'
-                        : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
+                        ? 'bg-rose-500 border-rose-500 text-white shadow-sm'
+                        : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
                     )}
                   >
-                    {n}
+                    {n} lớp
                   </button>
                 ))}
               </div>
@@ -414,7 +400,7 @@ const ControlSidebar: React.FC = () => {
 
               <div>
                 <label className="block text-[11px] font-semibold text-slate-600 mb-1">
-                  Màu sát chân chữ:
+                  Màu sát chữ:
                 </label>
                 <div className="flex items-center gap-1.5">
                   <input
@@ -428,25 +414,21 @@ const ControlSidebar: React.FC = () => {
               </div>
             </div>
 
-            {/* Dải màu chuyển tiếp minh họa */}
+            {/* Dải màu chuyển tiếp */}
             <div>
-              <div className="flex justify-between text-[11px] text-slate-400 mb-1">
-                <span>Dải màu tự tính:</span>
-                <span>{config.strokeLayers.length} dải màu chuyển tiếp</span>
-              </div>
               <div className="flex h-3 rounded overflow-hidden border border-slate-200 shadow-inner">
                 {config.strokeLayers.map((layer) => (
                   <div
                     key={layer.id}
                     className="flex-1"
                     style={{ backgroundColor: layer.color }}
-                    title={`${layer.name}: ${layer.color} (${layer.width}px)`}
+                    title={`${layer.name}: ${layer.color}`}
                   />
                 ))}
               </div>
             </div>
 
-            {/* Điều chỉnh kích thước độ dày các lớp */}
+            {/* Kích thước độ dày viền ngoài cùng và sát chữ */}
             <div className="space-y-2">
               <div>
                 <div className="flex justify-between text-xs font-medium text-slate-500 mb-1">
@@ -464,7 +446,7 @@ const ControlSidebar: React.FC = () => {
 
               <div>
                 <div className="flex justify-between text-xs font-medium text-slate-500 mb-1">
-                  <span>Độ dày viền sát chân chữ:</span>
+                  <span>Độ dày viền sát chữ:</span>
                   <span className="font-bold text-rose-600">{config.innerStrokeWidth}px</span>
                 </div>
                 <input
@@ -479,113 +461,56 @@ const ControlSidebar: React.FC = () => {
           </div>
         </div>
 
-        {/* MỤC 4: KÍCH THƯỚC & DÀN TRANG A4 */}
+        {/* MỤC 4: SỐ BẢN IN TRÊN TỜ A4 & ĐƯỜNG CẮT (CHỈ 1 VÀ 2 BẢN) */}
         <div className="p-4 border-b border-slate-100">
           <h2 className="text-xs font-bold text-slate-700 uppercase tracking-widest mb-3">
-            4. Kích Thước & Dàn Trang A4
+            4. Dàn Trang A4 & Đường Cắt
           </h2>
 
           <div className="space-y-3">
-            {/* Bộ chọn số bản in / tờ */}
+            {/* Bộ chọn số bản in: chỉ 1 và 2 bản */}
             <div>
               <label className="block text-xs font-medium text-slate-500 mb-1.5">
-                Số bản in / tờ A4
+                Số bản in trên 1 tờ A4
               </label>
-              <div className="grid grid-cols-2 gap-1.5">
+              <div className="grid grid-cols-2 gap-2">
                 <button
                   onClick={() => setCopiesPerPage(1)}
                   className={clsx(
-                    'py-2 px-2 text-xs border rounded-lg font-medium transition-colors text-left flex flex-col',
+                    'py-2 px-3 text-xs border rounded-lg font-bold transition-colors text-center',
                     config.copiesPerPage === 1
                       ? 'bg-rose-500 border-rose-500 text-white shadow-sm'
                       : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
                   )}
                 >
-                  <span className="font-bold">1 bản (Đặt dọc A4)</span>
-                  <span className={clsx('text-[10px]', config.copiesPerPage === 1 ? 'text-rose-100' : 'text-slate-400')}>
-                    Dài 80% tờ giấy A4
-                  </span>
+                  1 bản dọc
                 </button>
 
                 <button
                   onClick={() => setCopiesPerPage(2)}
                   className={clsx(
-                    'py-2 px-2 text-xs border rounded-lg font-medium transition-colors text-left flex flex-col',
+                    'py-2 px-3 text-xs border rounded-lg font-bold transition-colors text-center',
                     config.copiesPerPage === 2
                       ? 'bg-rose-500 border-rose-500 text-white shadow-sm'
                       : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
                   )}
                 >
-                  <span className="font-bold">2 bản (Đặt ngang) ✓</span>
-                  <span className={clsx('text-[10px]', config.copiesPerPage === 2 ? 'text-rose-100' : 'text-slate-400')}>
-                    Rộng 95% tờ giấy A4 (Chuẩn)
-                  </span>
-                </button>
-              </div>
-
-              {/* Tùy chọn 3, 4 bản in nhỏ hơn nếu cần */}
-              <div className="grid grid-cols-2 gap-1.5 mt-1.5">
-                <button
-                  onClick={() => setCopiesPerPage(3)}
-                  className={clsx(
-                    'py-1 px-2 text-xs border rounded font-medium transition-colors text-center',
-                    config.copiesPerPage === 3
-                      ? 'bg-rose-500 border-rose-500 text-white'
-                      : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-                  )}
-                >
-                  3 bản / tờ
-                </button>
-                <button
-                  onClick={() => setCopiesPerPage(4)}
-                  className={clsx(
-                    'py-1 px-2 text-xs border rounded font-medium transition-colors text-center',
-                    config.copiesPerPage === 4
-                      ? 'bg-rose-500 border-rose-500 text-white'
-                      : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-                  )}
-                >
-                  4 bản / tờ
+                  2 bản ngang
                 </button>
               </div>
             </div>
 
-            {/* Slider điều chỉnh to nhỏ toàn bộ thiệp so với giấy */}
-            <div>
-              <div className="flex justify-between text-xs font-medium text-slate-500 mb-1">
-                <span>To nhỏ thiệp so với giấy A4:</span>
-                <span className="text-rose-600 font-bold">{config.scalePercent}%</span>
-              </div>
-              <input
-                type="range"
-                min={40}
-                max={110}
-                value={config.scalePercent}
-                onChange={(e) => updateConfig({ scalePercent: parseInt(e.target.value) })}
-              />
-              <div className="flex justify-between text-[10px] text-slate-400 mt-0.5">
-                <span>Thu nhỏ (40%)</span>
-                <span>Chuẩn (80-95%)</span>
-                <span>Phóng to (110%)</span>
-              </div>
-            </div>
-
-            {/* Checkbox đường viền cắt bám theo stroke độ dày 0.5cm */}
-            <label className="flex items-start gap-2 cursor-pointer p-2 bg-slate-50 rounded-lg border border-slate-200">
+            {/* Checkbox đường viền cắt nền trắng viền đứt nét */}
+            <label className="flex items-center gap-2 cursor-pointer p-2.5 bg-slate-50 rounded-lg border border-slate-200">
               <input
                 type="checkbox"
                 checked={config.showCutLines}
                 onChange={(e) => updateConfig({ showCutLines: e.target.checked })}
-                className="w-4 h-4 accent-rose-500 mt-0.5"
+                className="w-4 h-4 accent-rose-500"
               />
-              <div>
-                <span className="text-xs font-semibold text-slate-700 block">
-                  Đường viền cắt kéo cách viền 0.5cm (5mm) ✂️
-                </span>
-                <span className="text-[11px] text-slate-400 block mt-0.5">
-                  Đường nét đứt ôm sát theo từng con chữ, cách lớp viền ngoài 0.5cm để cắt kéo chính xác.
-                </span>
-              </div>
+              <span className="text-xs font-semibold text-slate-700">
+                Hiển thị đường viền cắt đứt nét 0.5cm
+              </span>
             </label>
           </div>
         </div>
@@ -598,7 +523,7 @@ const ControlSidebar: React.FC = () => {
             onClick={handlePrint}
             className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-rose-500 hover:bg-rose-600 text-white text-xs font-semibold rounded transition-colors shadow-sm"
           >
-            <Printer size={13} /> In Trực Tiếp (A4)
+            <Printer size={13} /> In Trực Tiếp
           </button>
           <button
             onClick={handleExportPDF}
@@ -611,7 +536,7 @@ const ControlSidebar: React.FC = () => {
           onClick={resetDefault}
           className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs text-slate-500 hover:text-rose-500 border border-slate-200 hover:border-rose-300 rounded transition-colors bg-white"
         >
-          <RotateCcw size={11} /> Đặt lại mẫu gốc (20/10)
+          <RotateCcw size={11} /> Đặt lại mặc định
         </button>
       </div>
     </aside>

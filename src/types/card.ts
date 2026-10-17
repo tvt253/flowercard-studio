@@ -11,7 +11,6 @@ export interface TextLine {
   color?: string;
   strokeColor?: string;
   strokeWidth?: number;
-  curveType?: 'wave' | 'arc' | 'flat';
   curveStrength?: number;
 }
 
@@ -19,31 +18,28 @@ export interface StrokeLayer {
   id: string;
   name: string;
   color: string;
-  width: number; // Độ rộng của lớp stroke (px)
+  width: number;
   enabled: boolean;
 }
 
-export type StyleType = 'cloud' | 'minimal' | 'modern';
+export type StyleType = 'cloud';
 
 export interface CardConfig {
-  customBgUrl: string | null;
-  scalePercent: number; // Tỷ lệ to nhỏ toàn bộ thiệp so với giấy (40% - 110%)
-  copiesPerPage: 1 | 2 | 3 | 4; // 1: Dọc 80% chiều dài A4; 2: Ngang 95% chiều rộng A4
-  showCutLines: boolean; // Đường viền cắt bế cách stroke 0.5cm
+  scalePercent: number; // Kích thước thiệp so với giấy (mặc định 100%)
+  copiesPerPage: 1 | 2; // 1: Dọc 100% chiều dài A4; 2: Ngang 100% chiều rộng A4
+  showCutLines: boolean; // Đường viền cắt nét đứt nền trắng
 
-  // Chọn kiểu dáng thiệp
   styleType: StyleType;
 
-  // Cài đặt chữ chung (Global Typography)
+  // Cài đặt chung
   globalFontFamily: string;
-  globalCurveType: 'wave' | 'arc' | 'flat';
-  globalCurveStrength: number;
+  globalCurveStrength: number; // Độ cong từ 0 đến 80
   globalTextColor: string;
   globalStrokeColor: string;
   globalStrokeWidth: number;
 
   // Cài đặt viền Stroke tự động
-  strokeLayerCount: number;
+  strokeLayerCount: 4 | 5 | 6; // 3 tùy chọn: 4, 5, 6 lớp
   outerStrokeWidth: number;
   innerStrokeWidth: number;
   outerStrokeColor: string;
