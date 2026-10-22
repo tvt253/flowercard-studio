@@ -156,7 +156,7 @@ const PRESETS: Record<
     innerColor: '#ffffff',
     globalFontFamily: 'Charm',
     lines: [
-      { text: 'Chúc Mừng', fontSize: 70, offsetY: 155, fontWeight: 'bold', textCase: 'capitalize' },
+      { text: 'Chúc Mừng', fontSize: 72, offsetY: 155, fontWeight: 'bold', textCase: 'capitalize' },
       { text: 'Ngày Phụ Nữ Việt Nam 20-10', fontSize: 70, offsetY: 260, fontWeight: 'bold', textCase: 'capitalize' },
     ],
   },
@@ -165,8 +165,8 @@ const PRESETS: Record<
     innerColor: '#ffffff',
     globalFontFamily: 'Charm',
     lines: [
-      { text: 'Chúc Mừng', fontSize: 70, offsetY: 155, fontWeight: 'bold', textCase: 'capitalize' },
-      { text: 'Ngày Nhà Giáo Việt Nam 20/11', fontSize: 70, offsetY: 260, fontWeight: 'bold', textCase: 'capitalize' },
+      { text: 'Chúc Mừng', fontSize: 72, offsetY: 155, fontWeight: 'bold', textCase: 'capitalize' },
+      { text: 'Ngày Nhà Giáo Việt Nam 20/11', fontSize: 66, offsetY: 260, fontWeight: 'bold', textCase: 'capitalize' },
     ],
   },
   '8-3': {
@@ -174,8 +174,8 @@ const PRESETS: Record<
     innerColor: '#ffffff',
     globalFontFamily: 'Charm',
     lines: [
-      { text: 'Chúc Mừng', fontSize: 70, offsetY: 155, fontWeight: 'bold', textCase: 'capitalize' },
-      { text: 'Ngày Quốc Tế Phụ Nữ 8-3', fontSize: 70, offsetY: 260, fontWeight: 'bold', textCase: 'capitalize' },
+      { text: 'Chúc Mừng', fontSize: 74, offsetY: 155, fontWeight: 'bold', textCase: 'capitalize' },
+      { text: 'Ngày Quốc Tế Phụ Nữ 8-3', fontSize: 78, offsetY: 260, fontWeight: 'bold', textCase: 'capitalize' },
     ],
   },
   'khai-truong': {
@@ -183,8 +183,8 @@ const PRESETS: Record<
     innerColor: '#ffffff',
     globalFontFamily: 'Charm',
     lines: [
-      { text: 'Chúc Mừng', fontSize: 70, offsetY: 155, fontWeight: 'bold', textCase: 'capitalize' },
-      { text: 'Khai Trương Hồng Phát', fontSize: 70, offsetY: 260, fontWeight: 'bold', textCase: 'capitalize' },
+      { text: 'Chúc Mừng', fontSize: 76, offsetY: 155, fontWeight: 'bold', textCase: 'capitalize' },
+      { text: 'Khai Trương Hồng Phát', fontSize: 82, offsetY: 260, fontWeight: 'bold', textCase: 'capitalize' },
     ],
   },
   'sinh-nhat': {
@@ -192,8 +192,8 @@ const PRESETS: Record<
     innerColor: '#ffffff',
     globalFontFamily: 'Charm',
     lines: [
-      { text: 'Happy Birthday', fontSize: 70, offsetY: 155, fontWeight: 'bold', textCase: 'capitalize' },
-      { text: 'Chúc Mừng Sinh Nhật', fontSize: 70, offsetY: 260, fontWeight: 'bold', textCase: 'capitalize' },
+      { text: 'Happy Birthday', fontSize: 78, offsetY: 155, fontWeight: 'bold', textCase: 'capitalize' },
+      { text: 'Chúc Mừng Sinh Nhật', fontSize: 84, offsetY: 260, fontWeight: 'bold', textCase: 'capitalize' },
     ],
   },
   'mung-cuoi': {
@@ -201,8 +201,8 @@ const PRESETS: Record<
     innerColor: '#ffffff',
     globalFontFamily: 'Charm',
     lines: [
-      { text: 'Chúc Mừng', fontSize: 70, offsetY: 155, fontWeight: 'bold', textCase: 'capitalize' },
-      { text: 'Trăm Năm Hạnh Phúc', fontSize: 70, offsetY: 260, fontWeight: 'bold', textCase: 'capitalize' },
+      { text: 'Chúc Mừng', fontSize: 78, offsetY: 155, fontWeight: 'bold', textCase: 'capitalize' },
+      { text: 'Trăm Năm Hạnh Phúc', fontSize: 86, offsetY: 260, fontWeight: 'bold', textCase: 'capitalize' },
     ],
   },
 
@@ -215,8 +215,8 @@ const PRESETS: Record<
     ovalTextColor: '#ffffff',
     globalFontFamily: 'Oswald',
     lines: [
-      { text: 'CHÚC MỪNG', fontSize: 70, offsetY: 155, fontWeight: 'bold', textCase: 'uppercase' },
-      { text: 'KHAI TRƯƠNG HỒNG PHÁT', fontSize: 70, offsetY: 260, fontWeight: 'bold', textCase: 'uppercase' },
+      { text: 'CHÚC MỪNG', fontSize: 82, offsetY: 150, fontWeight: 'bold', textCase: 'uppercase' },
+      { text: 'KHAI TRƯƠNG HỒNG PHÁT', fontSize: 88, offsetY: 260, fontWeight: 'bold', textCase: 'uppercase' },
     ],
   },
   'oval-khanh-thanh': {
@@ -227,8 +227,8 @@ const PRESETS: Record<
     ovalTextColor: '#ffffff',
     globalFontFamily: 'Oswald',
     lines: [
-      { text: 'CHÚC MỪNG', fontSize: 70, offsetY: 155, fontWeight: 'bold', textCase: 'uppercase' },
-      { text: 'LỄ KHÁNH THÀNH', fontSize: 70, offsetY: 260, fontWeight: 'bold', textCase: 'uppercase' },
+      { text: 'CHÚC MỪNG', fontSize: 84, offsetY: 150, fontWeight: 'bold', textCase: 'uppercase' },
+      { text: 'LỄ KHÁNH THÀNH', fontSize: 94, offsetY: 260, fontWeight: 'bold', textCase: 'uppercase' },
     ],
   },
   'oval-tan-gia': {
@@ -239,8 +239,8 @@ const PRESETS: Record<
     ovalTextColor: '#ffffff',
     globalFontFamily: 'Marcellus',
     lines: [
-      { text: 'CHÚC MỪNG', fontSize: 70, offsetY: 155, fontWeight: 'bold', textCase: 'uppercase' },
-      { text: 'TÂN GIA PHÁT TÀI', fontSize: 70, offsetY: 260, fontWeight: 'bold', textCase: 'uppercase' },
+      { text: 'CHÚC MỪNG', fontSize: 82, offsetY: 150, fontWeight: 'bold', textCase: 'uppercase' },
+      { text: 'TÂN GIA PHÁT TÀI', fontSize: 92, offsetY: 260, fontWeight: 'bold', textCase: 'uppercase' },
     ],
   },
   'oval-20-10': {
@@ -251,8 +251,8 @@ const PRESETS: Record<
     ovalTextColor: '#ffffff',
     globalFontFamily: 'Oswald',
     lines: [
-      { text: 'CHÚC MỪNG', fontSize: 70, offsetY: 155, fontWeight: 'bold', textCase: 'uppercase' },
-      { text: 'NGÀY PHỤ NỮ VIỆT NAM 20-10', fontSize: 70, offsetY: 260, fontWeight: 'bold', textCase: 'uppercase' },
+      { text: 'CHÚC MỪNG', fontSize: 76, offsetY: 150, fontWeight: 'bold', textCase: 'uppercase' },
+      { text: 'NGÀY PHỤ NỮ VIỆT NAM 20-10', fontSize: 76, offsetY: 260, fontWeight: 'bold', textCase: 'uppercase' },
     ],
   },
   'oval-20-11': {
@@ -263,7 +263,7 @@ const PRESETS: Record<
     ovalTextColor: '#ffffff',
     globalFontFamily: 'Oswald',
     lines: [
-      { text: 'CHÚC MỪNG', fontSize: 70, offsetY: 155, fontWeight: 'bold', textCase: 'uppercase' },
+      { text: 'CHÚC MỪNG', fontSize: 76, offsetY: 150, fontWeight: 'bold', textCase: 'uppercase' },
       { text: 'NGÀY NHÀ GIÁO VIỆT NAM 20-11', fontSize: 70, offsetY: 260, fontWeight: 'bold', textCase: 'uppercase' },
     ],
   },
@@ -275,8 +275,8 @@ const PRESETS: Record<
     ovalTextColor: '#ffffff',
     globalFontFamily: 'Oswald',
     lines: [
-      { text: 'CHÚC MỪNG', fontSize: 70, offsetY: 155, fontWeight: 'bold', textCase: 'uppercase' },
-      { text: 'NGÀY QUỐC TẾ PHỤ NỮ 8-3', fontSize: 70, offsetY: 260, fontWeight: 'bold', textCase: 'uppercase' },
+      { text: 'CHÚC MỪNG', fontSize: 76, offsetY: 150, fontWeight: 'bold', textCase: 'uppercase' },
+      { text: 'NGÀY QUỐC TẾ PHỤ NỮ 8-3', fontSize: 78, offsetY: 260, fontWeight: 'bold', textCase: 'uppercase' },
     ],
   },
 
@@ -289,8 +289,8 @@ const PRESETS: Record<
     ovalTextColor: '#ffffff',
     globalFontFamily: 'Oswald',
     lines: [
-      { text: 'THÀNH KÍNH PHÂN ƯU', fontSize: 70, offsetY: 155, fontWeight: 'bold', textCase: 'uppercase' },
-      { text: 'VÔ CÙNG THƯƠNG TIẾC', fontSize: 70, offsetY: 260, fontWeight: 'bold', textCase: 'uppercase' },
+      { text: 'THÀNH KÍNH PHÂN ƯU', fontSize: 84, offsetY: 150, fontWeight: 'bold', textCase: 'uppercase' },
+      { text: 'VÔ CÙNG THƯƠNG TIẾC', fontSize: 84, offsetY: 260, fontWeight: 'bold', textCase: 'uppercase' },
     ],
   },
   'kinh-dang': {
@@ -302,8 +302,8 @@ const PRESETS: Record<
     ovalTextColor: '#fbbf24',
     globalFontFamily: 'Oswald',
     lines: [
-      { text: 'KÍNH DÂNG', fontSize: 70, offsetY: 155, fontWeight: 'bold', textCase: 'uppercase' },
-      { text: 'ĐỨC PHẬT TỪ BI', fontSize: 70, offsetY: 260, fontWeight: 'bold', textCase: 'uppercase' },
+      { text: 'KÍNH DÂNG', fontSize: 90, offsetY: 150, fontWeight: 'bold', textCase: 'uppercase' },
+      { text: 'ĐỨC PHẬT TỪ BI', fontSize: 96, offsetY: 260, fontWeight: 'bold', textCase: 'uppercase' },
     ],
   },
   'kinh-vieng': {
@@ -315,8 +315,8 @@ const PRESETS: Record<
     ovalTextColor: '#09090b',
     globalFontFamily: 'Oswald',
     lines: [
-      { text: 'KÍNH VIẾNG', fontSize: 70, offsetY: 155, fontWeight: 'bold', textCase: 'uppercase' },
-      { text: 'VÔ CÙNG THƯƠNG TIẾC', fontSize: 70, offsetY: 260, fontWeight: 'bold', textCase: 'uppercase' },
+      { text: 'KÍNH VIẾNG', fontSize: 92, offsetY: 150, fontWeight: 'bold', textCase: 'uppercase' },
+      { text: 'VÔ CÙNG THƯƠNG TIẾC', fontSize: 86, offsetY: 260, fontWeight: 'bold', textCase: 'uppercase' },
     ],
   },
   'cong-giao': {
@@ -327,8 +327,8 @@ const PRESETS: Record<
     ovalTextColor: '#ffffff',
     globalFontFamily: 'Cormorant Garamond',
     lines: [
-      { text: 'THÀNH KÍNH PHÂN ƯU', fontSize: 70, offsetY: 155, fontWeight: 'bold', textCase: 'uppercase' },
-      { text: 'NGUYỆN XIN CHÚA ĐÓN NHẬN LINH HỒN', fontSize: 60, offsetY: 260, fontWeight: 'bold', textCase: 'uppercase' },
+      { text: 'THÀNH KÍNH PHÂN ƯU', fontSize: 82, offsetY: 145, fontWeight: 'bold', textCase: 'uppercase' },
+      { text: 'NGUYỆN XIN CHÚA ĐÓN NHẬN LINH HỒN', fontSize: 58, offsetY: 265, fontWeight: 'bold', textCase: 'uppercase' },
     ],
   },
   'ngan-thu': {
@@ -339,8 +339,8 @@ const PRESETS: Record<
     ovalTextColor: '#ffffff',
     globalFontFamily: 'Alegreya SC',
     lines: [
-      { text: 'KÍNH VIẾNG HƯƠNG HỒN', fontSize: 70, offsetY: 155, fontWeight: 'bold', textCase: 'uppercase' },
-      { text: 'NGÀN THU YÊN NGHỈ', fontSize: 70, offsetY: 260, fontWeight: 'bold', textCase: 'uppercase' },
+      { text: 'KÍNH VIẾNG HƯƠNG HỒN', fontSize: 82, offsetY: 150, fontWeight: 'bold', textCase: 'uppercase' },
+      { text: 'NGÀN THU YÊN NGHỈ', fontSize: 86, offsetY: 260, fontWeight: 'bold', textCase: 'uppercase' },
     ],
   },
 };
@@ -602,13 +602,21 @@ export const useCardStore = create<CardStore>()(
         }),
 
       setCopiesPerPage: (copies: 1 | 2 | 3) =>
-        set((state) => ({
-          config: {
-            ...state.config,
-            copiesPerPage: copies,
-            scalePercent: 90, // Kích thước mặc định là 90% chiều rộng khổ giấy và căn giữa
-          },
-        })),
+        set((state) => {
+          let updatedLines = state.config.lines;
+          // Khi chuyển sang 3 bản (dành cho thiệp 1 dòng), nếu chỉ có 1 dòng thì đảm bảo nằm giữa thiệp (210)
+          if (copies === 3 && updatedLines.length === 1 && updatedLines[0].offsetY < 180) {
+            updatedLines = [{ ...updatedLines[0], offsetY: 210 }];
+          }
+          return {
+            config: {
+              ...state.config,
+              copiesPerPage: copies,
+              scalePercent: 90, // Kích thước mặc định là 90% chiều rộng khổ giấy và căn giữa
+              lines: updatedLines,
+            },
+          };
+        }),
 
       updateGlobalTypography: (updates) =>
         set((state) => ({
@@ -744,8 +752,8 @@ export const useCardStore = create<CardStore>()(
         }),
     }),
     {
-      name: 'flower-card-studio-storage-v13',
-      version: 13,
+      name: 'flower-card-studio-storage-v14',
+      version: 14,
     }
   )
 );

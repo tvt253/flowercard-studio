@@ -1,6 +1,7 @@
 import React from 'react';
 import { CardConfig, TextLine, StrokeLayer } from '../types/card';
 import { applyTextCase } from '../store/useCardStore';
+import { calculateCardMetrics } from '../utils/cardScaleUtils';
 
 interface SvgCardCanvasProps {
   config: CardConfig;
@@ -49,6 +50,100 @@ const SvgCardCanvas: React.FC<SvgCardCanvasProps> = ({
     ? config.ovalTextColor || '#ffffff'
     : config.outerStrokeColor;
 
+  // Tính toán tỷ lệ auto-scale để nội dung thiệp luôn tự động lấp đầy ~90% trang giấy
+  const { centerY, cloudScale, ovalTextScale } = calculateCardMetrics(config);
+
+  // Render các dòng chữ chính (bao gồm click target, selection highlight, và glyphs)
+  const renderTextLines = () =>
+    config.lines.map((line) => {
+      const fontFamily = line.fontFamily || config.globalFontFamily;
+      const textStrokeColor = isOval ? 'none' : (line.strokeColor || config.globalStrokeColor);
+      const textStrokeWidth = isOval
+        ? 0
+        : line.strokeWidth !== undefined
+        ? line.strokeWidth
+        : config.globalStrokeWidth;
+      const isSelected = selectedLineId === line.id;
+      const displayText = applyTextCase(line.text, line.textCase);
+
+      return (
+        <g
+          key={`fg-group-${line.id}`}
+          onClick={() => onSelectLine && onSelectLine(line.id)}
+          style={{ cursor: onSelectLine ? 'pointer' : 'default' }}
+        >
+          {/* Vùng cảm ứng click rộng bao quanh dòng chữ để dễ bấm chọn trên Preview */}
+          <text
+            fontFamily={fontFamily}
+            fontSize={line.fontSize}
+            fontWeight={line.fontWeight}
+            fontStyle={line.fontStyle}
+            fill="none"
+            stroke="transparent"
+            strokeWidth={maxLayerWidth + 24}
+            strokeLinejoin="round"
+            strokeLinecap="round"
+            letterSpacing={line.letterSpacing}
+          >
+            <textPath
+              href={`#path-${uid}-${line.id}`}
+              startOffset="50%"
+              textAnchor="middle"
+            >
+              {displayText}
+            </textPath>
+          </text>
+
+          {/* Hiệu ứng viền phát sáng khi chọn dòng trên preview */}
+          {isSelected && (
+            <text
+              fontFamily={fontFamily}
+              fontSize={line.fontSize}
+              fontWeight={line.fontWeight}
+              fontStyle={line.fontStyle}
+              fill="none"
+              stroke="#38bdf8"
+              strokeWidth={textStrokeWidth + 12}
+              strokeDasharray="6,4"
+              strokeLinejoin="round"
+              opacity={0.9}
+              letterSpacing={line.letterSpacing}
+            >
+              <textPath
+                href={`#path-${uid}-${line.id}`}
+                startOffset="50%"
+                textAnchor="middle"
+              >
+                {displayText}
+              </textPath>
+            </text>
+          )}
+
+          {/* Chữ hiển thị chính: màu trắng trên nền Oval, hoặc màu stroke ngoài trên Đám Mây */}
+          <text
+            fontFamily={fontFamily}
+            fontSize={line.fontSize}
+            fontWeight={line.fontWeight}
+            fontStyle={line.fontStyle}
+            fill={primaryTextColor}
+            stroke={textStrokeWidth > 0 ? textStrokeColor : 'none'}
+            strokeWidth={textStrokeWidth}
+            strokeLinejoin="round"
+            paintOrder="stroke fill"
+            letterSpacing={line.letterSpacing}
+          >
+            <textPath
+              href={`#path-${uid}-${line.id}`}
+              startOffset="50%"
+              textAnchor="middle"
+            >
+              {displayText}
+            </textPath>
+          </text>
+        </g>
+      );
+    });
+
   return (
     <svg
       viewBox="0 0 1000 420"
@@ -72,154 +167,84 @@ const SvgCardCanvas: React.FC<SvgCardCanvasProps> = ({
         ))}
       </defs>
 
-      {/* 1. NỀN THIỆP: KIỂU OVAL (ĐỎ / ĐEN / TRẮNG / TÍM) HOẶC CÁC LỚP VIỀN STROKE ĐÁM MÂY */}
+      {/* 1. NỀN VÀ NỘI DUNG: KIỂU OVAL HOẶC KIỂU ĐÁM MÂY */}
       {isOval ? (
-        <g id={`oval-bg-${uid}`} filter={`url(#card-shadow-${uid})`}>
-          {/* Vòng viền ngoài cùng: nét viền đơn 6px màu oval */}
-          <ellipse
-            cx="500"
-            cy="210"
-            rx="484"
-            ry="198"
-            fill="none"
-            stroke={ovalBorderColor}
-            strokeWidth="6"
-          />
-          {/* Thân khối Oval đặc màu bên trong (cách viền ngoài khoảng trắng 12px) */}
-          <ellipse
-            cx="500"
-            cy="210"
-            rx="466"
-            ry="182"
-            fill={ovalBgColor}
-            stroke={ovalBgColor === '#ffffff' ? ovalBorderColor : 'none'}
-            strokeWidth={ovalBgColor === '#ffffff' ? 2 : 0}
-          />
-        </g>
-      ) : (
-        /* KIỂU ĐÁM MÂY: Các lớp viền stroke xếp tầng hòa quyện */
-        activeLayers.map((layer) => (
-          <g key={`stroke-layer-${layer.id}`}>
-            {config.lines.map((line) => {
-              const fontFamily = line.fontFamily || config.globalFontFamily;
-              const displayText = applyTextCase(line.text, line.textCase);
-              return (
-                <text
-                  key={`stroke-${layer.id}-${line.id}`}
-                  fontFamily={fontFamily}
-                  fontSize={line.fontSize}
-                  fontWeight={line.fontWeight}
-                  fontStyle={line.fontStyle}
-                  fill={layer.color}
-                  stroke={layer.color}
-                  strokeWidth={layer.width}
-                  strokeLinejoin="round"
-                  strokeLinecap="round"
-                  letterSpacing={line.letterSpacing}
-                >
-                  <textPath
-                    href={`#path-${uid}-${line.id}`}
-                    startOffset="50%"
-                    textAnchor="middle"
-                  >
-                    {displayText}
-                  </textPath>
-                </text>
-              );
-            })}
-          </g>
-        ))
-      )}
-
-      {/* 2. MẶT CHỮ CHÍNH */}
-      {config.lines.map((line) => {
-        const fontFamily = line.fontFamily || config.globalFontFamily;
-        const textStrokeColor = isOval ? 'none' : (line.strokeColor || config.globalStrokeColor);
-        const textStrokeWidth = isOval
-          ? 0
-          : line.strokeWidth !== undefined
-          ? line.strokeWidth
-          : config.globalStrokeWidth;
-        const isSelected = selectedLineId === line.id;
-        const displayText = applyTextCase(line.text, line.textCase);
-
-        return (
-          <g
-            key={`fg-group-${line.id}`}
-            onClick={() => onSelectLine && onSelectLine(line.id)}
-            style={{ cursor: onSelectLine ? 'pointer' : 'default' }}
-          >
-            {/* Vùng cảm ứng click rộng bao quanh dòng chữ để dễ bấm chọn trên Preview */}
-            <text
-              fontFamily={fontFamily}
-              fontSize={line.fontSize}
-              fontWeight={line.fontWeight}
-              fontStyle={line.fontStyle}
+        <>
+          {/* Khung viền Oval chuẩn tỷ lệ (chiếm 96.8% bề ngang canvas SVG) */}
+          <g id={`oval-bg-${uid}`} filter={`url(#card-shadow-${uid})`}>
+            {/* Vòng viền ngoài cùng: nét viền đơn 6px màu oval */}
+            <ellipse
+              cx="500"
+              cy="210"
+              rx="484"
+              ry="198"
               fill="none"
-              stroke="transparent"
-              strokeWidth={maxLayerWidth + 20}
-              strokeLinejoin="round"
-              strokeLinecap="round"
-              letterSpacing={line.letterSpacing}
-            >
-              <textPath
-                href={`#path-${uid}-${line.id}`}
-                startOffset="50%"
-                textAnchor="middle"
-              >
-                {displayText}
-              </textPath>
-            </text>
-
-            {/* Hiệu ứng viền phát sáng khi chọn dòng trên preview */}
-            {isSelected && (
-              <text
-                fontFamily={fontFamily}
-                fontSize={line.fontSize}
-                fontWeight={line.fontWeight}
-                fontStyle={line.fontStyle}
-                fill="none"
-                stroke={isOval ? '#38bdf8' : '#38bdf8'}
-                strokeWidth={textStrokeWidth + 12}
-                strokeDasharray="6,4"
-                strokeLinejoin="round"
-                opacity={0.9}
-                letterSpacing={line.letterSpacing}
-              >
-                <textPath
-                  href={`#path-${uid}-${line.id}`}
-                  startOffset="50%"
-                  textAnchor="middle"
-                >
-                  {displayText}
-                </textPath>
-              </text>
-            )}
-
-            {/* Chữ hiển thị chính: màu trắng trên nền Oval, hoặc màu stroke ngoài trên Đám Mây */}
-            <text
-              fontFamily={fontFamily}
-              fontSize={line.fontSize}
-              fontWeight={line.fontWeight}
-              fontStyle={line.fontStyle}
-              fill={primaryTextColor}
-              stroke={textStrokeWidth > 0 ? textStrokeColor : 'none'}
-              strokeWidth={textStrokeWidth}
-              strokeLinejoin="round"
-              paintOrder="stroke fill"
-              letterSpacing={line.letterSpacing}
-            >
-              <textPath
-                href={`#path-${uid}-${line.id}`}
-                startOffset="50%"
-                textAnchor="middle"
-              >
-                {displayText}
-              </textPath>
-            </text>
+              stroke={ovalBorderColor}
+              strokeWidth="6"
+            />
+            {/* Thân khối Oval đặc màu bên trong (cách viền ngoài khoảng trắng 12px) */}
+            <ellipse
+              cx="500"
+              cy="210"
+              rx="466"
+              ry="182"
+              fill={ovalBgColor}
+              stroke={ovalBgColor === '#ffffff' ? ovalBorderColor : 'none'}
+              strokeWidth={ovalBgColor === '#ffffff' ? 2 : 0}
+            />
           </g>
-        );
-      })}
+
+          {/* Nội dung chữ bên trong Oval tự động scale vừa vặn và nổi bật */}
+          <g
+            id={`oval-text-group-${uid}`}
+            transform={`translate(500, ${centerY}) scale(${ovalTextScale}) translate(-500, -${centerY})`}
+          >
+            {renderTextLines()}
+          </g>
+        </>
+      ) : (
+        /* KIỂU ĐÁM MÂY: Các lớp viền stroke xếp tầng + mặt chữ chính tự động scale lên ~880px trong viewBox */
+        <g
+          id={`cloud-group-${uid}`}
+          transform={`translate(500, ${centerY}) scale(${cloudScale}) translate(-500, -${centerY})`}
+        >
+          {/* Các lớp viền stroke xếp tầng hòa quyện tạo hình đám mây */}
+          {activeLayers.map((layer) => (
+            <g key={`stroke-layer-${layer.id}`}>
+              {config.lines.map((line) => {
+                const fontFamily = line.fontFamily || config.globalFontFamily;
+                const displayText = applyTextCase(line.text, line.textCase);
+                return (
+                  <text
+                    key={`stroke-${layer.id}-${line.id}`}
+                    fontFamily={fontFamily}
+                    fontSize={line.fontSize}
+                    fontWeight={line.fontWeight}
+                    fontStyle={line.fontStyle}
+                    fill={layer.color}
+                    stroke={layer.color}
+                    strokeWidth={layer.width}
+                    strokeLinejoin="round"
+                    strokeLinecap="round"
+                    letterSpacing={line.letterSpacing}
+                  >
+                    <textPath
+                      href={`#path-${uid}-${line.id}`}
+                      startOffset="50%"
+                      textAnchor="middle"
+                    >
+                      {displayText}
+                    </textPath>
+                  </text>
+                );
+              })}
+            </g>
+          ))}
+
+          {/* Mặt chữ chính và vùng tương tác */}
+          {renderTextLines()}
+        </g>
+      )}
     </svg>
   );
 };

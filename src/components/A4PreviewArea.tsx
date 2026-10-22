@@ -18,6 +18,7 @@ import {
 import { clsx } from 'clsx';
 import { handlePrint, handleExportPDF } from '../utils/exportUtils';
 import { FONT_OPTIONS } from '../constants/fonts';
+import { calculateCardMetrics } from '../utils/cardScaleUtils';
 
 interface A4PreviewAreaProps {
   isSidebarOpen?: boolean;
@@ -40,6 +41,15 @@ const A4PreviewArea: React.FC<A4PreviewAreaProps> = ({
 
   // Dòng đang được chọn để chỉnh sửa
   const selectedLine = config.lines.find((l) => l.id === selectedLineId);
+
+  // Tính toán vị trí nổi của popup editor theo tỷ lệ scale thực tế của dòng chữ
+  const { centerY, cloudScale, ovalTextScale } = calculateCardMetrics(config);
+  const isOval = config.styleType === 'oval-red' || config.styleType === 'oval-black';
+  const activeScale = isOval ? ovalTextScale : cloudScale;
+  const visualLineY = selectedLine
+    ? centerY + (selectedLine.offsetY - centerY) * activeScale
+    : 210;
+  const popupTopPercent = Math.max(5, Math.min(80, (visualLineY / 420) * 100 - 22));
 
   return (
     <div className="print-wrapper flex flex-col items-center select-none w-full max-w-5xl py-2">
@@ -277,7 +287,7 @@ const A4PreviewArea: React.FC<A4PreviewAreaProps> = ({
                 <div
                   className="absolute z-30 left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur-md border border-rose-300 rounded-xl p-2 shadow-2xl flex items-center gap-2 ring-4 ring-rose-500/10 print:hidden animate-in fade-in zoom-in-95 duration-150"
                   style={{
-                    top: `${Math.max(8, (selectedLine.offsetY / 420) * 100 - 20)}%`,
+                    top: `${popupTopPercent}%`,
                   }}
                   onClick={(e) => e.stopPropagation()}
                 >
@@ -485,7 +495,7 @@ const A4PreviewArea: React.FC<A4PreviewAreaProps> = ({
                   <div
                     className="absolute z-30 left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur-md border border-rose-300 rounded-xl p-2 shadow-2xl flex items-center gap-2 ring-4 ring-rose-500/10 print:hidden animate-in fade-in zoom-in-95 duration-150"
                     style={{
-                      top: `${Math.max(5, (selectedLine.offsetY / 420) * 100 - 22)}%`,
+                      top: `${popupTopPercent}%`,
                     }}
                     onClick={(e) => e.stopPropagation()}
                   >
