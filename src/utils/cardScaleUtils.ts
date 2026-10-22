@@ -167,3 +167,4 @@ export function calculateCardMetrics(config: CardConfig): CardMetrics {
     ovalTextScale,
   };
 }
+

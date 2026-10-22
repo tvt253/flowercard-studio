@@ -55,7 +55,6 @@ const App: React.FC = () => {
         <div className="w-[340px] h-full">
           <ControlSidebar
             onToggleSidebar={toggleSidebar}
-            onToggleFullscreen={toggleFullscreen}
           />
         </div>
       </div>

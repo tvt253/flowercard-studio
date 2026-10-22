@@ -6,7 +6,6 @@ import {
   Trash2,
   Bold,
   Italic,
-  RotateCcw,
   Printer,
   FileDown,
   Layers,
@@ -14,7 +13,6 @@ import {
   Type,
   Cloud,
   PanelLeftClose,
-  Maximize2,
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { handlePrint, handleExportPDF } from '../utils/exportUtils';
@@ -77,12 +75,10 @@ const LAYER_COUNT_OPTIONS: (4 | 5 | 6)[] = [4, 5, 6];
 
 interface ControlSidebarProps {
   onToggleSidebar?: () => void;
-  onToggleFullscreen?: () => void;
 }
 
 const ControlSidebar: React.FC<ControlSidebarProps> = ({
   onToggleSidebar,
-  onToggleFullscreen,
 }) => {
   const {
     config,
@@ -97,7 +93,6 @@ const ControlSidebar: React.FC<ControlSidebarProps> = ({
     setQuickColorGroup,
     setCopiesPerPage,
     applyPreset,
-    resetDefault,
   } = useCardStore();
 
   const isOval = config.styleType === 'oval-red' || config.styleType === 'oval-black';
@@ -677,35 +672,21 @@ const ControlSidebar: React.FC<ControlSidebarProps> = ({
       </div>
 
       {/* FOOTER ACTIONS */}
-      <div className="p-3 border-t border-slate-200 bg-slate-50 flex-shrink-0 space-y-2">
+      <div className="p-3 border-t border-slate-200 bg-slate-50 flex-shrink-0">
         <div className="flex gap-2">
           <button
             onClick={handlePrint}
-            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-rose-500 hover:bg-rose-600 text-white text-xs font-semibold rounded transition-colors shadow-sm"
+            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-rose-500 hover:bg-rose-600 text-white text-xs font-semibold rounded-lg transition-colors shadow-sm"
           >
             <Printer size={13} /> In Trực Tiếp
           </button>
           <button
             onClick={() => handleExportPDF(config.copiesPerPage === 1)}
-            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-slate-700 hover:bg-slate-800 text-white text-xs font-semibold rounded transition-colors shadow-sm"
+            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-slate-700 hover:bg-slate-800 text-white text-xs font-semibold rounded-lg transition-colors shadow-sm"
           >
             <FileDown size={13} /> Xuất PDF
           </button>
         </div>
-        {onToggleFullscreen && (
-          <button
-            onClick={onToggleFullscreen}
-            className="w-full flex items-center justify-center gap-1.5 px-3 py-2 bg-indigo-600 hover:bg-indigo-700 text-white text-xs font-semibold rounded transition-colors shadow-sm"
-          >
-            <Maximize2 size={13} /> Xem Toàn Màn Hình (Full Preview)
-          </button>
-        )}
-        <button
-          onClick={resetDefault}
-          className="w-full flex items-center justify-center gap-1.5 px-3 py-1.5 text-xs text-slate-500 hover:text-rose-500 border border-slate-200 hover:border-rose-300 rounded transition-colors bg-white"
-        >
-          <RotateCcw size={11} /> Đặt lại mặc định
-        </button>
       </div>
     </aside>
   );
