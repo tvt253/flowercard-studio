@@ -210,19 +210,22 @@ const ControlSidebar: React.FC<ControlSidebarProps> = ({
               <Sparkles size={11} /> Cài đặt chung
             </div>
 
-            {/* Kích thước thiệp so với giấy - cho phép chỉnh lên đến 120% */}
+            {/* Kích thước thiệp so với giấy - mặc định 90% chiều rộng giấy và căn giữa */}
             <div>
               <div className="flex justify-between text-xs font-medium text-slate-500 mb-1">
                 <span>Kích thước thiệp:</span>
-                <span className="text-rose-600 font-bold">{config.scalePercent}%</span>
+                <span className="text-rose-600 font-bold">{config.scalePercent ?? 90}% chiều rộng</span>
               </div>
               <input
                 type="range"
                 min={50}
                 max={120}
-                value={config.scalePercent}
+                value={config.scalePercent ?? 90}
                 onChange={(e) => updateGlobalTypography({ scalePercent: parseInt(e.target.value) })}
               />
+              <p className="text-[11px] text-slate-400 mt-0.5">
+                Mặc định 90% chiều rộng khổ giấy, luôn căn giữa trang A4.
+              </p>
             </div>
 
             {/* Font chữ chung */}
@@ -600,31 +603,74 @@ const ControlSidebar: React.FC<ControlSidebarProps> = ({
               <label className="block text-xs font-medium text-slate-500 mb-1.5">
                 Số bản in / tờ A4
               </label>
-              <div className="grid grid-cols-2 gap-2">
+              <div className="grid grid-cols-3 gap-1.5">
                 <button
                   onClick={() => setCopiesPerPage(1)}
                   className={clsx(
-                    'py-2 px-3 text-xs border rounded-lg font-bold transition-colors text-center',
+                    'py-2 px-1 text-xs border rounded-lg font-bold transition-colors text-center flex flex-col items-center justify-center gap-0.5',
                     config.copiesPerPage === 1
                       ? 'bg-rose-500 border-rose-500 text-white shadow-sm'
                       : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
                   )}
                 >
-                  1 bản
+                  <span>1 bản</span>
+                  <span
+                    className={clsx(
+                      'text-[10px] font-normal',
+                      config.copiesPerPage === 1 ? 'text-rose-100' : 'text-slate-400'
+                    )}
+                  >
+                    Khổ ngang
+                  </span>
                 </button>
 
                 <button
                   onClick={() => setCopiesPerPage(2)}
                   className={clsx(
-                    'py-2 px-3 text-xs border rounded-lg font-bold transition-colors text-center',
+                    'py-2 px-1 text-xs border rounded-lg font-bold transition-colors text-center flex flex-col items-center justify-center gap-0.5',
                     config.copiesPerPage === 2
                       ? 'bg-rose-500 border-rose-500 text-white shadow-sm'
                       : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
                   )}
                 >
-                  2 bản
+                  <span>2 bản ✓</span>
+                  <span
+                    className={clsx(
+                      'text-[10px] font-normal',
+                      config.copiesPerPage === 2 ? 'text-rose-100' : 'text-slate-400'
+                    )}
+                  >
+                    Khổ dọc
+                  </span>
+                </button>
+
+                <button
+                  onClick={() => setCopiesPerPage(3)}
+                  className={clsx(
+                    'py-2 px-1 text-xs border rounded-lg font-bold transition-colors text-center flex flex-col items-center justify-center gap-0.5',
+                    config.copiesPerPage === 3
+                      ? 'bg-rose-500 border-rose-500 text-white shadow-sm'
+                      : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
+                  )}
+                >
+                  <span>3 bản</span>
+                  <span
+                    className={clsx(
+                      'text-[10px] font-normal',
+                      config.copiesPerPage === 3 ? 'text-rose-100' : 'text-slate-400'
+                    )}
+                  >
+                    Khổ dọc (1 dòng)
+                  </span>
                 </button>
               </div>
+              <p className="text-[11px] text-slate-400 mt-2">
+                {config.copiesPerPage === 1
+                  ? '📄 In 1 bản to trải dài trên tờ A4 xoay ngang (297x210mm).'
+                  : config.copiesPerPage === 2
+                  ? '📄 In 2 bản xếp trên - dưới trên tờ A4 khổ dọc (210x297mm) chuẩn mẫu tiệm hoa.'
+                  : '📄 In 3 bản trên 1 tờ A4 khổ dọc (210x297mm), lý tưởng cho các thiệp 1 dòng tiết kiệm giấy.'}
+              </p>
             </div>
           </div>
         </div>

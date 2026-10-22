@@ -108,7 +108,7 @@ const defaultLine2: TextLine = {
 };
 
 const defaultConfig: CardConfig = {
-  scalePercent: 100, // Kích thước thiệp so với giấy (cho phép chỉnh lên đến 120%)
+  scalePercent: 90, // Kích thước mặc định 90% chiều rộng khổ giấy và căn giữa
   copiesPerPage: 2, // Mặc định 2 bản (A4 đứng)
   showCutLines: false,
 
@@ -353,7 +353,7 @@ interface CardStore {
   toggleLineTextCase: (id: string) => void;
   updateConfig: (updates: Partial<Omit<CardConfig, 'lines' | 'strokeLayers'>>) => void;
   setStyleType: (style: StyleType) => void;
-  setCopiesPerPage: (copies: 1 | 2) => void;
+  setCopiesPerPage: (copies: 1 | 2 | 3) => void;
   updateGlobalTypography: (updates: {
     globalFontFamily?: string;
     globalCurveStrength?: number;
@@ -379,32 +379,63 @@ export const useCardStore = create<CardStore>()(
       config: defaultConfig,
 
       addLine: () =>
-        set((state) => ({
-          config: {
-            ...state.config,
-            lines: [
-              ...state.config.lines,
-              {
-                id: generateId(),
-                text: 'Dòng Chữ Mới',
-                fontSize: 70,
-                offsetY: 315,
-                fontWeight: 'bold',
-                fontStyle: 'normal',
-                letterSpacing: 1.5,
-                textCase: 'capitalize',
+        set((state) => {
+          if (state.config.lines.length === 1 && Math.abs(state.config.lines[0].offsetY - 210) < 25) {
+            // Khi đang có 1 dòng nằm chính giữa (210), chuyển dòng 1 lên trên (155) và thêm dòng 2 ở dưới (260) chuẩn 2 dòng
+            return {
+              config: {
+                ...state.config,
+                lines: [
+                  { ...state.config.lines[0], offsetY: 155 },
+                  {
+                    id: generateId(),
+                    text: 'Dòng Chữ Mới',
+                    fontSize: 70,
+                    offsetY: 260,
+                    fontWeight: 'bold',
+                    fontStyle: 'normal',
+                    letterSpacing: 1.5,
+                    textCase: 'capitalize',
+                  },
+                ],
               },
-            ],
-          },
-        })),
+            };
+          }
+          return {
+            config: {
+              ...state.config,
+              lines: [
+                ...state.config.lines,
+                {
+                  id: generateId(),
+                  text: 'Dòng Chữ Mới',
+                  fontSize: 70,
+                  offsetY: 315,
+                  fontWeight: 'bold',
+                  fontStyle: 'normal',
+                  letterSpacing: 1.5,
+                  textCase: 'capitalize',
+                },
+              ],
+            },
+          };
+        }),
 
       removeLine: (id: string) =>
-        set((state) => ({
-          config: {
-            ...state.config,
-            lines: state.config.lines.filter((l) => l.id !== id),
-          },
-        })),
+        set((state) => {
+          const remainingLines = state.config.lines.filter((l) => l.id !== id);
+          // Nếu xóa chỉ còn đúng 1 dòng duy nhất và dòng đó đang lệch trên (< 180), tự động căn giữa thiệp (210)
+          const updatedLines =
+            remainingLines.length === 1 && remainingLines[0].offsetY < 180
+              ? [{ ...remainingLines[0], offsetY: 210 }]
+              : remainingLines;
+          return {
+            config: {
+              ...state.config,
+              lines: updatedLines,
+            },
+          };
+        }),
 
       updateLine: (id: string, updates: Partial<TextLine>) =>
         set((state) => ({
@@ -570,12 +601,12 @@ export const useCardStore = create<CardStore>()(
           }
         }),
 
-      setCopiesPerPage: (copies: 1 | 2) =>
+      setCopiesPerPage: (copies: 1 | 2 | 3) =>
         set((state) => ({
           config: {
             ...state.config,
             copiesPerPage: copies,
-            scalePercent: 100,
+            scalePercent: 90, // Kích thước mặc định là 90% chiều rộng khổ giấy và căn giữa
           },
         })),
 
@@ -713,8 +744,8 @@ export const useCardStore = create<CardStore>()(
         }),
     }),
     {
-      name: 'flower-card-studio-storage-v12',
-      version: 12,
+      name: 'flower-card-studio-storage-v13',
+      version: 13,
     }
   )
 );

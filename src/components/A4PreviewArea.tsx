@@ -96,7 +96,11 @@ const A4PreviewArea: React.FC<A4PreviewAreaProps> = ({
           </span>
 
           <span className="text-xs text-slate-400 hidden sm:inline">
-            {isLandscape ? 'A4 Ngang (1 bản)' : 'A4 Đứng (2 bản)'}
+            {isLandscape
+              ? 'A4 Ngang (1 bản)'
+              : config.copiesPerPage === 3
+              ? 'A4 Đứng (3 bản - 1 dòng)'
+              : 'A4 Đứng (2 bản)'}
           </span>
 
           <div className="h-4 w-px bg-slate-700 mx-1" />
@@ -253,10 +257,10 @@ const A4PreviewArea: React.FC<A4PreviewAreaProps> = ({
         }}
       >
         {isLandscape ? (
-          // 1 BẢN TRÊN GIẤY A4 XOAY NGANG (297mm x 210mm) - Chữ nằm ngang tự nhiên, scale lên đến 120%
+          // 1 BẢN TRÊN GIẤY A4 XOAY NGANG (297mm x 210mm) - Chữ nằm ngang tự nhiên, mặc định 90% căn giữa
           <div className="w-full h-full flex items-center justify-center p-3 relative">
             <div
-              className="relative flex items-center justify-center transition-all duration-200"
+              className="relative flex items-center justify-center transition-all duration-200 mx-auto"
               style={{
                 width: `${config.scalePercent}%`,
               }}
@@ -452,12 +456,19 @@ const A4PreviewArea: React.FC<A4PreviewAreaProps> = ({
             </div>
           </div>
         ) : (
-          // 2 BẢN TRÊN GIẤY A4 ĐỨNG (210mm x 297mm) - Xếp tầng trên dưới, scale lên đến 120%
-          <div className="w-full h-full flex flex-col items-center justify-around p-3 relative">
+          // 2 HOẶC 3 BẢN TRÊN GIẤY A4 ĐỨNG (210mm x 297mm) - Xếp tầng trên dưới, mặc định 90% căn giữa
+          <div
+            className={clsx(
+              "w-full h-full flex flex-col items-center relative",
+              config.copiesPerPage === 3
+                ? "justify-evenly py-2 px-3"
+                : "justify-around p-3"
+            )}
+          >
             {copies.map((i) => (
               <div
                 key={i}
-                className="relative flex items-center justify-center transition-all duration-200"
+                className="relative flex items-center justify-center transition-all duration-200 mx-auto"
                 style={{
                   width: `${config.scalePercent}%`,
                 }}

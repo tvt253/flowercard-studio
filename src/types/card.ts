@@ -26,8 +26,8 @@ export interface StrokeLayer {
 export type StyleType = 'cloud' | 'oval-red' | 'oval-black';
 
 export interface CardConfig {
-  scalePercent: number; // Kích thước thiệp so với giấy (lên đến 120%)
-  copiesPerPage: 1 | 2; // 1: Xoay ngang giấy A4; 2: Giấy đứng A4 2 bản
+  scalePercent: number; // Kích thước thiệp so với giấy (mặc định 90%)
+  copiesPerPage: 1 | 2 | 3; // 1: Xoay ngang A4; 2: A4 đứng 2 bản; 3: A4 đứng 3 bản (thiệp 1 dòng)
   showCutLines?: boolean;
 
   styleType: StyleType;
