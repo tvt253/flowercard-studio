@@ -518,18 +518,25 @@ export const useCardStore = create<CardStore>()(
             };
           } else {
             // Style đám mây (cloud)
+            const outerWidth = state.config.outerStrokeWidth || 130;
+            const innerWidth = state.config.innerStrokeWidth || 30;
+            const layerCount = state.config.strokeLayerCount || 5;
             const newLayers = generateAutoStrokeLayers(
-              state.config.strokeLayerCount,
+              layerCount,
               '#c81e2b',
               '#ffffff',
-              130,
-              30
+              outerWidth,
+              innerWidth
             );
             return {
               config: {
                 ...state.config,
                 styleType: 'cloud',
                 outerStrokeColor: '#c81e2b',
+                innerStrokeColor: '#ffffff',
+                outerStrokeWidth: outerWidth,
+                innerStrokeWidth: innerWidth,
+                strokeLayerCount: layerCount,
                 ovalBgColor: undefined,
                 ovalBorderColor: undefined,
                 ovalTextColor: undefined,
@@ -582,11 +589,14 @@ export const useCardStore = create<CardStore>()(
 
       updateStrokeSettings: (updates) =>
         set((state) => {
-          const newCount = updates.strokeLayerCount ?? state.config.strokeLayerCount;
-          const newOuterWidth = updates.outerStrokeWidth ?? state.config.outerStrokeWidth;
-          const newInnerWidth = updates.innerStrokeWidth ?? state.config.innerStrokeWidth;
-          const newOuterColor = updates.outerStrokeColor ?? state.config.outerStrokeColor;
-          const newInnerColor = updates.innerStrokeColor ?? state.config.innerStrokeColor;
+          const newCount = updates.strokeLayerCount ?? state.config.strokeLayerCount ?? 5;
+          let newOuterWidth = updates.outerStrokeWidth ?? state.config.outerStrokeWidth ?? 130;
+          let newInnerWidth = updates.innerStrokeWidth ?? state.config.innerStrokeWidth ?? 30;
+          const newOuterColor = updates.outerStrokeColor ?? state.config.outerStrokeColor ?? '#c81e2b';
+          const newInnerColor = updates.innerStrokeColor ?? state.config.innerStrokeColor ?? '#ffffff';
+
+          newOuterWidth = Math.max(20, Math.min(150, newOuterWidth));
+          newInnerWidth = Math.max(2, Math.min(newOuterWidth - 5, newInnerWidth));
 
           const newLayers = generateAutoStrokeLayers(
             newCount,
@@ -600,6 +610,11 @@ export const useCardStore = create<CardStore>()(
             config: {
               ...state.config,
               ...updates,
+              outerStrokeWidth: newOuterWidth,
+              innerStrokeWidth: newInnerWidth,
+              strokeLayerCount: newCount,
+              outerStrokeColor: newOuterColor,
+              innerStrokeColor: newInnerColor,
               strokeLayers: newLayers,
             },
           };
@@ -607,12 +622,17 @@ export const useCardStore = create<CardStore>()(
 
       setQuickColorGroup: (color: string) =>
         set((state) => {
+          const outerWidth = state.config.outerStrokeWidth || 130;
+          const innerWidth = state.config.innerStrokeWidth || 30;
+          const layerCount = state.config.strokeLayerCount || 5;
+          const innerColor = state.config.innerStrokeColor || '#ffffff';
+
           const newLayers = generateAutoStrokeLayers(
-            state.config.strokeLayerCount,
+            layerCount,
             color,
-            state.config.innerStrokeColor,
-            state.config.outerStrokeWidth,
-            state.config.innerStrokeWidth
+            innerColor,
+            outerWidth,
+            innerWidth
           );
 
           return {
@@ -631,12 +651,16 @@ export const useCardStore = create<CardStore>()(
           const preset = PRESETS[presetName];
           if (!preset) return state;
 
+          const outerWidth = state.config.outerStrokeWidth || 130;
+          const innerWidth = state.config.innerStrokeWidth || 30;
+          const layerCount = state.config.strokeLayerCount || 5;
+
           const newLayers = generateAutoStrokeLayers(
-            state.config.strokeLayerCount,
+            layerCount,
             preset.outerColor,
             preset.innerColor,
-            state.config.outerStrokeWidth,
-            state.config.innerStrokeWidth
+            outerWidth,
+            innerWidth
           );
 
           return {
@@ -644,6 +668,9 @@ export const useCardStore = create<CardStore>()(
               ...state.config,
               outerStrokeColor: preset.outerColor,
               innerStrokeColor: preset.innerColor,
+              outerStrokeWidth: outerWidth,
+              innerStrokeWidth: innerWidth,
+              strokeLayerCount: layerCount,
               globalFontFamily: preset.globalFontFamily,
               ovalBgColor: preset.ovalBgColor,
               ovalBorderColor: preset.ovalBorderColor,

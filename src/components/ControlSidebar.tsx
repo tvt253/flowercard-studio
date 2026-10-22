@@ -90,6 +90,7 @@ const ControlSidebar: React.FC<ControlSidebarProps> = ({
     removeLine,
     updateLine,
     toggleLineTextCase,
+    updateConfig,
     setStyleType,
     updateGlobalTypography,
     updateStrokeSettings,
@@ -439,14 +440,46 @@ const ControlSidebar: React.FC<ControlSidebarProps> = ({
             </div>
 
             {isOval ? (
-              /* THÔNG BÁO DÀNH CHO KIỂU OVAL */
-              <div className="p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 space-y-1">
-                <p className="font-semibold flex items-center gap-1 text-slate-800">
-                  ✨ Mẫu Oval đa sắc thái
-                </p>
-                <p className="text-[11px] text-slate-600">
-                  Khung viền kép sang trọng: hỗ trợ nền đỏ chữ vàng (Kính dâng), nền trắng chữ đen (Kính viếng), nền đen chữ trắng (Chia buồn) hoặc nền đỏ (Khai trương).
-                </p>
+              /* Tùy chỉnh màu sắc chi tiết cho Oval */
+              <div className="grid grid-cols-2 gap-2 p-2.5 bg-slate-50 border border-slate-200 rounded-lg">
+                <div>
+                  <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                    Màu nền Oval:
+                  </label>
+                  <div className="flex items-center gap-1.5">
+                    <input
+                      type="color"
+                      value={config.ovalBgColor || config.outerStrokeColor}
+                      onChange={(e) =>
+                        updateConfig({
+                          ovalBgColor: e.target.value,
+                          ovalBorderColor: e.target.value,
+                        })
+                      }
+                      className="w-7 h-6 rounded cursor-pointer border border-slate-300"
+                    />
+                    <span className="text-xs font-mono text-slate-600">
+                      {config.ovalBgColor || config.outerStrokeColor}
+                    </span>
+                  </div>
+                </div>
+
+                <div>
+                  <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                    Màu chữ Oval:
+                  </label>
+                  <div className="flex items-center gap-1.5">
+                    <input
+                      type="color"
+                      value={config.ovalTextColor || '#ffffff'}
+                      onChange={(e) => updateConfig({ ovalTextColor: e.target.value })}
+                      className="w-7 h-6 rounded cursor-pointer border border-slate-300"
+                    />
+                    <span className="text-xs font-mono text-slate-600">
+                      {config.ovalTextColor || '#ffffff'}
+                    </span>
+                  </div>
+                </div>
               </div>
             ) : (
               /* CÁC ĐIỀU CHỈNH VIỀN DÀNH CHO KIỂU ĐÁM MÂY */
@@ -454,7 +487,7 @@ const ControlSidebar: React.FC<ControlSidebarProps> = ({
                 {/* Chọn số lượng lớp viền: 3 option 4, 5, 6 */}
                 <div>
                   <label className="block text-xs font-medium text-slate-500 mb-1.5">
-                    Số lớp viền: <span className="font-bold text-rose-600">{config.strokeLayerCount} lớp</span>
+                    Số lớp viền: <span className="font-bold text-rose-600">{config.strokeLayerCount ?? 5} lớp</span>
                   </label>
                   <div className="grid grid-cols-3 gap-1.5">
                     {LAYER_COUNT_OPTIONS.map((n) => (
@@ -463,7 +496,7 @@ const ControlSidebar: React.FC<ControlSidebarProps> = ({
                         onClick={() => updateStrokeSettings({ strokeLayerCount: n })}
                         className={clsx(
                           'py-1.5 text-xs border rounded-md font-bold text-center transition-colors',
-                          config.strokeLayerCount === n
+                          (config.strokeLayerCount ?? 5) === n
                             ? 'bg-rose-500 border-rose-500 text-white shadow-sm'
                             : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
                         )}
@@ -483,7 +516,7 @@ const ControlSidebar: React.FC<ControlSidebarProps> = ({
                     <div className="flex items-center gap-1.5">
                       <input
                         type="color"
-                        value={config.outerStrokeColor}
+                        value={config.outerStrokeColor ?? '#c81e2b'}
                         onChange={(e) => updateStrokeSettings({ outerStrokeColor: e.target.value })}
                         className="w-7 h-6 rounded cursor-pointer border border-slate-300"
                       />
@@ -498,7 +531,7 @@ const ControlSidebar: React.FC<ControlSidebarProps> = ({
                     <div className="flex items-center gap-1.5">
                       <input
                         type="color"
-                        value={config.innerStrokeColor}
+                        value={config.innerStrokeColor ?? '#ffffff'}
                         onChange={(e) => updateStrokeSettings({ innerStrokeColor: e.target.value })}
                         className="w-7 h-6 rounded cursor-pointer border border-slate-300"
                       />
@@ -526,13 +559,13 @@ const ControlSidebar: React.FC<ControlSidebarProps> = ({
                   <div>
                     <div className="flex justify-between text-xs font-medium text-slate-500 mb-1">
                       <span>Độ dày viền ngoài cùng:</span>
-                      <span className="font-bold text-rose-600">{config.outerStrokeWidth}px</span>
+                      <span className="font-bold text-rose-600">{config.outerStrokeWidth ?? 130}px</span>
                     </div>
                     <input
                       type="range"
                       min={20}
                       max={150}
-                      value={config.outerStrokeWidth}
+                      value={config.outerStrokeWidth ?? 130}
                       onChange={(e) => updateStrokeSettings({ outerStrokeWidth: parseInt(e.target.value) })}
                     />
                   </div>
@@ -540,13 +573,13 @@ const ControlSidebar: React.FC<ControlSidebarProps> = ({
                   <div>
                     <div className="flex justify-between text-xs font-medium text-slate-500 mb-1">
                       <span>Độ dày viền sát chữ:</span>
-                      <span className="font-bold text-rose-600">{config.innerStrokeWidth}px</span>
+                      <span className="font-bold text-rose-600">{config.innerStrokeWidth ?? 30}px</span>
                     </div>
                     <input
                       type="range"
                       min={2}
                       max={50}
-                      value={config.innerStrokeWidth}
+                      value={config.innerStrokeWidth ?? 30}
                       onChange={(e) => updateStrokeSettings({ innerStrokeWidth: parseInt(e.target.value) })}
                     />
                   </div>
