@@ -675,7 +675,7 @@ const ControlSidebar: React.FC<ControlSidebarProps> = ({
       <div className="p-3 border-t border-slate-200 bg-slate-50 flex-shrink-0">
         <div className="flex gap-2">
           <button
-            onClick={handlePrint}
+            onClick={() => handlePrint(config.copiesPerPage === 1)}
             className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-rose-500 hover:bg-rose-600 text-white text-xs font-semibold rounded-lg transition-colors shadow-sm"
           >
             <Printer size={13} /> In Trực Tiếp

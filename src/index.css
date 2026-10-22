@@ -87,7 +87,22 @@ body {
 /* Print styles */
 @media print {
   @page {
-    margin: 0 !important;
+    margin: 6mm !important; /* Lề an toàn chuẩn tương đương PDF */
+  }
+
+  * {
+    -webkit-print-color-adjust: exact !important;
+    print-color-adjust: exact !important;
+  }
+
+  /* Tắt triệt để mọi SVG filter và box-shadow khi in để tránh Skia rasterize phình to file spool */
+  *,
+  [filter],
+  .card-shadow-filter {
+    filter: none !important;
+    -webkit-filter: none !important;
+    box-shadow: none !important;
+    text-shadow: none !important;
   }
 
   html, body {
@@ -97,14 +112,14 @@ body {
     padding: 0 !important;
     background: white !important;
     overflow: hidden !important;
-    print-color-adjust: exact !important;
-    -webkit-print-color-adjust: exact !important;
   }
 
   #app-root,
   main,
   .print-wrapper {
-    display: block !important;
+    display: flex !important;
+    align-items: center !important;
+    justify-content: center !important;
     width: 100% !important;
     height: 100% !important;
     margin: 0 !important;
@@ -121,6 +136,8 @@ body {
     box-shadow: none !important;
     border: none !important;
     margin: 0 auto !important;
+    max-width: 100% !important;
+    max-height: 100% !important;
     page-break-before: avoid !important;
     page-break-after: avoid !important;
     page-break-inside: avoid !important;

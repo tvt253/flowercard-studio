@@ -171,7 +171,7 @@ const SvgCardCanvas: React.FC<SvgCardCanvasProps> = ({
       {isOval ? (
         <>
           {/* Khung viền Oval chuẩn tỷ lệ (chiếm 96.8% bề ngang canvas SVG) */}
-          <g id={`oval-bg-${uid}`} filter={`url(#card-shadow-${uid})`}>
+          <g id={`oval-bg-${uid}`} className="card-shadow-filter" filter={`url(#card-shadow-${uid})`}>
             {/* Vòng viền ngoài cùng: nét viền đơn 6px màu oval */}
             <ellipse
               cx="500"

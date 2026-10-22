@@ -58,13 +58,17 @@ const A4PreviewArea: React.FC<A4PreviewAreaProps> = ({
         @media print {
           @page {
             size: ${isLandscape ? 'A4 landscape' : 'A4 portrait'};
-            margin: 0 !important;
+            margin: 6mm !important;
+          }
+          *, [filter], .card-shadow-filter {
+            filter: none !important;
+            -webkit-filter: none !important;
+            box-shadow: none !important;
+            text-shadow: none !important;
           }
           html, body {
-            width: ${isLandscape ? '297mm' : '210mm'} !important;
-            height: ${isLandscape ? '210mm' : '297mm'} !important;
-            max-width: ${isLandscape ? '297mm' : '210mm'} !important;
-            max-height: ${isLandscape ? '210mm' : '297mm'} !important;
+            width: 100% !important;
+            height: 100% !important;
             margin: 0 !important;
             padding: 0 !important;
             overflow: hidden !important;
@@ -72,21 +76,23 @@ const A4PreviewArea: React.FC<A4PreviewAreaProps> = ({
           #app-root, main, .print-wrapper {
             margin: 0 !important;
             padding: 0 !important;
-            width: ${isLandscape ? '297mm' : '210mm'} !important;
-            height: ${isLandscape ? '210mm' : '297mm'} !important;
-            max-width: ${isLandscape ? '297mm' : '210mm'} !important;
-            max-height: ${isLandscape ? '210mm' : '297mm'} !important;
+            width: 100% !important;
+            height: 100% !important;
+            max-width: 100% !important;
+            max-height: 100% !important;
             overflow: hidden !important;
-            display: block !important;
+            display: flex !important;
+            align-items: center !important;
+            justify-content: center !important;
           }
           .a4-paper {
-            width: ${isLandscape ? '297mm' : '210mm'} !important;
-            height: ${isLandscape ? '210mm' : '297mm'} !important;
-            max-width: ${isLandscape ? '297mm' : '210mm'} !important;
-            max-height: ${isLandscape ? '210mm' : '297mm'} !important;
+            width: 100% !important;
+            height: 100% !important;
+            max-width: ${isLandscape ? '285mm' : '198mm'} !important;
+            max-height: ${isLandscape ? '198mm' : '285mm'} !important;
             box-shadow: none !important;
             border: none !important;
-            margin: 0 !important;
+            margin: 0 auto !important;
             padding: 0 !important;
             page-break-before: avoid !important;
             page-break-after: avoid !important;
@@ -117,7 +123,7 @@ const A4PreviewArea: React.FC<A4PreviewAreaProps> = ({
 
           {/* Nút In Trực Tiếp */}
           <button
-            onClick={handlePrint}
+            onClick={() => handlePrint(isLandscape)}
             className="flex items-center gap-1 px-3 py-1 bg-rose-500 hover:bg-rose-600 text-white rounded-full text-xs font-semibold transition-colors shadow-sm"
           >
             <Printer size={13} /> In A4
@@ -181,7 +187,7 @@ const A4PreviewArea: React.FC<A4PreviewAreaProps> = ({
           <div className="flex items-center gap-2">
             {/* Nút In A4 nhanh */}
             <button
-              onClick={handlePrint}
+              onClick={() => handlePrint(isLandscape)}
               className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-500 hover:bg-rose-600 text-white rounded-lg text-xs font-semibold transition-colors shadow-sm shadow-rose-100"
               title="In trực tiếp ra máy in khổ A4"
             >
