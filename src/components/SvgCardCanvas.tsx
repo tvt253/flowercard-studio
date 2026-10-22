@@ -80,7 +80,7 @@ const SvgCardCanvas: React.FC<SvgCardCanvasProps> = ({
             fontStyle={line.fontStyle}
             fill="none"
             stroke="transparent"
-            strokeWidth={maxLayerWidth + 24}
+            strokeWidth={maxLayerWidth * 1.2 + 24}
             strokeLinejoin="round"
             strokeLinecap="round"
             letterSpacing={line.letterSpacing}
@@ -209,37 +209,50 @@ const SvgCardCanvas: React.FC<SvgCardCanvasProps> = ({
           transform={`translate(500, ${centerY}) scale(${cloudScale}) translate(-500, -${centerY})`}
         >
           {/* Các lớp viền stroke xếp tầng hòa quyện tạo hình đám mây */}
-          {activeLayers.map((layer) => (
-            <g key={`stroke-layer-${layer.id}`}>
-              {config.lines.map((line) => {
-                const fontFamily = line.fontFamily || config.globalFontFamily;
-                const displayText = applyTextCase(line.text, line.textCase);
-                return (
-                  <text
-                    key={`stroke-${layer.id}-${line.id}`}
-                    fontFamily={fontFamily}
-                    fontSize={line.fontSize}
-                    fontWeight={line.fontWeight}
-                    fontStyle={line.fontStyle}
-                    fill={layer.color}
-                    stroke={layer.color}
-                    strokeWidth={layer.width}
-                    strokeLinejoin="round"
-                    strokeLinecap="round"
-                    letterSpacing={line.letterSpacing}
+          {/* Tăng độ rộng stroke ở trên và dưới = 1.2 lần ở 2 bên */}
+          {activeLayers.map((layer) => {
+            const vDelta = layer.width * 0.1; // (1.2 - 1.0) * width / 2 = 0.1 * width
+            const vOffsets = [-vDelta, -vDelta * 0.67, -vDelta * 0.33, 0, vDelta * 0.33, vDelta * 0.67, vDelta];
+
+            return (
+              <g key={`stroke-layer-${layer.id}`}>
+                {vOffsets.map((dy, oIdx) => (
+                  <g
+                    key={`stroke-offset-${layer.id}-${oIdx}`}
+                    transform={dy !== 0 ? `translate(0, ${dy})` : undefined}
                   >
-                    <textPath
-                      href={`#path-${uid}-${line.id}`}
-                      startOffset="50%"
-                      textAnchor="middle"
-                    >
-                      {displayText}
-                    </textPath>
-                  </text>
-                );
-              })}
-            </g>
-          ))}
+                    {config.lines.map((line) => {
+                      const fontFamily = line.fontFamily || config.globalFontFamily;
+                      const displayText = applyTextCase(line.text, line.textCase);
+                      return (
+                        <text
+                          key={`stroke-${layer.id}-${line.id}-${oIdx}`}
+                          fontFamily={fontFamily}
+                          fontSize={line.fontSize}
+                          fontWeight={line.fontWeight}
+                          fontStyle={line.fontStyle}
+                          fill={layer.color}
+                          stroke={layer.color}
+                          strokeWidth={layer.width}
+                          strokeLinejoin="round"
+                          strokeLinecap="round"
+                          letterSpacing={line.letterSpacing}
+                        >
+                          <textPath
+                            href={`#path-${uid}-${line.id}`}
+                            startOffset="50%"
+                            textAnchor="middle"
+                          >
+                            {displayText}
+                          </textPath>
+                        </text>
+                      );
+                    })}
+                  </g>
+                ))}
+              </g>
+            );
+          })}
 
           {/* Mặt chữ chính và vùng tương tác */}
           {renderTextLines()}

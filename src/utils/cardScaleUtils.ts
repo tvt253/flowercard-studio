@@ -106,11 +106,13 @@ export function calculateCardMetrics(config: CardConfig): CardMetrics {
   const maxLineWidth = Math.max(80, ...lineWidths);
 
   // 2. TÍNH TOÁN VÙNG DỌC (CHIỀU CAO VÀ TÂM DỌC)
+  // Độ rộng stroke ở trên và dưới bằng 1.2 lần ở 2 bên
+  const verticalStrokeWidth = maxLayerWidth * 1.2;
   const lineTops = config.lines.map(
-    (l) => l.offsetY - l.fontSize * 0.5 - maxLayerWidth * 0.5
+    (l) => l.offsetY - l.fontSize * 0.5 - verticalStrokeWidth * 0.5
   );
   const lineBottoms = config.lines.map(
-    (l) => l.offsetY + l.fontSize * 0.5 + maxLayerWidth * 0.5
+    (l) => l.offsetY + l.fontSize * 0.5 + verticalStrokeWidth * 0.5
   );
   const minY = Math.min(...lineTops);
   const maxY = Math.max(...lineBottoms);
