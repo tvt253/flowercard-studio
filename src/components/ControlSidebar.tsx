@@ -39,7 +39,7 @@ const CLOUD_PRESETS: PresetItem[] = [
   { label: '📚 20/11 - Nhà Giáo VN', value: '20-11' },
   { label: '💐 8/3 - Quốc Tế PN', value: '8-3' },
   { label: '🎊 Khai Trương', value: 'khai-truong' },
-  { label: '🎂 Sinh Nhật', value: 'sinh-nhat', tag: 'Màu hồng', tagColor: 'bg-pink-100 text-pink-700' },
+  { label: '🎂 Sinh Nhật', value: 'sinh-nhat' },
   { label: '💍 Mừng Hạnh Phúc', value: 'mung-cuoi' },
 ];
 
