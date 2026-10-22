@@ -17,6 +17,7 @@ import {
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { handlePrint, handleExportPDF } from '../utils/exportUtils';
+import { FONT_OPTIONS } from '../constants/fonts';
 
 interface A4PreviewAreaProps {
   isSidebarOpen?: boolean;
@@ -316,6 +317,38 @@ const A4PreviewArea: React.FC<A4PreviewAreaProps> = ({
                     </span>
                   </button>
 
+                  {/* Chọn font trực tiếp cho dòng */}
+                  <select
+                    value={selectedLine.fontFamily || ''}
+                    onChange={(e) => updateLine(selectedLine.id, { fontFamily: e.target.value || undefined })}
+                    className="px-2 py-1 text-xs border border-slate-200 rounded-md bg-white text-slate-700 font-medium focus:outline-none focus:ring-1 focus:ring-rose-400 max-w-[140px]"
+                    style={{ fontFamily: selectedLine.fontFamily || config.globalFontFamily }}
+                    title="Chọn font chữ cho dòng này"
+                  >
+                    <option value="">(Font chung)</option>
+                    <optgroup label="🔤 Font IN HOA">
+                      {FONT_OPTIONS.filter((f) => f.category === 'uppercase').map((f) => (
+                        <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>
+                          {f.label}
+                        </option>
+                      ))}
+                    </optgroup>
+                    <optgroup label="✍️ Thư Pháp & Nghệ Thuật">
+                      {FONT_OPTIONS.filter((f) => f.category === 'calligraphy').map((f) => (
+                        <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>
+                          {f.label}
+                        </option>
+                      ))}
+                    </optgroup>
+                    <optgroup label="🏛️ Cổ Điển & Hiện Đại">
+                      {FONT_OPTIONS.filter((f) => f.category === 'classic').map((f) => (
+                        <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>
+                          {f.label}
+                        </option>
+                      ))}
+                    </optgroup>
+                  </select>
+
                   {/* Nút cỡ chữ */}
                   <div className="flex items-center gap-1 bg-slate-100 rounded-md px-1.5 py-0.5 text-xs text-slate-700">
                     <button
@@ -483,6 +516,38 @@ const A4PreviewArea: React.FC<A4PreviewAreaProps> = ({
                           : 'aa'}
                       </span>
                     </button>
+
+                    {/* Chọn font trực tiếp cho dòng */}
+                    <select
+                      value={selectedLine.fontFamily || ''}
+                      onChange={(e) => updateLine(selectedLine.id, { fontFamily: e.target.value || undefined })}
+                      className="px-2 py-1 text-xs border border-slate-200 rounded-md bg-white text-slate-700 font-medium focus:outline-none focus:ring-1 focus:ring-rose-400 max-w-[130px]"
+                      style={{ fontFamily: selectedLine.fontFamily || config.globalFontFamily }}
+                      title="Chọn font chữ cho dòng này"
+                    >
+                      <option value="">(Font chung)</option>
+                      <optgroup label="🔤 Font IN HOA">
+                        {FONT_OPTIONS.filter((f) => f.category === 'uppercase').map((f) => (
+                          <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>
+                            {f.label}
+                          </option>
+                        ))}
+                      </optgroup>
+                      <optgroup label="✍️ Thư Pháp & Nghệ Thuật">
+                        {FONT_OPTIONS.filter((f) => f.category === 'calligraphy').map((f) => (
+                          <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>
+                            {f.label}
+                          </option>
+                        ))}
+                      </optgroup>
+                      <optgroup label="🏛️ Cổ Điển & Hiện Đại">
+                        {FONT_OPTIONS.filter((f) => f.category === 'classic').map((f) => (
+                          <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>
+                            {f.label}
+                          </option>
+                        ))}
+                      </optgroup>
+                    </select>
 
                     <div className="flex items-center gap-1 bg-slate-100 rounded-md px-1.5 py-0.5 text-xs text-slate-700">
                       <button

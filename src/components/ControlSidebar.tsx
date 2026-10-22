@@ -18,20 +18,7 @@ import {
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { handlePrint, handleExportPDF } from '../utils/exportUtils';
-
-// 10 font chữ tuyển chọn hỗ trợ 100% tiếng Việt có dấu, đứng đầu là Charm (chuẩn mẫu)
-const FONT_OPTIONS = [
-  { label: 'Charm (Thư pháp nét chuẩn mẫu gốc)', value: 'Charm' },
-  { label: 'Charmonman (Thư pháp uốn lượn quý phái)', value: 'Charmonman' },
-  { label: 'Dancing Script (Chữ viết tay nghệ thuật)', value: 'Dancing Script' },
-  { label: 'Pattaya (Chữ cọ nét dày sang trọng)', value: 'Pattaya' },
-  { label: 'Playwrite VN (Chữ thảo nét thanh nét đậm)', value: 'Playwrite VN' },
-  { label: 'Sriracha (Chữ viết tự nhiên mềm mại)', value: 'Sriracha' },
-  { label: 'Pacifico (Chữ uốn cổ điển)', value: 'Pacifico' },
-  { label: 'Playfair Display (Chữ có chân sang trọng)', value: 'Playfair Display' },
-  { label: 'Cormorant Garamond (Chữ cổ điển trang trọng)', value: 'Cormorant Garamond' },
-  { label: 'Montserrat (Chữ không chân hiện đại)', value: 'Montserrat' },
-];
+import { FONT_OPTIONS } from '../constants/fonts';
 
 const STYLE_OPTIONS: { label: string; value: StyleType }[] = [
   { label: '☁️ Kiểu Đám Mây (Chữ Viền Stroke)', value: 'cloud' },
@@ -195,18 +182,34 @@ const ControlSidebar: React.FC<ControlSidebarProps> = ({
 
             {/* Font chữ chung */}
             <div>
-              <label className="block text-xs font-medium text-slate-500 mb-1">Font chữ</label>
+              <label className="block text-xs font-medium text-slate-500 mb-1">Font chữ chung</label>
               <select
                 value={config.globalFontFamily}
                 onChange={(e) => updateGlobalTypography({ globalFontFamily: e.target.value })}
-                className="w-full px-2 py-1.5 text-xs border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-rose-400 font-medium"
+                className="w-full px-2 py-1.5 text-xs border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-rose-400 font-medium bg-white"
                 style={{ fontFamily: config.globalFontFamily }}
               >
-                {FONT_OPTIONS.map((f) => (
-                  <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>
-                    {f.label}
-                  </option>
-                ))}
+                <optgroup label="🔤 Font Chữ IN HOA (Tiêu Đề / Băng Rôn)">
+                  {FONT_OPTIONS.filter((f) => f.category === 'uppercase').map((f) => (
+                    <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>
+                      {f.label}
+                    </option>
+                  ))}
+                </optgroup>
+                <optgroup label="✍️ Font Thư Pháp & Nghệ Thuật (Mẫu Gốc)">
+                  {FONT_OPTIONS.filter((f) => f.category === 'calligraphy').map((f) => (
+                    <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>
+                      {f.label}
+                    </option>
+                  ))}
+                </optgroup>
+                <optgroup label="🏛️ Font Serif & Sans Hiện Đại">
+                  {FONT_OPTIONS.filter((f) => f.category === 'classic').map((f) => (
+                    <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>
+                      {f.label}
+                    </option>
+                  ))}
+                </optgroup>
               </select>
             </div>
 
@@ -315,6 +318,40 @@ const ControlSidebar: React.FC<ControlSidebarProps> = ({
                       </button>
                     )}
                   </div>
+                </div>
+
+                {/* Chọn font riêng cho dòng này (nếu muốn khác font chung) */}
+                <div className="flex items-center gap-1.5 pt-0.5 text-[11px]">
+                  <span className="text-slate-400 text-[10px] flex-shrink-0">Font:</span>
+                  <select
+                    value={line.fontFamily || ''}
+                    onChange={(e) => updateLine(line.id, { fontFamily: e.target.value || undefined })}
+                    className="flex-1 px-1.5 py-1 text-[11px] border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-rose-400 bg-slate-50 font-medium"
+                    style={{ fontFamily: line.fontFamily || config.globalFontFamily }}
+                  >
+                    <option value="">(Theo font chung: {config.globalFontFamily})</option>
+                    <optgroup label="🔤 Font Chữ IN HOA">
+                      {FONT_OPTIONS.filter((f) => f.category === 'uppercase').map((f) => (
+                        <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>
+                          {f.label}
+                        </option>
+                      ))}
+                    </optgroup>
+                    <optgroup label="✍️ Font Thư Pháp & Nghệ Thuật">
+                      {FONT_OPTIONS.filter((f) => f.category === 'calligraphy').map((f) => (
+                        <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>
+                          {f.label}
+                        </option>
+                      ))}
+                    </optgroup>
+                    <optgroup label="🏛️ Font Serif & Sans Hiện Đại">
+                      {FONT_OPTIONS.filter((f) => f.category === 'classic').map((f) => (
+                        <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>
+                          {f.label}
+                        </option>
+                      ))}
+                    </optgroup>
+                  </select>
                 </div>
 
                 {/* Tinh chỉnh riêng: Cỡ chữ & Vị trí dọc */}

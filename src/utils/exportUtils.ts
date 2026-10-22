@@ -57,3 +57,4 @@ export const handleExportPDF = async (isLandscape: boolean) => {
     element.style.transition = originalTransition;
   }
 };
+
