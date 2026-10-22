@@ -27,8 +27,6 @@ const STYLE_OPTIONS: { label: string; value: StyleType }[] = [
 interface PresetItem {
   label: string;
   value: PresetName;
-  tag?: string;
-  tagColor?: string;
 }
 
 // 1. Mẫu chọn nhanh cho KIỂU ĐÁM MÂY (bỏ chia buồn, khai trương màu đỏ, sinh nhật màu hồng)
@@ -53,11 +51,11 @@ const OVAL_RED_PRESETS: PresetItem[] = [
 
 // 3. Mẫu chọn nhanh cho KIỂU OVAL ĐEN / TÂM LINH (chỉ giữ chia buồn, thêm Kính dâng, Kính viếng, Công giáo)
 const OVAL_BLACK_PRESETS: PresetItem[] = [
-  { label: '🕊️ Chia Buồn', value: 'chia-buon', tag: 'Nền đen - chữ trắng', tagColor: 'bg-zinc-800 text-white' },
-  { label: '🏵️ Kính Dâng', value: 'kinh-dang', tag: 'Nền đỏ - chữ vàng đậm', tagColor: 'bg-red-700 text-amber-300' },
-  { label: '🕯️ Kính Viếng', value: 'kinh-vieng', tag: 'Nền trắng - chữ đen', tagColor: 'bg-white text-zinc-900 border border-zinc-300' },
-  { label: '✝️ Phân Ưu Công Giáo', value: 'cong-giao', tag: 'Nền tím - chữ trắng', tagColor: 'bg-purple-800 text-white' },
-  { label: '🌿 Ngàn Thu Yên Nghỉ', value: 'ngan-thu', tag: 'Nền đen - chữ trắng', tagColor: 'bg-zinc-800 text-white' },
+  { label: '🕊️ Chia Buồn', value: 'chia-buon' },
+  { label: '🏵️ Kính Dâng', value: 'kinh-dang' },
+  { label: '🕯️ Kính Viếng', value: 'kinh-vieng' },
+  { label: '✝️ Phân Ưu Công Giáo', value: 'cong-giao' },
+  { label: '🌿 Ngàn Thu Yên Nghỉ', value: 'ngan-thu' },
 ];
 
 // Nhóm màu chọn nhanh: Đỏ, Hồng, Tím, Xanh biển, Xanh lá, Cam/Nâu, Đen
@@ -108,12 +106,9 @@ const ControlSidebar: React.FC<ControlSidebarProps> = ({
     <aside className="w-[340px] h-screen bg-white border-r border-slate-200 flex flex-col overflow-hidden shadow-sm">
       {/* Header */}
       <div className="px-4 py-3 bg-gradient-to-r from-rose-500 to-rose-600 text-white flex-shrink-0 flex items-center justify-between">
-        <div>
-          <h1 className="text-base font-bold tracking-wide flex items-center gap-1.5">
-            FlowerCard Studio
-          </h1>
-          <p className="text-xs text-rose-100 mt-0.5">Thiết kế thiệp và băng rôn hoa</p>
-        </div>
+        <h1 className="text-base font-bold tracking-wide flex items-center gap-1.5">
+          FlowerCard Studio
+        </h1>
         {onToggleSidebar && (
           <button
             onClick={onToggleSidebar}
@@ -154,27 +149,17 @@ const ControlSidebar: React.FC<ControlSidebarProps> = ({
 
             {/* Chọn nhanh mẫu theo kiểu thiệp đang chọn */}
             <div>
-              <div className="flex items-center justify-between mb-1.5">
-                <label className="text-xs font-medium text-slate-500">
-                  Chọn nhanh mẫu {config.styleType === 'oval-black' ? 'tang lễ & kính dâng' : 'chúc mừng'}:
-                </label>
-                <span className="text-[10px] font-semibold text-rose-500 bg-rose-50 px-1.5 py-0.5 rounded">
-                  {currentPresets.length} mẫu
-                </span>
-              </div>
+              <label className="block text-xs font-medium text-slate-500 mb-1.5">
+                Chọn nhanh mẫu:
+              </label>
               <div className="grid grid-cols-2 gap-1.5">
                 {currentPresets.map((p) => (
                   <button
                     key={p.value}
                     onClick={() => applyPreset(p.value)}
-                    className="flex flex-col items-start justify-center p-2 text-xs bg-slate-50 hover:bg-rose-50 hover:text-rose-600 border border-slate-200 hover:border-rose-300 rounded-lg transition-colors text-slate-700 text-left font-medium relative group shadow-2xs"
+                    className="flex items-center justify-start p-2 text-xs bg-slate-50 hover:bg-rose-50 hover:text-rose-600 border border-slate-200 hover:border-rose-300 rounded-lg transition-colors text-slate-700 text-left font-semibold group shadow-2xs"
                   >
-                    <span className="truncate w-full font-semibold">{p.label}</span>
-                    {p.tag && (
-                      <span className={clsx('mt-1 px-1.5 py-0.5 text-[9px] font-bold rounded', p.tagColor || 'bg-slate-200 text-slate-600')}>
-                        {p.tag}
-                      </span>
-                    )}
+                    <span className="truncate w-full">{p.label}</span>
                   </button>
                 ))}
               </div>
@@ -218,9 +203,6 @@ const ControlSidebar: React.FC<ControlSidebarProps> = ({
                 value={config.scalePercent ?? 95}
                 onChange={(e) => updateGlobalTypography({ scalePercent: parseInt(e.target.value) })}
               />
-              <p className="text-[11px] text-slate-400 mt-0.5">
-                Mặc định 95% chiều rộng khổ giấy, luôn căn giữa trang A4.
-              </p>
             </div>
 
             {/* Font chữ chung */}
@@ -602,70 +584,39 @@ const ControlSidebar: React.FC<ControlSidebarProps> = ({
                 <button
                   onClick={() => setCopiesPerPage(1)}
                   className={clsx(
-                    'py-2 px-1 text-xs border rounded-lg font-bold transition-colors text-center flex flex-col items-center justify-center gap-0.5',
+                    'py-2 text-xs border rounded-lg font-bold transition-colors text-center',
                     config.copiesPerPage === 1
                       ? 'bg-rose-500 border-rose-500 text-white shadow-sm'
                       : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
                   )}
                 >
-                  <span>1 bản</span>
-                  <span
-                    className={clsx(
-                      'text-[10px] font-normal',
-                      config.copiesPerPage === 1 ? 'text-rose-100' : 'text-slate-400'
-                    )}
-                  >
-                    Khổ ngang
-                  </span>
+                  1 bản (Ngang)
                 </button>
 
                 <button
                   onClick={() => setCopiesPerPage(2)}
                   className={clsx(
-                    'py-2 px-1 text-xs border rounded-lg font-bold transition-colors text-center flex flex-col items-center justify-center gap-0.5',
+                    'py-2 text-xs border rounded-lg font-bold transition-colors text-center',
                     config.copiesPerPage === 2
                       ? 'bg-rose-500 border-rose-500 text-white shadow-sm'
                       : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
                   )}
                 >
-                  <span>2 bản ✓</span>
-                  <span
-                    className={clsx(
-                      'text-[10px] font-normal',
-                      config.copiesPerPage === 2 ? 'text-rose-100' : 'text-slate-400'
-                    )}
-                  >
-                    Khổ dọc
-                  </span>
+                  2 bản (Dọc)
                 </button>
 
                 <button
                   onClick={() => setCopiesPerPage(3)}
                   className={clsx(
-                    'py-2 px-1 text-xs border rounded-lg font-bold transition-colors text-center flex flex-col items-center justify-center gap-0.5',
+                    'py-2 text-xs border rounded-lg font-bold transition-colors text-center',
                     config.copiesPerPage === 3
                       ? 'bg-rose-500 border-rose-500 text-white shadow-sm'
                       : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
                   )}
                 >
-                  <span>3 bản</span>
-                  <span
-                    className={clsx(
-                      'text-[10px] font-normal',
-                      config.copiesPerPage === 3 ? 'text-rose-100' : 'text-slate-400'
-                    )}
-                  >
-                    Khổ dọc (1 dòng)
-                  </span>
+                  3 bản (Dọc)
                 </button>
               </div>
-              <p className="text-[11px] text-slate-400 mt-2">
-                {config.copiesPerPage === 1
-                  ? '📄 In 1 bản to trải dài trên tờ A4 xoay ngang (297x210mm).'
-                  : config.copiesPerPage === 2
-                  ? '📄 In 2 bản xếp trên - dưới trên tờ A4 khổ dọc (210x297mm) chuẩn mẫu tiệm hoa.'
-                  : '📄 In 3 bản trên 1 tờ A4 khổ dọc (210x297mm), lý tưởng cho các thiệp 1 dòng tiết kiệm giấy.'}
-              </p>
             </div>
           </div>
         </div>
