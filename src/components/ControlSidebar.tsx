@@ -41,8 +41,6 @@ const CLOUD_PRESETS: PresetItem[] = [
   { label: '🎊 Khai Trương', value: 'khai-truong' },
   { label: '🎂 Sinh Nhật', value: 'sinh-nhat', tag: 'Màu hồng', tagColor: 'bg-pink-100 text-pink-700' },
   { label: '💍 Mừng Hạnh Phúc', value: 'mung-cuoi' },
-  { label: '🎓 Mừng Tốt Nghiệp', value: 'tot-nghiep' },
-  { label: '🏆 Thăng Chức & Thành Công', value: 'thang-chuc' },
 ];
 
 // 2. Mẫu chọn nhanh cho KIỂU OVAL ĐỎ (bỏ chia buồn, các mẫu còn lại dùng màu đỏ)
@@ -53,8 +51,6 @@ const OVAL_RED_PRESETS: PresetItem[] = [
   { label: '🌹 20/10 - Phụ Nữ VN', value: 'oval-20-10' },
   { label: '📚 20/11 - Nhà Giáo VN', value: 'oval-20-11' },
   { label: '💐 8/3 - Quốc Tế PN', value: 'oval-8-3' },
-  { label: '🎂 Sinh Nhật Vui Vẻ', value: 'oval-sinh-nhat' },
-  { label: '🏅 Kỷ Niệm Thành Lập', value: 'oval-ky-niem' },
 ];
 
 // 3. Mẫu chọn nhanh cho KIỂU OVAL ĐEN / TÂM LINH (chỉ giữ chia buồn, thêm Kính dâng, Kính viếng, Công giáo)

@@ -56,25 +56,21 @@ export interface CardConfig {
 }
 
 export type PresetName =
-  // Nhóm đám mây (Cloud)
+  // Nhóm đám mây (Cloud - 6 mẫu)
   | '20-10'
   | '20-11'
   | '8-3'
   | 'khai-truong'
   | 'sinh-nhat'
   | 'mung-cuoi'
-  | 'tot-nghiep'
-  | 'thang-chuc'
-  // Nhóm Oval đỏ (Khai trương / Chúc mừng)
+  // Nhóm Oval đỏ (Khai trương / Chúc mừng - 6 mẫu)
   | 'oval-khai-truong'
   | 'oval-khanh-thanh'
   | 'oval-tan-gia'
   | 'oval-20-10'
   | 'oval-20-11'
   | 'oval-8-3'
-  | 'oval-sinh-nhat'
-  | 'oval-ky-niem'
-  // Nhóm Oval tang lễ / tâm linh (Chia buồn / Kính dâng / Kính viếng)
+  // Nhóm Oval tang lễ / tâm linh (5 mẫu)
   | 'chia-buon'
   | 'kinh-dang'
   | 'kinh-vieng'

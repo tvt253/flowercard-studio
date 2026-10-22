@@ -205,24 +205,6 @@ const PRESETS: Record<
       { text: 'Trăm Năm Hạnh Phúc', fontSize: 70, offsetY: 260, fontWeight: 'bold', textCase: 'capitalize' },
     ],
   },
-  'tot-nghiep': {
-    outerColor: '#c81e2b',
-    innerColor: '#ffffff',
-    globalFontFamily: 'Charm',
-    lines: [
-      { text: 'Chúc Mừng', fontSize: 70, offsetY: 155, fontWeight: 'bold', textCase: 'capitalize' },
-      { text: 'Tốt Nghiệp Thành Công', fontSize: 70, offsetY: 260, fontWeight: 'bold', textCase: 'capitalize' },
-    ],
-  },
-  'thang-chuc': {
-    outerColor: '#c81e2b',
-    innerColor: '#ffffff',
-    globalFontFamily: 'Charm',
-    lines: [
-      { text: 'Chúc Mừng', fontSize: 70, offsetY: 155, fontWeight: 'bold', textCase: 'capitalize' },
-      { text: 'Vạn Sự Hanh Thông', fontSize: 70, offsetY: 260, fontWeight: 'bold', textCase: 'capitalize' },
-    ],
-  },
 
   // === NHÓM OVAL ĐỎ (KHAI TRƯƠNG / CHÚC MỪNG) ===
   'oval-khai-truong': {
@@ -295,30 +277,6 @@ const PRESETS: Record<
     lines: [
       { text: 'CHÚC MỪNG', fontSize: 70, offsetY: 155, fontWeight: 'bold', textCase: 'uppercase' },
       { text: 'NGÀY QUỐC TẾ PHỤ NỮ 8-3', fontSize: 70, offsetY: 260, fontWeight: 'bold', textCase: 'uppercase' },
-    ],
-  },
-  'oval-sinh-nhat': {
-    outerColor: '#dc2626',
-    innerColor: '#ffffff',
-    ovalBgColor: '#dc2626',
-    ovalBorderColor: '#dc2626',
-    ovalTextColor: '#ffffff',
-    globalFontFamily: 'Prata',
-    lines: [
-      { text: 'CHÚC MỪNG', fontSize: 70, offsetY: 155, fontWeight: 'bold', textCase: 'uppercase' },
-      { text: 'SINH NHẬT VUI VẺ', fontSize: 70, offsetY: 260, fontWeight: 'bold', textCase: 'uppercase' },
-    ],
-  },
-  'oval-ky-niem': {
-    outerColor: '#dc2626',
-    innerColor: '#ffffff',
-    ovalBgColor: '#dc2626',
-    ovalBorderColor: '#dc2626',
-    ovalTextColor: '#ffffff',
-    globalFontFamily: 'Oswald',
-    lines: [
-      { text: 'CHÚC MỪNG', fontSize: 70, offsetY: 155, fontWeight: 'bold', textCase: 'uppercase' },
-      { text: 'KỶ NIỆM THÀNH LẬP CÔNG TY', fontSize: 70, offsetY: 260, fontWeight: 'bold', textCase: 'uppercase' },
     ],
   },
 
