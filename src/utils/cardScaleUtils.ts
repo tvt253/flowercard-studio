@@ -77,7 +77,7 @@ export interface CardMetrics {
 
 /**
  * Tính toán tỷ lệ auto-scale để nội dung thiệp (text + strokes)
- * luôn lấp đầy ~90% chiều rộng khổ giấy và căn giữa hoàn hảo
+ * luôn lấp đầy ~95% chiều rộng khổ giấy và căn giữa hoàn hảo
  */
 export function calculateCardMetrics(config: CardConfig): CardMetrics {
   const isOval = config.styleType === 'oval-red' || config.styleType === 'oval-black';
@@ -122,23 +122,23 @@ export function calculateCardMetrics(config: CardConfig): CardMetrics {
     : (minY + maxY) / 2;
 
   // 3. TỶ LỆ SCALE TỰ ĐỘNG CHO KIỂU ĐÁM MÂY (CLOUD)
-  // Mục tiêu: Bề rộng đám mây đạt ~880px trong viewBox 1000px (để lề 60px mỗi bên cân đối tuyệt đối)
-  const targetCloudWidth = 880;
-  // Giới hạn chiều cao an toàn trong viewBox 420px (để trống ít nhất 18px trên và dưới)
-  const maxSafeHeight = 384;
+  // Mục tiêu: Bề rộng đám mây đạt ~950px trong viewBox 1000px (lấp đầy 95% chiều ngang, lề hẹp cân đối)
+  const targetCloudWidth = 950;
+  // Giới hạn chiều cao an toàn trong viewBox 420px (để trống 12px trên và dưới)
+  const maxSafeHeight = 396;
   const maxScaleY = maxSafeHeight / contentHeight;
   const targetScaleX = targetCloudWidth / maxLineWidth;
 
-  // Với 1 dòng: cho phép scale lên đến 2.15x để thiệp trải rộng đẹp mắt
-  // Với 2 dòng: scale tối đa 1.45x để đảm bảo không chạm viền trên/dưới
-  const maxAllowedScale = isSingleLine ? 2.15 : 1.45;
+  // Với 1 dòng: cho phép scale lên đến 2.35x để thiệp trải rộng tối đa 95%
+  // Với 2 dòng: scale tối đa 1.55x để lấp đầy không gian mà không chạm viền trên/dưới
+  const maxAllowedScale = isSingleLine ? 2.35 : 1.55;
   const minAllowedScale = 0.65;
 
   const rawCloudScale = Math.min(targetScaleX, maxScaleY);
   const cloudScale = Math.min(maxAllowedScale, Math.max(minAllowedScale, rawCloudScale));
 
   // 4. TỶ LỆ SCALE TỰ ĐỘNG CHO CHỮ TRONG KHUNG OVAL
-  // Trong khung Oval (rx=466, ry=182), vùng an toàn tối ưu cho chữ là ngang 740px
+  // Trong khung Oval (rx=466, ry=182, bề rộng trong 932px), mở rộng vùng chữ lên ngang 820px
   const textWidthsOnly = config.lines.map((line) => {
     const fontFamily = line.fontFamily || config.globalFontFamily || 'Oswald';
     const displayText = applyTextCase(line.text, line.textCase);
@@ -151,10 +151,10 @@ export function calculateCardMetrics(config: CardConfig): CardMetrics {
     );
   });
   const maxTextOnlyWidth = Math.max(80, ...textWidthsOnly);
-  const targetOvalTextWidth = 740;
+  const targetOvalTextWidth = 820;
   const rawOvalTextScale = targetOvalTextWidth / maxTextOnlyWidth;
   const ovalTextScale = Math.min(
-    isSingleLine ? 1.65 : 1.35,
+    isSingleLine ? 1.75 : 1.45,
     Math.max(0.68, rawOvalTextScale)
   );
 

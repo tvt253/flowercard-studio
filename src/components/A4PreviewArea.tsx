@@ -58,7 +58,7 @@ const A4PreviewArea: React.FC<A4PreviewAreaProps> = ({
         @media print {
           @page {
             size: ${isLandscape ? 'A4 landscape' : 'A4 portrait'};
-            margin: 6mm !important;
+            margin: 3.5mm !important;
           }
           *, [filter], .card-shadow-filter {
             filter: none !important;
@@ -88,8 +88,8 @@ const A4PreviewArea: React.FC<A4PreviewAreaProps> = ({
           .a4-paper {
             width: 100% !important;
             height: 100% !important;
-            max-width: ${isLandscape ? '285mm' : '198mm'} !important;
-            max-height: ${isLandscape ? '198mm' : '285mm'} !important;
+            max-width: ${isLandscape ? '290mm' : '203mm'} !important;
+            max-height: ${isLandscape ? '203mm' : '290mm'} !important;
             box-shadow: none !important;
             border: none !important;
             margin: 0 auto !important;
@@ -273,8 +273,8 @@ const A4PreviewArea: React.FC<A4PreviewAreaProps> = ({
         }}
       >
         {isLandscape ? (
-          // 1 BẢN TRÊN GIẤY A4 XOAY NGANG (297mm x 210mm) - Chữ nằm ngang tự nhiên, mặc định 90% căn giữa
-          <div className="w-full h-full flex items-center justify-center p-3 relative">
+          // 1 BẢN TRÊN GIẤY A4 XOAY NGANG (297mm x 210mm) - Chữ nằm ngang tự nhiên, mặc định 95% căn giữa
+          <div className="w-full h-full flex items-center justify-center p-1.5 relative">
             <div
               className="relative flex items-center justify-center transition-all duration-200 mx-auto"
               style={{
@@ -472,13 +472,13 @@ const A4PreviewArea: React.FC<A4PreviewAreaProps> = ({
             </div>
           </div>
         ) : (
-          // 2 HOẶC 3 BẢN TRÊN GIẤY A4 ĐỨNG (210mm x 297mm) - Xếp tầng trên dưới, mặc định 90% căn giữa
+          // 2 HOẶC 3 BẢN TRÊN GIẤY A4 ĐỨNG (210mm x 297mm) - Xếp tầng trên dưới, mặc định 95% căn giữa
           <div
             className={clsx(
               "w-full h-full flex flex-col items-center relative",
               config.copiesPerPage === 3
-                ? "justify-evenly py-2 px-3"
-                : "justify-around p-3"
+                ? "justify-evenly py-1 px-1"
+                : "justify-around py-1.5 px-1"
             )}
           >
             {copies.map((i) => (

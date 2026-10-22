@@ -50,7 +50,7 @@ const SvgCardCanvas: React.FC<SvgCardCanvasProps> = ({
     ? config.ovalTextColor || '#ffffff'
     : config.outerStrokeColor;
 
-  // Tính toán tỷ lệ auto-scale để nội dung thiệp luôn tự động lấp đầy ~90% trang giấy
+  // Tính toán tỷ lệ auto-scale để nội dung thiệp luôn tự động lấp đầy ~95% trang giấy
   const { centerY, cloudScale, ovalTextScale } = calculateCardMetrics(config);
 
   // Render các dòng chữ chính (bao gồm click target, selection highlight, và glyphs)

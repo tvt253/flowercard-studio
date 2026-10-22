@@ -108,7 +108,7 @@ const defaultLine2: TextLine = {
 };
 
 const defaultConfig: CardConfig = {
-  scalePercent: 90, // Kích thước mặc định 90% chiều rộng khổ giấy và căn giữa
+  scalePercent: 95, // Kích thước mặc định 95% chiều rộng khổ giấy và căn giữa
   copiesPerPage: 2, // Mặc định 2 bản (A4 đứng)
   showCutLines: false,
 
@@ -612,7 +612,7 @@ export const useCardStore = create<CardStore>()(
             config: {
               ...state.config,
               copiesPerPage: copies,
-              scalePercent: 90, // Kích thước mặc định là 90% chiều rộng khổ giấy và căn giữa
+              scalePercent: 95, // Kích thước mặc định là 95% chiều rộng khổ giấy và căn giữa
               lines: updatedLines,
             },
           };
@@ -752,8 +752,8 @@ export const useCardStore = create<CardStore>()(
         }),
     }),
     {
-      name: 'flower-card-studio-storage-v14',
-      version: 14,
+      name: 'flower-card-studio-storage-v15',
+      version: 15,
     }
   )
 );

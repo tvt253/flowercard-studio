@@ -205,21 +205,21 @@ const ControlSidebar: React.FC<ControlSidebarProps> = ({
               <Sparkles size={11} /> Cài đặt chung
             </div>
 
-            {/* Kích thước thiệp so với giấy - mặc định 90% chiều rộng giấy và căn giữa */}
+            {/* Kích thước thiệp so với giấy - mặc định 95% chiều rộng giấy và căn giữa */}
             <div>
               <div className="flex justify-between text-xs font-medium text-slate-500 mb-1">
                 <span>Kích thước thiệp:</span>
-                <span className="text-rose-600 font-bold">{config.scalePercent ?? 90}% chiều rộng</span>
+                <span className="text-rose-600 font-bold">{config.scalePercent ?? 95}% chiều rộng</span>
               </div>
               <input
                 type="range"
                 min={50}
-                max={120}
-                value={config.scalePercent ?? 90}
+                max={100}
+                value={config.scalePercent ?? 95}
                 onChange={(e) => updateGlobalTypography({ scalePercent: parseInt(e.target.value) })}
               />
               <p className="text-[11px] text-slate-400 mt-0.5">
-                Mặc định 90% chiều rộng khổ giấy, luôn căn giữa trang A4.
+                Mặc định 95% chiều rộng khổ giấy, luôn căn giữa trang A4.
               </p>
             </div>
 
