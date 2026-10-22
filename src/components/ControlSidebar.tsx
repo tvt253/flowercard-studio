@@ -26,13 +26,44 @@ const STYLE_OPTIONS: { label: string; value: StyleType }[] = [
   { label: '⚫ Kiểu Oval Đen (Chia Buồn / Tang Lễ)', value: 'oval-black' },
 ];
 
-const PRESET_OPTIONS: { label: string; value: PresetName }[] = [
-  { label: '20/10 - Phụ Nữ VN', value: '20-10' },
-  { label: '20/11 - Nhà Giáo VN', value: '20-11' },
-  { label: '8/3 - Quốc Tế PN', value: '8-3' },
-  { label: 'Khai Trương', value: 'khai-truong' },
-  { label: 'Sinh Nhật', value: 'sinh-nhat' },
-  { label: 'Chia Buồn', value: 'chia-buon' },
+interface PresetItem {
+  label: string;
+  value: PresetName;
+  tag?: string;
+  tagColor?: string;
+}
+
+// 1. Mẫu chọn nhanh cho KIỂU ĐÁM MÂY (bỏ chia buồn, khai trương màu đỏ, sinh nhật màu hồng)
+const CLOUD_PRESETS: PresetItem[] = [
+  { label: '🌹 20/10 - Phụ Nữ VN', value: '20-10' },
+  { label: '📚 20/11 - Nhà Giáo VN', value: '20-11' },
+  { label: '💐 8/3 - Quốc Tế PN', value: '8-3' },
+  { label: '🎊 Khai Trương', value: 'khai-truong' },
+  { label: '🎂 Sinh Nhật', value: 'sinh-nhat', tag: 'Màu hồng', tagColor: 'bg-pink-100 text-pink-700' },
+  { label: '💍 Mừng Hạnh Phúc', value: 'mung-cuoi' },
+  { label: '🎓 Mừng Tốt Nghiệp', value: 'tot-nghiep' },
+  { label: '🏆 Thăng Chức & Thành Công', value: 'thang-chuc' },
+];
+
+// 2. Mẫu chọn nhanh cho KIỂU OVAL ĐỎ (bỏ chia buồn, các mẫu còn lại dùng màu đỏ)
+const OVAL_RED_PRESETS: PresetItem[] = [
+  { label: '🎊 Khai Trương Hồng Phát', value: 'oval-khai-truong' },
+  { label: '🏢 Lễ Khánh Thành', value: 'oval-khanh-thanh' },
+  { label: '🥂 Tân Gia Phát Tài', value: 'oval-tan-gia' },
+  { label: '🌹 20/10 - Phụ Nữ VN', value: 'oval-20-10' },
+  { label: '📚 20/11 - Nhà Giáo VN', value: 'oval-20-11' },
+  { label: '💐 8/3 - Quốc Tế PN', value: 'oval-8-3' },
+  { label: '🎂 Sinh Nhật Vui Vẻ', value: 'oval-sinh-nhat' },
+  { label: '🏅 Kỷ Niệm Thành Lập', value: 'oval-ky-niem' },
+];
+
+// 3. Mẫu chọn nhanh cho KIỂU OVAL ĐEN / TÂM LINH (chỉ giữ chia buồn, thêm Kính dâng, Kính viếng, Công giáo)
+const OVAL_BLACK_PRESETS: PresetItem[] = [
+  { label: '🕊️ Chia Buồn', value: 'chia-buon', tag: 'Nền đen - chữ trắng', tagColor: 'bg-zinc-800 text-white' },
+  { label: '🏵️ Kính Dâng', value: 'kinh-dang', tag: 'Nền đỏ - chữ vàng đậm', tagColor: 'bg-red-700 text-amber-300' },
+  { label: '🕯️ Kính Viếng', value: 'kinh-vieng', tag: 'Nền trắng - chữ đen', tagColor: 'bg-white text-zinc-900 border border-zinc-300' },
+  { label: '✝️ Phân Ưu Công Giáo', value: 'cong-giao', tag: 'Nền tím - chữ trắng', tagColor: 'bg-purple-800 text-white' },
+  { label: '🌿 Ngàn Thu Yên Nghỉ', value: 'ngan-thu', tag: 'Nền đen - chữ trắng', tagColor: 'bg-zinc-800 text-white' },
 ];
 
 // Nhóm màu chọn nhanh: Đỏ, Hồng, Tím, Xanh biển, Xanh lá, Cam/Nâu, Đen
@@ -73,6 +104,13 @@ const ControlSidebar: React.FC<ControlSidebarProps> = ({
   } = useCardStore();
 
   const isOval = config.styleType === 'oval-red' || config.styleType === 'oval-black';
+
+  const currentPresets: PresetItem[] =
+    config.styleType === 'oval-black'
+      ? OVAL_BLACK_PRESETS
+      : config.styleType === 'oval-red'
+      ? OVAL_RED_PRESETS
+      : CLOUD_PRESETS;
 
   return (
     <aside className="w-[340px] h-screen bg-white border-r border-slate-200 flex flex-col overflow-hidden shadow-sm">
@@ -122,19 +160,29 @@ const ControlSidebar: React.FC<ControlSidebarProps> = ({
               </select>
             </div>
 
-            {/* Chọn nhanh dịp lễ */}
+            {/* Chọn nhanh mẫu theo kiểu thiệp đang chọn */}
             <div>
-              <label className="block text-xs font-medium text-slate-500 mb-1.5">
-                Chọn nhanh dịp lễ
-              </label>
+              <div className="flex items-center justify-between mb-1.5">
+                <label className="text-xs font-medium text-slate-500">
+                  Chọn nhanh mẫu {config.styleType === 'oval-black' ? 'tang lễ & kính dâng' : 'chúc mừng'}:
+                </label>
+                <span className="text-[10px] font-semibold text-rose-500 bg-rose-50 px-1.5 py-0.5 rounded">
+                  {currentPresets.length} mẫu
+                </span>
+              </div>
               <div className="grid grid-cols-2 gap-1.5">
-                {PRESET_OPTIONS.map((p) => (
+                {currentPresets.map((p) => (
                   <button
                     key={p.value}
                     onClick={() => applyPreset(p.value)}
-                    className="px-2 py-1.5 text-xs bg-slate-50 hover:bg-rose-50 hover:text-rose-600 border border-slate-200 hover:border-rose-300 rounded transition-colors text-slate-600 text-left font-medium"
+                    className="flex flex-col items-start justify-center p-2 text-xs bg-slate-50 hover:bg-rose-50 hover:text-rose-600 border border-slate-200 hover:border-rose-300 rounded-lg transition-colors text-slate-700 text-left font-medium relative group shadow-2xs"
                   >
-                    {p.label}
+                    <span className="truncate w-full font-semibold">{p.label}</span>
+                    {p.tag && (
+                      <span className={clsx('mt-1 px-1.5 py-0.5 text-[9px] font-bold rounded', p.tagColor || 'bg-slate-200 text-slate-600')}>
+                        {p.tag}
+                      </span>
+                    )}
                   </button>
                 ))}
               </div>
@@ -430,12 +478,12 @@ const ControlSidebar: React.FC<ControlSidebarProps> = ({
 
             {isOval ? (
               /* THÔNG BÁO DÀNH CHO KIỂU OVAL */
-              <div className="p-2.5 bg-rose-50/60 border border-rose-200 rounded-lg text-xs text-rose-800 space-y-1">
-                <p className="font-semibold flex items-center gap-1">
-                  ✨ Mẫu Oval đặc trưng
+              <div className="p-2.5 bg-slate-50 border border-slate-200 rounded-lg text-xs text-slate-700 space-y-1">
+                <p className="font-semibold flex items-center gap-1 text-slate-800">
+                  ✨ Mẫu Oval đa sắc thái
                 </p>
                 <p className="text-[11px] text-slate-600">
-                  Khung viền kép với nền màu đặc và chữ màu trắng nổi bật, phù hợp cho lẵng hoa Khai Trương và Chia Buồn.
+                  Khung viền kép sang trọng: hỗ trợ nền đỏ chữ vàng (Kính dâng), nền trắng chữ đen (Kính viếng), nền đen chữ trắng (Chia buồn) hoặc nền đỏ (Khai trương).
                 </p>
               </div>
             ) : (

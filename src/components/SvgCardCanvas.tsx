@@ -27,10 +27,15 @@ const SvgCardCanvas: React.FC<SvgCardCanvasProps> = ({
   selectedLineId,
 }) => {
   const isOval = config.styleType === 'oval-red' || config.styleType === 'oval-black';
-  const ovalColor =
+
+  // Nền và viền Oval: hỗ trợ màu tùy chỉnh như Kính dâng (nền đỏ chữ vàng), Kính viếng (nền trắng chữ đen)
+  const defaultOvalBg =
     config.styleType === 'oval-black'
       ? '#09090b'
       : config.outerStrokeColor || '#dc2626';
+  const ovalBgColor = config.ovalBgColor || defaultOvalBg;
+  const ovalBorderColor =
+    config.ovalBorderColor || (ovalBgColor === '#ffffff' ? '#09090b' : ovalBgColor);
 
   // Sắp xếp các lớp stroke từ ngoài cùng (width lớn nhất) vào trong (width nhỏ nhất)
   const activeLayers: StrokeLayer[] = [...config.strokeLayers]
@@ -39,8 +44,10 @@ const SvgCardCanvas: React.FC<SvgCardCanvasProps> = ({
 
   const maxLayerWidth = activeLayers[0]?.width || 130;
 
-  // Màu mặt chữ: kiểu Oval chữ màu trắng, kiểu Đám mây chữ trùng màu viền ngoài cùng
-  const primaryTextColor = isOval ? '#ffffff' : config.outerStrokeColor;
+  // Màu mặt chữ: kiểu Oval ưu tiên ovalTextColor, kiểu Đám mây chữ trùng màu viền ngoài cùng
+  const primaryTextColor = isOval
+    ? config.ovalTextColor || '#ffffff'
+    : config.outerStrokeColor;
 
   return (
     <svg
@@ -65,7 +72,7 @@ const SvgCardCanvas: React.FC<SvgCardCanvasProps> = ({
         ))}
       </defs>
 
-      {/* 1. NỀN THIỆP: KIỂU OVAL (ĐỎ / ĐEN) HOẶC CÁC LỚP VIỀN STROKE ĐÁM MÂY */}
+      {/* 1. NỀN THIỆP: KIỂU OVAL (ĐỎ / ĐEN / TRẮNG / TÍM) HOẶC CÁC LỚP VIỀN STROKE ĐÁM MÂY */}
       {isOval ? (
         <g id={`oval-bg-${uid}`} filter={`url(#card-shadow-${uid})`}>
           {/* Vòng viền ngoài cùng: nét viền đơn 6px màu oval */}
@@ -75,7 +82,7 @@ const SvgCardCanvas: React.FC<SvgCardCanvasProps> = ({
             rx="484"
             ry="198"
             fill="none"
-            stroke={ovalColor}
+            stroke={ovalBorderColor}
             strokeWidth="6"
           />
           {/* Thân khối Oval đặc màu bên trong (cách viền ngoài khoảng trắng 12px) */}
@@ -84,7 +91,9 @@ const SvgCardCanvas: React.FC<SvgCardCanvasProps> = ({
             cy="210"
             rx="466"
             ry="182"
-            fill={ovalColor}
+            fill={ovalBgColor}
+            stroke={ovalBgColor === '#ffffff' ? ovalBorderColor : 'none'}
+            strokeWidth={ovalBgColor === '#ffffff' ? 2 : 0}
           />
         </g>
       ) : (

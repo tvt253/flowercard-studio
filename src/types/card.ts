@@ -32,6 +32,11 @@ export interface CardConfig {
 
   styleType: StyleType;
 
+  // Nền & Chữ kiểu Oval tùy biến (ví dụ: Kính dâng nền đỏ chữ vàng, Kính viếng nền trắng chữ đen)
+  ovalBgColor?: string;
+  ovalBorderColor?: string;
+  ovalTextColor?: string;
+
   // Cài đặt chung
   globalFontFamily: string;
   globalCurveStrength: number; // Độ cong từ 0 đến 80
@@ -50,12 +55,39 @@ export interface CardConfig {
   lines: TextLine[];
 }
 
-export type PresetName = '20-10' | '20-11' | '8-3' | 'khai-truong' | 'sinh-nhat' | 'chia-buon';
+export type PresetName =
+  // Nhóm đám mây (Cloud)
+  | '20-10'
+  | '20-11'
+  | '8-3'
+  | 'khai-truong'
+  | 'sinh-nhat'
+  | 'mung-cuoi'
+  | 'tot-nghiep'
+  | 'thang-chuc'
+  // Nhóm Oval đỏ (Khai trương / Chúc mừng)
+  | 'oval-khai-truong'
+  | 'oval-khanh-thanh'
+  | 'oval-tan-gia'
+  | 'oval-20-10'
+  | 'oval-20-11'
+  | 'oval-8-3'
+  | 'oval-sinh-nhat'
+  | 'oval-ky-niem'
+  // Nhóm Oval tang lễ / tâm linh (Chia buồn / Kính dâng / Kính viếng)
+  | 'chia-buon'
+  | 'kinh-dang'
+  | 'kinh-vieng'
+  | 'cong-giao'
+  | 'ngan-thu';
 
 export interface Preset {
   name: string;
   outerColor: string;
   innerColor: string;
   globalFontFamily: string;
+  ovalBgColor?: string;
+  ovalBorderColor?: string;
+  ovalTextColor?: string;
   lines: Omit<TextLine, 'id'>[];
 }

@@ -137,16 +137,27 @@ const PRESETS: Record<
     outerColor: string;
     innerColor: string;
     globalFontFamily: string;
-    lines: { text: string; fontSize: number; offsetY: number; fontWeight: 'normal' | 'bold' }[];
+    ovalBgColor?: string;
+    ovalBorderColor?: string;
+    ovalTextColor?: string;
+    lines: {
+      text: string;
+      fontSize: number;
+      offsetY: number;
+      fontWeight: 'normal' | 'bold';
+      textCase?: 'uppercase' | 'capitalize' | 'normal';
+      fontFamily?: string;
+    }[];
   }
 > = {
+  // === NHÓM ĐÁM MÂY (CLOUD) ===
   '20-10': {
     outerColor: '#c81e2b',
     innerColor: '#ffffff',
     globalFontFamily: 'Charm',
     lines: [
-      { text: 'Chúc Mừng', fontSize: 70, offsetY: 155, fontWeight: 'bold' },
-      { text: 'Ngày Phụ Nữ Việt Nam 20-10', fontSize: 70, offsetY: 260, fontWeight: 'bold' },
+      { text: 'Chúc Mừng', fontSize: 70, offsetY: 155, fontWeight: 'bold', textCase: 'capitalize' },
+      { text: 'Ngày Phụ Nữ Việt Nam 20-10', fontSize: 70, offsetY: 260, fontWeight: 'bold', textCase: 'capitalize' },
     ],
   },
   '20-11': {
@@ -154,8 +165,8 @@ const PRESETS: Record<
     innerColor: '#ffffff',
     globalFontFamily: 'Charm',
     lines: [
-      { text: 'Chúc Mừng', fontSize: 70, offsetY: 155, fontWeight: 'bold' },
-      { text: 'Ngày Nhà Giáo Việt Nam 20/11', fontSize: 70, offsetY: 260, fontWeight: 'bold' },
+      { text: 'Chúc Mừng', fontSize: 70, offsetY: 155, fontWeight: 'bold', textCase: 'capitalize' },
+      { text: 'Ngày Nhà Giáo Việt Nam 20/11', fontSize: 70, offsetY: 260, fontWeight: 'bold', textCase: 'capitalize' },
     ],
   },
   '8-3': {
@@ -163,35 +174,215 @@ const PRESETS: Record<
     innerColor: '#ffffff',
     globalFontFamily: 'Charm',
     lines: [
-      { text: 'Chúc Mừng', fontSize: 70, offsetY: 155, fontWeight: 'bold' },
-      { text: 'Ngày Quốc Tế Phụ Nữ 8-3', fontSize: 70, offsetY: 260, fontWeight: 'bold' },
+      { text: 'Chúc Mừng', fontSize: 70, offsetY: 155, fontWeight: 'bold', textCase: 'capitalize' },
+      { text: 'Ngày Quốc Tế Phụ Nữ 8-3', fontSize: 70, offsetY: 260, fontWeight: 'bold', textCase: 'capitalize' },
     ],
   },
   'khai-truong': {
-    outerColor: '#b45309',
-    innerColor: '#ffffff',
-    globalFontFamily: 'Playfair Display',
-    lines: [
-      { text: 'Chúc Mừng', fontSize: 70, offsetY: 155, fontWeight: 'bold' },
-      { text: 'Khai Trương Hồng Phát', fontSize: 70, offsetY: 260, fontWeight: 'bold' },
-    ],
-  },
-  'sinh-nhat': {
-    outerColor: '#7e22ce',
+    outerColor: '#c81e2b', // Khai trương dùng màu đỏ như các mẫu khác
     innerColor: '#ffffff',
     globalFontFamily: 'Charm',
     lines: [
-      { text: 'Happy Birthday', fontSize: 70, offsetY: 155, fontWeight: 'bold' },
-      { text: 'Chúc Mừng Sinh Nhật', fontSize: 70, offsetY: 260, fontWeight: 'bold' },
+      { text: 'Chúc Mừng', fontSize: 70, offsetY: 155, fontWeight: 'bold', textCase: 'capitalize' },
+      { text: 'Khai Trương Hồng Phát', fontSize: 70, offsetY: 260, fontWeight: 'bold', textCase: 'capitalize' },
     ],
   },
+  'sinh-nhat': {
+    outerColor: '#db2777', // Chuyển sang dùng màu hồng
+    innerColor: '#ffffff',
+    globalFontFamily: 'Charm',
+    lines: [
+      { text: 'Happy Birthday', fontSize: 70, offsetY: 155, fontWeight: 'bold', textCase: 'capitalize' },
+      { text: 'Chúc Mừng Sinh Nhật', fontSize: 70, offsetY: 260, fontWeight: 'bold', textCase: 'capitalize' },
+    ],
+  },
+  'mung-cuoi': {
+    outerColor: '#c81e2b',
+    innerColor: '#ffffff',
+    globalFontFamily: 'Charm',
+    lines: [
+      { text: 'Chúc Mừng', fontSize: 70, offsetY: 155, fontWeight: 'bold', textCase: 'capitalize' },
+      { text: 'Trăm Năm Hạnh Phúc', fontSize: 70, offsetY: 260, fontWeight: 'bold', textCase: 'capitalize' },
+    ],
+  },
+  'tot-nghiep': {
+    outerColor: '#c81e2b',
+    innerColor: '#ffffff',
+    globalFontFamily: 'Charm',
+    lines: [
+      { text: 'Chúc Mừng', fontSize: 70, offsetY: 155, fontWeight: 'bold', textCase: 'capitalize' },
+      { text: 'Tốt Nghiệp Thành Công', fontSize: 70, offsetY: 260, fontWeight: 'bold', textCase: 'capitalize' },
+    ],
+  },
+  'thang-chuc': {
+    outerColor: '#c81e2b',
+    innerColor: '#ffffff',
+    globalFontFamily: 'Charm',
+    lines: [
+      { text: 'Chúc Mừng', fontSize: 70, offsetY: 155, fontWeight: 'bold', textCase: 'capitalize' },
+      { text: 'Vạn Sự Hanh Thông', fontSize: 70, offsetY: 260, fontWeight: 'bold', textCase: 'capitalize' },
+    ],
+  },
+
+  // === NHÓM OVAL ĐỎ (KHAI TRƯƠNG / CHÚC MỪNG) ===
+  'oval-khai-truong': {
+    outerColor: '#dc2626',
+    innerColor: '#ffffff',
+    ovalBgColor: '#dc2626',
+    ovalBorderColor: '#dc2626',
+    ovalTextColor: '#ffffff',
+    globalFontFamily: 'Oswald',
+    lines: [
+      { text: 'CHÚC MỪNG', fontSize: 70, offsetY: 155, fontWeight: 'bold', textCase: 'uppercase' },
+      { text: 'KHAI TRƯƠNG HỒNG PHÁT', fontSize: 70, offsetY: 260, fontWeight: 'bold', textCase: 'uppercase' },
+    ],
+  },
+  'oval-khanh-thanh': {
+    outerColor: '#dc2626',
+    innerColor: '#ffffff',
+    ovalBgColor: '#dc2626',
+    ovalBorderColor: '#dc2626',
+    ovalTextColor: '#ffffff',
+    globalFontFamily: 'Oswald',
+    lines: [
+      { text: 'CHÚC MỪNG', fontSize: 70, offsetY: 155, fontWeight: 'bold', textCase: 'uppercase' },
+      { text: 'LỄ KHÁNH THÀNH', fontSize: 70, offsetY: 260, fontWeight: 'bold', textCase: 'uppercase' },
+    ],
+  },
+  'oval-tan-gia': {
+    outerColor: '#dc2626',
+    innerColor: '#ffffff',
+    ovalBgColor: '#dc2626',
+    ovalBorderColor: '#dc2626',
+    ovalTextColor: '#ffffff',
+    globalFontFamily: 'Marcellus',
+    lines: [
+      { text: 'CHÚC MỪNG', fontSize: 70, offsetY: 155, fontWeight: 'bold', textCase: 'uppercase' },
+      { text: 'TÂN GIA PHÁT TÀI', fontSize: 70, offsetY: 260, fontWeight: 'bold', textCase: 'uppercase' },
+    ],
+  },
+  'oval-20-10': {
+    outerColor: '#dc2626',
+    innerColor: '#ffffff',
+    ovalBgColor: '#dc2626',
+    ovalBorderColor: '#dc2626',
+    ovalTextColor: '#ffffff',
+    globalFontFamily: 'Oswald',
+    lines: [
+      { text: 'CHÚC MỪNG', fontSize: 70, offsetY: 155, fontWeight: 'bold', textCase: 'uppercase' },
+      { text: 'NGÀY PHỤ NỮ VIỆT NAM 20-10', fontSize: 70, offsetY: 260, fontWeight: 'bold', textCase: 'uppercase' },
+    ],
+  },
+  'oval-20-11': {
+    outerColor: '#dc2626',
+    innerColor: '#ffffff',
+    ovalBgColor: '#dc2626',
+    ovalBorderColor: '#dc2626',
+    ovalTextColor: '#ffffff',
+    globalFontFamily: 'Oswald',
+    lines: [
+      { text: 'CHÚC MỪNG', fontSize: 70, offsetY: 155, fontWeight: 'bold', textCase: 'uppercase' },
+      { text: 'NGÀY NHÀ GIÁO VIỆT NAM 20-11', fontSize: 70, offsetY: 260, fontWeight: 'bold', textCase: 'uppercase' },
+    ],
+  },
+  'oval-8-3': {
+    outerColor: '#dc2626',
+    innerColor: '#ffffff',
+    ovalBgColor: '#dc2626',
+    ovalBorderColor: '#dc2626',
+    ovalTextColor: '#ffffff',
+    globalFontFamily: 'Oswald',
+    lines: [
+      { text: 'CHÚC MỪNG', fontSize: 70, offsetY: 155, fontWeight: 'bold', textCase: 'uppercase' },
+      { text: 'NGÀY QUỐC TẾ PHỤ NỮ 8-3', fontSize: 70, offsetY: 260, fontWeight: 'bold', textCase: 'uppercase' },
+    ],
+  },
+  'oval-sinh-nhat': {
+    outerColor: '#dc2626',
+    innerColor: '#ffffff',
+    ovalBgColor: '#dc2626',
+    ovalBorderColor: '#dc2626',
+    ovalTextColor: '#ffffff',
+    globalFontFamily: 'Prata',
+    lines: [
+      { text: 'CHÚC MỪNG', fontSize: 70, offsetY: 155, fontWeight: 'bold', textCase: 'uppercase' },
+      { text: 'SINH NHẬT VUI VẺ', fontSize: 70, offsetY: 260, fontWeight: 'bold', textCase: 'uppercase' },
+    ],
+  },
+  'oval-ky-niem': {
+    outerColor: '#dc2626',
+    innerColor: '#ffffff',
+    ovalBgColor: '#dc2626',
+    ovalBorderColor: '#dc2626',
+    ovalTextColor: '#ffffff',
+    globalFontFamily: 'Oswald',
+    lines: [
+      { text: 'CHÚC MỪNG', fontSize: 70, offsetY: 155, fontWeight: 'bold', textCase: 'uppercase' },
+      { text: 'KỶ NIỆM THÀNH LẬP CÔNG TY', fontSize: 70, offsetY: 260, fontWeight: 'bold', textCase: 'uppercase' },
+    ],
+  },
+
+  // === NHÓM OVAL TANG LỄ & TÂM LINH (OVAL ĐEN / TƯỞNG NIỆM) ===
   'chia-buon': {
     outerColor: '#09090b',
     innerColor: '#ffffff',
+    ovalBgColor: '#09090b',
+    ovalBorderColor: '#09090b',
+    ovalTextColor: '#ffffff',
+    globalFontFamily: 'Oswald',
+    lines: [
+      { text: 'THÀNH KÍNH PHÂN ƯU', fontSize: 70, offsetY: 155, fontWeight: 'bold', textCase: 'uppercase' },
+      { text: 'VÔ CÙNG THƯƠNG TIẾC', fontSize: 70, offsetY: 260, fontWeight: 'bold', textCase: 'uppercase' },
+    ],
+  },
+  'kinh-dang': {
+    // Mẫu Kính dâng: nền đỏ chữ vàng đậm
+    outerColor: '#b91c1c',
+    innerColor: '#ffffff',
+    ovalBgColor: '#b91c1c',
+    ovalBorderColor: '#b91c1c',
+    ovalTextColor: '#fbbf24',
+    globalFontFamily: 'Oswald',
+    lines: [
+      { text: 'KÍNH DÂNG', fontSize: 70, offsetY: 155, fontWeight: 'bold', textCase: 'uppercase' },
+      { text: 'ĐỨC PHẬT TỪ BI', fontSize: 70, offsetY: 260, fontWeight: 'bold', textCase: 'uppercase' },
+    ],
+  },
+  'kinh-vieng': {
+    // Mẫu Kính viếng: nền trắng chữ đen
+    outerColor: '#09090b',
+    innerColor: '#ffffff',
+    ovalBgColor: '#ffffff',
+    ovalBorderColor: '#09090b',
+    ovalTextColor: '#09090b',
+    globalFontFamily: 'Oswald',
+    lines: [
+      { text: 'KÍNH VIẾNG', fontSize: 70, offsetY: 155, fontWeight: 'bold', textCase: 'uppercase' },
+      { text: 'VÔ CÙNG THƯƠNG TIẾC', fontSize: 70, offsetY: 260, fontWeight: 'bold', textCase: 'uppercase' },
+    ],
+  },
+  'cong-giao': {
+    outerColor: '#581c87',
+    innerColor: '#ffffff',
+    ovalBgColor: '#581c87',
+    ovalBorderColor: '#581c87',
+    ovalTextColor: '#ffffff',
     globalFontFamily: 'Cormorant Garamond',
     lines: [
-      { text: 'Thành Kính Phân Ưu', fontSize: 70, offsetY: 155, fontWeight: 'bold' },
-      { text: 'Vô Cùng Thương Tiếc', fontSize: 70, offsetY: 260, fontWeight: 'normal' },
+      { text: 'THÀNH KÍNH PHÂN ƯU', fontSize: 70, offsetY: 155, fontWeight: 'bold', textCase: 'uppercase' },
+      { text: 'NGUYỆN XIN CHÚA ĐÓN NHẬN LINH HỒN', fontSize: 60, offsetY: 260, fontWeight: 'bold', textCase: 'uppercase' },
+    ],
+  },
+  'ngan-thu': {
+    outerColor: '#09090b',
+    innerColor: '#ffffff',
+    ovalBgColor: '#09090b',
+    ovalBorderColor: '#09090b',
+    ovalTextColor: '#ffffff',
+    globalFontFamily: 'Alegreya SC',
+    lines: [
+      { text: 'KÍNH VIẾNG HƯƠNG HỒN', fontSize: 70, offsetY: 155, fontWeight: 'bold', textCase: 'uppercase' },
+      { text: 'NGÀN THU YÊN NGHỈ', fontSize: 70, offsetY: 260, fontWeight: 'bold', textCase: 'uppercase' },
     ],
   },
 };
@@ -303,14 +494,17 @@ export const useCardStore = create<CardStore>()(
                 ...state.config,
                 styleType: 'oval-red',
                 outerStrokeColor: '#dc2626',
-                globalFontFamily: 'Playfair Display',
+                ovalBgColor: '#dc2626',
+                ovalBorderColor: '#dc2626',
+                ovalTextColor: '#ffffff',
+                globalFontFamily: 'Oswald',
                 globalCurveStrength: 0,
                 lines: [
                   {
                     id: generateId(),
-                    text: 'GIA ĐÌNH A BÌNH',
+                    text: 'CHÚC MỪNG',
                     fontSize: 70,
-                    offsetY: 165,
+                    offsetY: 155,
                     fontWeight: 'bold',
                     fontStyle: 'normal',
                     letterSpacing: 2,
@@ -318,9 +512,9 @@ export const useCardStore = create<CardStore>()(
                   },
                   {
                     id: generateId(),
-                    text: 'CHÚC MỪNG KHAI TRƯƠNG',
+                    text: 'KHAI TRƯƠNG HỒNG PHÁT',
                     fontSize: 70,
-                    offsetY: 265,
+                    offsetY: 260,
                     fontWeight: 'bold',
                     fontStyle: 'normal',
                     letterSpacing: 1.5,
@@ -335,14 +529,17 @@ export const useCardStore = create<CardStore>()(
                 ...state.config,
                 styleType: 'oval-black',
                 outerStrokeColor: '#09090b',
-                globalFontFamily: 'Playfair Display',
+                ovalBgColor: '#09090b',
+                ovalBorderColor: '#09090b',
+                ovalTextColor: '#ffffff',
+                globalFontFamily: 'Oswald',
                 globalCurveStrength: 0,
                 lines: [
                   {
                     id: generateId(),
-                    text: 'ANH CHỊ EM CON CẬU',
+                    text: 'THÀNH KÍNH PHÂN ƯU',
                     fontSize: 70,
-                    offsetY: 165,
+                    offsetY: 155,
                     fontWeight: 'bold',
                     fontStyle: 'normal',
                     letterSpacing: 2,
@@ -352,7 +549,7 @@ export const useCardStore = create<CardStore>()(
                     id: generateId(),
                     text: 'VÔ CÙNG THƯƠNG TIẾC',
                     fontSize: 70,
-                    offsetY: 265,
+                    offsetY: 260,
                     fontWeight: 'bold',
                     fontStyle: 'normal',
                     letterSpacing: 1.5,
@@ -375,6 +572,9 @@ export const useCardStore = create<CardStore>()(
                 ...state.config,
                 styleType: 'cloud',
                 outerStrokeColor: '#c81e2b',
+                ovalBgColor: undefined,
+                ovalBorderColor: undefined,
+                ovalTextColor: undefined,
                 globalFontFamily: 'Charm',
                 globalCurveStrength: 18,
                 strokeLayers: newLayers,
@@ -461,6 +661,8 @@ export const useCardStore = create<CardStore>()(
             config: {
               ...state.config,
               outerStrokeColor: color,
+              ovalBgColor: state.config.styleType !== 'cloud' ? color : state.config.ovalBgColor,
+              ovalBorderColor: state.config.styleType !== 'cloud' ? color : state.config.ovalBorderColor,
               strokeLayers: newLayers,
             },
           };
@@ -485,6 +687,9 @@ export const useCardStore = create<CardStore>()(
               outerStrokeColor: preset.outerColor,
               innerStrokeColor: preset.innerColor,
               globalFontFamily: preset.globalFontFamily,
+              ovalBgColor: preset.ovalBgColor,
+              ovalBorderColor: preset.ovalBorderColor,
+              ovalTextColor: preset.ovalTextColor,
               strokeLayers: newLayers,
               lines: preset.lines.map((l) => ({
                 id: generateId(),
@@ -494,7 +699,8 @@ export const useCardStore = create<CardStore>()(
                 fontWeight: l.fontWeight,
                 fontStyle: 'normal' as const,
                 letterSpacing: 1.5,
-                textCase: 'capitalize' as const,
+                textCase: l.textCase || ('capitalize' as const),
+                fontFamily: l.fontFamily,
               })),
             },
           };

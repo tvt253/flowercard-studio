@@ -29,3 +29,4 @@ export const FONT_OPTIONS: FontItem[] = [
   { label: 'Cormorant Garamond (Chữ cổ điển trang trọng)', value: 'Cormorant Garamond', category: 'classic' },
   { label: 'Montserrat (Chữ không chân hiện đại)', value: 'Montserrat', category: 'classic' },
 ];
+
