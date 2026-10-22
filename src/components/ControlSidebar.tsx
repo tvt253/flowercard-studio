@@ -283,23 +283,23 @@ const ControlSidebar: React.FC<ControlSidebarProps> = ({
                 className="p-2.5 border border-slate-200 rounded-lg bg-white space-y-2 shadow-sm"
               >
                 {/* Dòng input text */}
-                <div className="flex items-center gap-1.5">
-                  <span className="text-xs font-bold text-slate-500 w-5 text-center flex-shrink-0">
+                <div className="flex items-center gap-1">
+                  <span className="text-[11px] font-bold text-slate-400 flex-shrink-0 min-w-[14px]">
                     {index + 1}.
                   </span>
                   <input
                     type="text"
                     value={line.text}
                     onChange={(e) => updateLine(line.id, { text: e.target.value })}
-                    className="flex-1 px-2 py-1.5 text-xs font-semibold border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-rose-400"
+                    className="flex-1 min-w-0 px-2 py-1 text-xs font-semibold border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-rose-400 bg-white"
                     placeholder={`Nhập dòng ${index + 1}...`}
                   />
-                  <div className="flex items-center gap-0.5">
+                  <div className="flex items-center gap-0.5 flex-shrink-0">
                     {/* Nút chuyển kiểu chữ Aa: Viết hoa đầu từ -> In hoa toàn bộ -> Thường */}
                     <button
                       onClick={() => toggleLineTextCase(line.id)}
                       className={clsx(
-                        'px-1.5 py-1 text-xs border rounded font-bold transition-all shadow-sm',
+                        'px-1.5 py-1 text-xs border rounded font-bold transition-all shadow-2xs flex-shrink-0',
                         (!line.textCase || line.textCase === 'capitalize')
                           ? 'bg-rose-500 border-rose-600 text-white'
                           : line.textCase === 'uppercase'
@@ -327,12 +327,12 @@ const ControlSidebar: React.FC<ControlSidebarProps> = ({
                         })
                       }
                       className={clsx(
-                        'px-1.5 py-1 text-xs border rounded font-bold transition-colors',
+                        'p-1 text-xs border rounded font-bold transition-colors flex-shrink-0',
                         line.fontWeight === 'bold'
                           ? 'bg-rose-500 border-rose-500 text-white'
                           : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
                       )}
-                      title="Bold"
+                      title="In đậm"
                     >
                       <Bold size={11} />
                     </button>
@@ -343,59 +343,25 @@ const ControlSidebar: React.FC<ControlSidebarProps> = ({
                         })
                       }
                       className={clsx(
-                        'px-1.5 py-1 text-xs border rounded italic transition-colors',
+                        'p-1 text-xs border rounded italic transition-colors flex-shrink-0',
                         line.fontStyle === 'italic'
                           ? 'bg-rose-500 border-rose-500 text-white'
                           : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
                       )}
-                      title="Italic"
+                      title="Nghiêng"
                     >
                       <Italic size={11} />
                     </button>
                     {config.lines.length > 1 && (
                       <button
                         onClick={() => removeLine(line.id)}
-                        className="p-1 text-slate-300 hover:text-red-500 rounded transition-colors"
+                        className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors flex-shrink-0"
                         title="Xóa dòng này"
                       >
                         <Trash2 size={12} />
                       </button>
                     )}
                   </div>
-                </div>
-
-                {/* Chọn font riêng cho dòng này (nếu muốn khác font chung) */}
-                <div className="flex items-center gap-1.5 pt-0.5 text-[11px]">
-                  <span className="text-slate-400 text-[10px] flex-shrink-0">Font:</span>
-                  <select
-                    value={line.fontFamily || ''}
-                    onChange={(e) => updateLine(line.id, { fontFamily: e.target.value || undefined })}
-                    className="flex-1 px-1.5 py-1 text-[11px] border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-rose-400 bg-slate-50 font-medium"
-                    style={{ fontFamily: line.fontFamily || config.globalFontFamily }}
-                  >
-                    <option value="">(Theo font chung: {config.globalFontFamily})</option>
-                    <optgroup label="🔤 Font Chữ IN HOA">
-                      {FONT_OPTIONS.filter((f) => f.category === 'uppercase').map((f) => (
-                        <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>
-                          {f.label}
-                        </option>
-                      ))}
-                    </optgroup>
-                    <optgroup label="✍️ Font Thư Pháp & Nghệ Thuật">
-                      {FONT_OPTIONS.filter((f) => f.category === 'calligraphy').map((f) => (
-                        <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>
-                          {f.label}
-                        </option>
-                      ))}
-                    </optgroup>
-                    <optgroup label="🏛️ Font Serif & Sans Hiện Đại">
-                      {FONT_OPTIONS.filter((f) => f.category === 'classic').map((f) => (
-                        <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>
-                          {f.label}
-                        </option>
-                      ))}
-                    </optgroup>
-                  </select>
                 </div>
 
                 {/* Tinh chỉnh riêng: Cỡ chữ & Vị trí dọc */}
