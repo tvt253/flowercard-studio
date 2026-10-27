@@ -160,7 +160,7 @@ const DirectFloatingToolbar: React.FC<DirectFloatingToolbarProps> = ({
         {onAddLine && (
           <button
             onClick={onAddLine}
-            className="w-7 h-7 flex items-center justify-center bg-emerald-500 hover:bg-emerald-600 text-white rounded-md shadow-2xs transition-colors flex-shrink-0"
+            className="w-7 h-7 flex items-center justify-center bg-rose-500 hover:bg-rose-600 text-white rounded-md shadow-2xs transition-colors flex-shrink-0"
             title="Thêm dòng chữ mới"
           >
             <Plus size={15} />
