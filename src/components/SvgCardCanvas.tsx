@@ -212,7 +212,7 @@ const SvgCardCanvas: React.FC<SvgCardCanvasProps> = ({
           {/* Tăng độ rộng stroke ở trên và dưới = 1.2 lần ở 2 bên */}
           {activeLayers.map((layer) => {
             const vDelta = layer.width * 0.1; // (1.2 - 1.0) * width / 2 = 0.1 * width
-            const vOffsets = [-vDelta, -vDelta * 0.67, -vDelta * 0.33, 0, vDelta * 0.33, vDelta * 0.67, vDelta];
+            const vOffsets = [-vDelta, 0, vDelta];
 
             return (
               <g key={`stroke-layer-${layer.id}`}>
@@ -262,4 +262,4 @@ const SvgCardCanvas: React.FC<SvgCardCanvasProps> = ({
   );
 };
 
-export default SvgCardCanvas;
+export default React.memo(SvgCardCanvas);

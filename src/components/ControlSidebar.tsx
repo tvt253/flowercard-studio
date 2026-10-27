@@ -29,6 +29,56 @@ interface PresetItem {
   value: PresetName;
 }
 
+const DebouncedTextInput: React.FC<{
+  initialValue: string;
+  onCommit: (val: string) => void;
+  className?: string;
+  placeholder?: string;
+}> = ({ initialValue, onCommit, className, placeholder }) => {
+  const [val, setVal] = React.useState(initialValue);
+  const timerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  React.useEffect(() => {
+    setVal(initialValue);
+  }, [initialValue]);
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const next = e.target.value;
+    setVal(next);
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => {
+      onCommit(next);
+    }, 350);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      if (timerRef.current) clearTimeout(timerRef.current);
+      onCommit(val);
+      (e.target as HTMLInputElement).blur();
+    }
+  };
+
+  const handleBlur = () => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    if (val !== initialValue) {
+      onCommit(val);
+    }
+  };
+
+  return (
+    <input
+      type="text"
+      value={val}
+      onChange={handleChange}
+      onKeyDown={handleKeyDown}
+      onBlur={handleBlur}
+      className={className}
+      placeholder={placeholder}
+    />
+  );
+};
+
 // 1. Mẫu chọn nhanh cho KIỂU ĐÁM MÂY (bỏ chia buồn, khai trương màu đỏ, sinh nhật màu hồng)
 const CLOUD_PRESETS: PresetItem[] = [
   { label: '🌹 20/10 - Phụ Nữ VN', value: '20-10' },
@@ -268,10 +318,9 @@ const ControlSidebar: React.FC<ControlSidebarProps> = ({
                   <span className="text-[11px] font-bold text-slate-400 flex-shrink-0 min-w-[14px]">
                     {index + 1}.
                   </span>
-                  <input
-                    type="text"
-                    value={line.text}
-                    onChange={(e) => updateLine(line.id, { text: e.target.value })}
+                  <DebouncedTextInput
+                    initialValue={line.text}
+                    onCommit={(text) => updateLine(line.id, { text })}
                     className="flex-1 min-w-0 px-2 py-1 text-xs font-semibold border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-rose-400 bg-white"
                     placeholder={`Nhập dòng ${index + 1}...`}
                   />

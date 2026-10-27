@@ -2,6 +2,7 @@ import { CardConfig, StrokeLayer } from '../types/card';
 import { applyTextCase } from '../store/useCardStore';
 
 let canvas2dContext: CanvasRenderingContext2D | null = null;
+const textWidthCache = new Map<string, number>();
 
 /**
  * Đo chiều rộng thực tế của chuỗi ký tự theo font chữ và cỡ chữ
@@ -15,6 +16,12 @@ export function measureTextWidth(
 ): number {
   if (!text) return 0;
 
+  const cacheKey = `${text}_${fontFamily}_${fontSize}_${fontWeight}_${letterSpacing}`;
+  const cached = textWidthCache.get(cacheKey);
+  if (cached !== undefined) return cached;
+
+  let calculatedWidth = 0;
+
   // 1. Thử dùng Canvas 2D để đo chính xác theo font engine của trình duyệt
   if (typeof document !== 'undefined') {
     try {
@@ -26,7 +33,7 @@ export function measureTextWidth(
         canvas2dContext.font = `${fontWeight || 'normal'} ${fontSize}px "${fontFamily}", sans-serif`;
         const metrics = canvas2dContext.measureText(text);
         if (metrics && metrics.width > 0) {
-          return metrics.width + Math.max(0, text.length - 1) * letterSpacing;
+          calculatedWidth = metrics.width + Math.max(0, text.length - 1) * letterSpacing;
         }
       }
     } catch {
@@ -34,36 +41,44 @@ export function measureTextWidth(
     }
   }
 
-  // 2. Thuật toán dự phòng (Heuristic estimation) phân tích từng ký tự
-  let widthRatioSum = 0;
-  for (let i = 0; i < text.length; i++) {
-    const ch = text[i];
-    if (ch === ' ' || ch === '\t') {
-      widthRatioSum += 0.28;
-    } else if (/[mwWM_@%&]/.test(ch)) {
-      widthRatioSum += 0.85;
-    } else if (/[ijltI1!|:;.,'"`]/.test(ch)) {
-      widthRatioSum += 0.28;
-    } else if (/[A-Z]/.test(ch)) {
-      widthRatioSum += 0.72;
-    } else if (/[0-9]/.test(ch)) {
-      widthRatioSum += 0.58;
-    } else {
-      widthRatioSum += 0.52;
+  // 2. Thuật toán dự phòng (Heuristic estimation) phân tích từng ký tự nếu canvas không có
+  if (calculatedWidth === 0) {
+    let widthRatioSum = 0;
+    for (let i = 0; i < text.length; i++) {
+      const ch = text[i];
+      if (ch === ' ' || ch === '\t') {
+        widthRatioSum += 0.28;
+      } else if (/[mwWM_@%&]/.test(ch)) {
+        widthRatioSum += 0.85;
+      } else if (/[ijltI1!|:;.,'"`]/.test(ch)) {
+        widthRatioSum += 0.28;
+      } else if (/[A-Z]/.test(ch)) {
+        widthRatioSum += 0.72;
+      } else if (/[0-9]/.test(ch)) {
+        widthRatioSum += 0.58;
+      } else {
+        widthRatioSum += 0.52;
+      }
     }
+
+    const isCondensed = ['Oswald', 'Alegreya SC', 'Playfair Display'].some((f) =>
+      fontFamily.includes(f)
+    );
+    const isCursive = ['Charm', 'Dancing Script', 'Great Vibes', 'Alex Brush'].some((f) =>
+      fontFamily.includes(f)
+    );
+    const fontMultiplier = isCondensed ? 0.88 : isCursive ? 0.95 : 1.0;
+    calculatedWidth = widthRatioSum * fontSize * fontMultiplier + Math.max(0, text.length - 1) * letterSpacing;
   }
 
-  // Điều chỉnh hệ số theo phân loại font
-  const isCondensed = ['Oswald', 'Alegreya SC', 'Playfair Display'].some((f) =>
-    fontFamily.includes(f)
-  );
-  const isCursive = ['Charm', 'Dancing Script', 'Great Vibes', 'Alex Brush'].some((f) =>
-    fontFamily.includes(f)
-  );
-  const fontMultiplier = isCondensed ? 0.88 : isCursive ? 0.95 : 1.0;
+  // Lưu cache để tăng tốc các lần render tiếp theo (tối đa 500 mục)
+  if (textWidthCache.size > 500) {
+    const firstKey = textWidthCache.keys().next().value;
+    if (firstKey) textWidthCache.delete(firstKey);
+  }
+  textWidthCache.set(cacheKey, calculatedWidth);
 
-  const estimatedWidth = widthRatioSum * fontSize * fontMultiplier;
-  return estimatedWidth + Math.max(0, text.length - 1) * letterSpacing;
+  return calculatedWidth;
 }
 
 export interface CardMetrics {

@@ -1,5 +1,6 @@
-import React, { useState } from 'react';
+import React, { useState, useRef, useEffect } from 'react';
 import { useCardStore } from '../store/useCardStore';
+import { TextLine } from '../types/card';
 import SvgCardCanvas from './SvgCardCanvas';
 import {
   Bold,
@@ -19,6 +20,263 @@ import { clsx } from 'clsx';
 import { handlePrint, handleExportPDF } from '../utils/exportUtils';
 import { FONT_OPTIONS } from '../constants/fonts';
 import { calculateCardMetrics } from '../utils/cardScaleUtils';
+
+interface DirectFloatingToolbarProps {
+  line: TextLine;
+  globalFontFamily: string;
+  topPercent: number;
+  onUpdateLine: (id: string, updates: Partial<TextLine>) => void;
+  onToggleTextCase: (id: string) => void;
+  onClose: () => void;
+}
+
+const DirectFloatingToolbar: React.FC<DirectFloatingToolbarProps> = ({
+  line,
+  globalFontFamily,
+  topPercent,
+  onUpdateLine,
+  onToggleTextCase,
+  onClose,
+}) => {
+  const [textValue, setTextValue] = useState(line.text);
+  const [hasChanges, setHasChanges] = useState(false);
+  const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
+
+  // Đồng bộ khi dòng chọn hoặc text gốc thay đổi
+  useEffect(() => {
+    setTextValue(line.text);
+    setHasChanges(false);
+  }, [line.id, line.text]);
+
+  const commitText = (newText: string) => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    if (newText !== line.text) {
+      onUpdateLine(line.id, { text: newText });
+    }
+    setHasChanges(false);
+  };
+
+  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const nextVal = e.target.value;
+    setTextValue(nextVal);
+    setHasChanges(nextVal !== line.text);
+
+    // Tự động cập nhật mượt sau 350ms ngừng gõ
+    if (timerRef.current) clearTimeout(timerRef.current);
+    timerRef.current = setTimeout(() => {
+      commitText(nextVal);
+    }, 350);
+  };
+
+  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
+    if (e.key === 'Enter') {
+      commitText(textValue);
+      (e.target as HTMLInputElement).blur();
+    }
+  };
+
+  const handleBlur = () => {
+    if (timerRef.current) clearTimeout(timerRef.current);
+    commitText(textValue);
+  };
+
+  const handleDone = () => {
+    commitText(textValue);
+    onClose();
+  };
+
+  return (
+    <div
+      className="absolute z-30 left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur-md border border-rose-300 rounded-xl p-2 shadow-2xl flex items-center gap-2 ring-4 ring-rose-500/10 print:hidden animate-in fade-in zoom-in-95 duration-150"
+      style={{
+        top: `${topPercent}%`,
+      }}
+      onClick={(e) => e.stopPropagation()}
+    >
+      {/* Ô nhập trực tiếp nội dung chữ: gõ phím siêu nhẹ, không lag */}
+      <div className="relative flex items-center">
+        <input
+          type="text"
+          value={textValue}
+          autoFocus
+          onChange={handleChange}
+          onKeyDown={handleKeyDown}
+          onBlur={handleBlur}
+          className="px-2.5 py-1 text-xs font-bold text-slate-800 bg-rose-50/60 border border-rose-200 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500 min-w-[210px] pr-14"
+          placeholder="Nhập nội dung chữ..."
+        />
+        {hasChanges && (
+          <button
+            onClick={() => commitText(textValue)}
+            title="Áp dụng ngay (hoặc bấm Enter)"
+            className="absolute right-1 px-1.5 py-0.5 text-[10px] font-bold bg-rose-500 hover:bg-rose-600 text-white rounded transition-colors shadow-xs"
+          >
+            Áp dụng ↵
+          </button>
+        )}
+      </div>
+
+      {/* Nút chuyển đổi kiểu chữ Aa: Viết hoa đầu từ -> IN HOA TOÀN BỘ -> Chữ thường */}
+      <button
+        onClick={() => onToggleTextCase(line.id)}
+        className={clsx(
+          'px-2 py-1 text-xs font-bold rounded-md border transition-all flex items-center gap-1 shadow-sm',
+          (!line.textCase || line.textCase === 'capitalize')
+            ? 'bg-rose-500 text-white border-rose-600'
+            : line.textCase === 'uppercase'
+            ? 'bg-amber-500 text-white border-amber-600'
+            : 'bg-slate-100 text-slate-700 border-slate-300 hover:bg-slate-200'
+        )}
+        title={
+          (!line.textCase || line.textCase === 'capitalize')
+            ? 'Đang bật: Viết Hoa Đầu Từ - Bấm để chuyển'
+            : line.textCase === 'uppercase'
+            ? 'Đang bật: IN HOA TOÀN BỘ (CAPSLOCK) - Bấm để chuyển'
+            : 'Đang bật: Chữ thường - Bấm để chuyển'
+        }
+      >
+        <span>
+          {(!line.textCase || line.textCase === 'capitalize')
+            ? 'Aa'
+            : line.textCase === 'uppercase'
+            ? 'AA'
+            : 'aa'}
+        </span>
+      </button>
+
+      {/* Chọn font trực tiếp cho dòng */}
+      <select
+        value={line.fontFamily || ''}
+        onChange={(e) => onUpdateLine(line.id, { fontFamily: e.target.value || undefined })}
+        className="px-2 py-1 text-xs border border-slate-200 rounded-md bg-white text-slate-700 font-medium focus:outline-none focus:ring-1 focus:ring-rose-400 max-w-[130px]"
+        style={{ fontFamily: line.fontFamily || globalFontFamily }}
+        title="Chọn font chữ cho dòng này"
+      >
+        <option value="">(Font chung)</option>
+        <optgroup label="🔤 Font IN HOA">
+          {FONT_OPTIONS.filter((f) => f.category === 'uppercase').map((f) => (
+            <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>
+              {f.label}
+            </option>
+          ))}
+        </optgroup>
+        <optgroup label="✍️ Thư Pháp & Nghệ Thuật">
+          {FONT_OPTIONS.filter((f) => f.category === 'calligraphy').map((f) => (
+            <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>
+              {f.label}
+            </option>
+          ))}
+        </optgroup>
+        <optgroup label="🏛️ Cổ Điển & Hiện Đại">
+          {FONT_OPTIONS.filter((f) => f.category === 'classic').map((f) => (
+            <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>
+              {f.label}
+            </option>
+          ))}
+        </optgroup>
+      </select>
+
+      {/* Nút cỡ chữ */}
+      <div className="flex items-center gap-1 bg-slate-100 rounded-md px-1.5 py-0.5 text-xs text-slate-700">
+        <button
+          onClick={() =>
+            onUpdateLine(line.id, {
+              fontSize: Math.max(20, line.fontSize - 4),
+            })
+          }
+          className="hover:text-rose-600 font-bold px-1"
+          title="Giảm cỡ chữ"
+        >
+          -
+        </button>
+        <span className="font-bold w-9 text-center text-[11px]">
+          {line.fontSize}px
+        </span>
+        <button
+          onClick={() =>
+            onUpdateLine(line.id, {
+              fontSize: Math.min(120, line.fontSize + 4),
+            })
+          }
+          className="hover:text-rose-600 font-bold px-1"
+          title="Tăng cỡ chữ"
+        >
+          +
+        </button>
+      </div>
+
+      {/* Nút di chuyển vị trí dọc Offset Y */}
+      <div className="flex items-center gap-0.5 bg-slate-100 rounded-md p-0.5">
+        <button
+          onClick={() =>
+            onUpdateLine(line.id, {
+              offsetY: Math.max(60, line.offsetY - 10),
+            })
+          }
+          className="p-1 hover:text-rose-600 rounded text-slate-600 hover:bg-white"
+          title="Di chuyển lên trên"
+        >
+          <ArrowUp size={12} />
+        </button>
+        <button
+          onClick={() =>
+            onUpdateLine(line.id, {
+              offsetY: Math.min(360, line.offsetY + 10),
+            })
+          }
+          className="p-1 hover:text-rose-600 rounded text-slate-600 hover:bg-white"
+          title="Di chuyển xuống dưới"
+        >
+          <ArrowDown size={12} />
+        </button>
+      </div>
+
+      {/* Nút In đậm & Nghiêng */}
+      <div className="flex items-center gap-0.5">
+        <button
+          onClick={() =>
+            onUpdateLine(line.id, {
+              fontWeight: line.fontWeight === 'bold' ? 'normal' : 'bold',
+            })
+          }
+          className={clsx(
+            'p-1 text-xs rounded transition-colors',
+            line.fontWeight === 'bold'
+              ? 'bg-rose-500 text-white'
+              : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+          )}
+          title="In đậm"
+        >
+          <Bold size={11} />
+        </button>
+        <button
+          onClick={() =>
+            onUpdateLine(line.id, {
+              fontStyle: line.fontStyle === 'italic' ? 'normal' : 'italic',
+            })
+          }
+          className={clsx(
+            'p-1 text-xs rounded transition-colors',
+            line.fontStyle === 'italic'
+              ? 'bg-rose-500 text-white'
+              : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+          )}
+          title="Nghiêng"
+        >
+          <Italic size={11} />
+        </button>
+      </div>
+
+      {/* Nút Xong */}
+      <button
+        onClick={handleDone}
+        className="flex items-center gap-1 px-2.5 py-1 text-xs bg-rose-500 hover:bg-rose-600 text-white font-semibold rounded-md shadow-sm transition-colors"
+      >
+        <Check size={12} /> Xong
+      </button>
+    </div>
+  );
+};
 
 interface A4PreviewAreaProps {
   isSidebarOpen?: boolean;
@@ -290,184 +548,14 @@ const A4PreviewArea: React.FC<A4PreviewAreaProps> = ({
 
               {/* BẢNG CHỈNH SỬA NỔI TRỰC TIẾP TRÊN CANVAS PREVIEW (KHI CHỌN DÒNG) */}
               {selectedLine && (
-                <div
-                  className="absolute z-30 left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur-md border border-rose-300 rounded-xl p-2 shadow-2xl flex items-center gap-2 ring-4 ring-rose-500/10 print:hidden animate-in fade-in zoom-in-95 duration-150"
-                  style={{
-                    top: `${popupTopPercent}%`,
-                  }}
-                  onClick={(e) => e.stopPropagation()}
-                >
-                  {/* Ô nhập trực tiếp nội dung chữ */}
-                  <input
-                    type="text"
-                    value={selectedLine.text}
-                    autoFocus
-                    onChange={(e) => {
-                      updateLine(selectedLine.id, { text: e.target.value });
-                    }}
-                    className="px-2.5 py-1 text-xs font-bold text-slate-800 bg-rose-50/60 border border-rose-200 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500 min-w-[220px]"
-                    placeholder="Nhập nội dung chữ..."
-                  />
-
-                  {/* Nút chuyển đổi kiểu chữ Aa: Viết hoa đầu từ (Mặc định) -> IN HOA TOÀN BỘ -> Chữ thường */}
-                  <button
-                    onClick={() => toggleLineTextCase(selectedLine.id)}
-                    className={clsx(
-                      'px-2 py-1 text-xs font-bold rounded-md border transition-all flex items-center gap-1 shadow-sm',
-                      (!selectedLine.textCase || selectedLine.textCase === 'capitalize')
-                        ? 'bg-rose-500 text-white border-rose-600'
-                        : selectedLine.textCase === 'uppercase'
-                        ? 'bg-amber-500 text-white border-amber-600'
-                        : 'bg-slate-100 text-slate-700 border-slate-300 hover:bg-slate-200'
-                    )}
-                    title={
-                      (!selectedLine.textCase || selectedLine.textCase === 'capitalize')
-                        ? 'Đang bật: Viết Hoa Đầu Từ (Chuẩn mẫu thiệp) - Bấm để chuyển'
-                        : selectedLine.textCase === 'uppercase'
-                        ? 'Đang bật: IN HOA TOÀN BỘ (CAPSLOCK) - Bấm để chuyển'
-                        : 'Đang bật: Chữ thường - Bấm để chuyển'
-                    }
-                  >
-                    <span>
-                      {(!selectedLine.textCase || selectedLine.textCase === 'capitalize')
-                        ? 'Aa'
-                        : selectedLine.textCase === 'uppercase'
-                        ? 'AA'
-                        : 'aa'}
-                    </span>
-                  </button>
-
-                  {/* Chọn font trực tiếp cho dòng */}
-                  <select
-                    value={selectedLine.fontFamily || ''}
-                    onChange={(e) => updateLine(selectedLine.id, { fontFamily: e.target.value || undefined })}
-                    className="px-2 py-1 text-xs border border-slate-200 rounded-md bg-white text-slate-700 font-medium focus:outline-none focus:ring-1 focus:ring-rose-400 max-w-[140px]"
-                    style={{ fontFamily: selectedLine.fontFamily || config.globalFontFamily }}
-                    title="Chọn font chữ cho dòng này"
-                  >
-                    <option value="">(Font chung)</option>
-                    <optgroup label="🔤 Font IN HOA">
-                      {FONT_OPTIONS.filter((f) => f.category === 'uppercase').map((f) => (
-                        <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>
-                          {f.label}
-                        </option>
-                      ))}
-                    </optgroup>
-                    <optgroup label="✍️ Thư Pháp & Nghệ Thuật">
-                      {FONT_OPTIONS.filter((f) => f.category === 'calligraphy').map((f) => (
-                        <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>
-                          {f.label}
-                        </option>
-                      ))}
-                    </optgroup>
-                    <optgroup label="🏛️ Cổ Điển & Hiện Đại">
-                      {FONT_OPTIONS.filter((f) => f.category === 'classic').map((f) => (
-                        <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>
-                          {f.label}
-                        </option>
-                      ))}
-                    </optgroup>
-                  </select>
-
-                  {/* Nút cỡ chữ */}
-                  <div className="flex items-center gap-1 bg-slate-100 rounded-md px-1.5 py-0.5 text-xs text-slate-700">
-                    <button
-                      onClick={() =>
-                        updateLine(selectedLine.id, {
-                          fontSize: Math.max(20, selectedLine.fontSize - 4),
-                        })
-                      }
-                      className="hover:text-rose-600 font-bold px-1"
-                      title="Giảm cỡ chữ"
-                    >
-                      -
-                    </button>
-                    <span className="font-bold w-9 text-center text-[11px]">
-                      {selectedLine.fontSize}px
-                    </span>
-                    <button
-                      onClick={() =>
-                        updateLine(selectedLine.id, {
-                          fontSize: Math.min(120, selectedLine.fontSize + 4),
-                        })
-                      }
-                      className="hover:text-rose-600 font-bold px-1"
-                      title="Tăng cỡ chữ"
-                    >
-                      +
-                    </button>
-                  </div>
-
-                  {/* Nút di chuyển vị trí dọc Offset Y */}
-                  <div className="flex items-center gap-0.5 bg-slate-100 rounded-md p-0.5">
-                    <button
-                      onClick={() =>
-                        updateLine(selectedLine.id, {
-                          offsetY: Math.max(60, selectedLine.offsetY - 10),
-                        })
-                      }
-                      className="p-1 hover:text-rose-600 rounded text-slate-600 hover:bg-white"
-                      title="Di chuyển lên trên"
-                    >
-                      <ArrowUp size={12} />
-                    </button>
-                    <button
-                      onClick={() =>
-                        updateLine(selectedLine.id, {
-                          offsetY: Math.min(360, selectedLine.offsetY + 10),
-                        })
-                      }
-                      className="p-1 hover:text-rose-600 rounded text-slate-600 hover:bg-white"
-                      title="Di chuyển xuống dưới"
-                    >
-                      <ArrowDown size={12} />
-                    </button>
-                  </div>
-
-                  {/* Nút In đậm & Nghiêng */}
-                  <div className="flex items-center gap-0.5">
-                    <button
-                      onClick={() =>
-                        updateLine(selectedLine.id, {
-                          fontWeight: selectedLine.fontWeight === 'bold' ? 'normal' : 'bold',
-                        })
-                      }
-                      className={clsx(
-                        'p-1 text-xs rounded transition-colors',
-                        selectedLine.fontWeight === 'bold'
-                          ? 'bg-rose-500 text-white'
-                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                      )}
-                      title="In đậm"
-                    >
-                      <Bold size={11} />
-                    </button>
-                    <button
-                      onClick={() =>
-                        updateLine(selectedLine.id, {
-                          fontStyle: selectedLine.fontStyle === 'italic' ? 'normal' : 'italic',
-                        })
-                      }
-                      className={clsx(
-                        'p-1 text-xs rounded transition-colors',
-                        selectedLine.fontStyle === 'italic'
-                          ? 'bg-rose-500 text-white'
-                          : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                      )}
-                      title="Nghiêng"
-                    >
-                      <Italic size={11} />
-                    </button>
-                  </div>
-
-                  {/* Nút Xong */}
-                  <button
-                    onClick={() => setSelectedLineId(null)}
-                    className="flex items-center gap-1 px-2.5 py-1 text-xs bg-rose-500 hover:bg-rose-600 text-white font-semibold rounded-md shadow-sm transition-colors"
-                  >
-                    <Check size={12} /> Xong
-                  </button>
-                </div>
+                <DirectFloatingToolbar
+                  line={selectedLine}
+                  globalFontFamily={config.globalFontFamily}
+                  topPercent={popupTopPercent}
+                  onUpdateLine={updateLine}
+                  onToggleTextCase={toggleLineTextCase}
+                  onClose={() => setSelectedLineId(null)}
+                />
               )}
             </div>
           </div>
@@ -498,180 +586,15 @@ const A4PreviewArea: React.FC<A4PreviewAreaProps> = ({
 
                 {/* BẢNG CHỈNH SỬA NỔI TRỰC TIẾP TRÊN BẢN IN ĐẦU TIÊN */}
                 {i === 0 && selectedLine && (
-                  <div
-                    className="absolute z-30 left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur-md border border-rose-300 rounded-xl p-2 shadow-2xl flex items-center gap-2 ring-4 ring-rose-500/10 print:hidden animate-in fade-in zoom-in-95 duration-150"
-                    style={{
-                      top: `${popupTopPercent}%`,
-                    }}
-                    onClick={(e) => e.stopPropagation()}
-                  >
-                    <input
-                      type="text"
-                      value={selectedLine.text}
-                      autoFocus
-                      onChange={(e) => {
-                        updateLine(selectedLine.id, { text: e.target.value });
-                      }}
-                      className="px-2.5 py-1 text-xs font-bold text-slate-800 bg-rose-50/60 border border-rose-200 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500 min-w-[200px]"
-                      placeholder="Nhập nội dung chữ..."
-                    />
-
-                    {/* Nút chuyển đổi kiểu chữ Aa: Viết hoa đầu từ (Mặc định) -> IN HOA TOÀN BỘ -> Chữ thường */}
-                    <button
-                      onClick={() => toggleLineTextCase(selectedLine.id)}
-                      className={clsx(
-                        'px-2 py-1 text-xs font-bold rounded-md border transition-all flex items-center gap-1 shadow-sm',
-                        (!selectedLine.textCase || selectedLine.textCase === 'capitalize')
-                          ? 'bg-rose-500 text-white border-rose-600'
-                          : selectedLine.textCase === 'uppercase'
-                          ? 'bg-amber-500 text-white border-amber-600'
-                          : 'bg-slate-100 text-slate-700 border-slate-300 hover:bg-slate-200'
-                      )}
-                      title={
-                        (!selectedLine.textCase || selectedLine.textCase === 'capitalize')
-                          ? 'Đang bật: Viết Hoa Đầu Từ (Chuẩn mẫu thiệp) - Bấm để chuyển'
-                          : selectedLine.textCase === 'uppercase'
-                          ? 'Đang bật: IN HOA TOÀN BỘ (CAPSLOCK) - Bấm để chuyển'
-                          : 'Đang bật: Chữ thường - Bấm để chuyển'
-                      }
-                    >
-                      <span>
-                        {(!selectedLine.textCase || selectedLine.textCase === 'capitalize')
-                          ? 'Aa'
-                          : selectedLine.textCase === 'uppercase'
-                          ? 'AA'
-                          : 'aa'}
-                      </span>
-                    </button>
-
-                    {/* Chọn font trực tiếp cho dòng */}
-                    <select
-                      value={selectedLine.fontFamily || ''}
-                      onChange={(e) => updateLine(selectedLine.id, { fontFamily: e.target.value || undefined })}
-                      className="px-2 py-1 text-xs border border-slate-200 rounded-md bg-white text-slate-700 font-medium focus:outline-none focus:ring-1 focus:ring-rose-400 max-w-[130px]"
-                      style={{ fontFamily: selectedLine.fontFamily || config.globalFontFamily }}
-                      title="Chọn font chữ cho dòng này"
-                    >
-                      <option value="">(Font chung)</option>
-                      <optgroup label="🔤 Font IN HOA">
-                        {FONT_OPTIONS.filter((f) => f.category === 'uppercase').map((f) => (
-                          <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>
-                            {f.label}
-                          </option>
-                        ))}
-                      </optgroup>
-                      <optgroup label="✍️ Thư Pháp & Nghệ Thuật">
-                        {FONT_OPTIONS.filter((f) => f.category === 'calligraphy').map((f) => (
-                          <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>
-                            {f.label}
-                          </option>
-                        ))}
-                      </optgroup>
-                      <optgroup label="🏛️ Cổ Điển & Hiện Đại">
-                        {FONT_OPTIONS.filter((f) => f.category === 'classic').map((f) => (
-                          <option key={f.value} value={f.value} style={{ fontFamily: f.value }}>
-                            {f.label}
-                          </option>
-                        ))}
-                      </optgroup>
-                    </select>
-
-                    <div className="flex items-center gap-1 bg-slate-100 rounded-md px-1.5 py-0.5 text-xs text-slate-700">
-                      <button
-                        onClick={() =>
-                          updateLine(selectedLine.id, {
-                            fontSize: Math.max(20, selectedLine.fontSize - 4),
-                          })
-                        }
-                        className="hover:text-rose-600 font-bold px-1"
-                        title="Giảm cỡ chữ"
-                      >
-                        -
-                      </button>
-                      <span className="font-bold w-9 text-center text-[11px]">
-                        {selectedLine.fontSize}px
-                      </span>
-                      <button
-                        onClick={() =>
-                          updateLine(selectedLine.id, {
-                            fontSize: Math.min(120, selectedLine.fontSize + 4),
-                          })
-                        }
-                        className="hover:text-rose-600 font-bold px-1"
-                        title="Tăng cỡ chữ"
-                      >
-                        +
-                      </button>
-                    </div>
-
-                    <div className="flex items-center gap-0.5 bg-slate-100 rounded-md p-0.5">
-                      <button
-                        onClick={() =>
-                          updateLine(selectedLine.id, {
-                            offsetY: Math.max(60, selectedLine.offsetY - 10),
-                          })
-                        }
-                        className="p-1 hover:text-rose-600 rounded text-slate-600 hover:bg-white"
-                        title="Di chuyển lên trên"
-                      >
-                        <ArrowUp size={12} />
-                      </button>
-                      <button
-                        onClick={() =>
-                          updateLine(selectedLine.id, {
-                            offsetY: Math.min(360, selectedLine.offsetY + 10),
-                          })
-                        }
-                        className="p-1 hover:text-rose-600 rounded text-slate-600 hover:bg-white"
-                        title="Di chuyển xuống dưới"
-                      >
-                        <ArrowDown size={12} />
-                      </button>
-                    </div>
-
-                    <div className="flex items-center gap-0.5">
-                      <button
-                        onClick={() =>
-                          updateLine(selectedLine.id, {
-                            fontWeight: selectedLine.fontWeight === 'bold' ? 'normal' : 'bold',
-                          })
-                        }
-                        className={clsx(
-                          'p-1 text-xs rounded transition-colors',
-                          selectedLine.fontWeight === 'bold'
-                            ? 'bg-rose-500 text-white'
-                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                        )}
-                        title="In đậm"
-                      >
-                        <Bold size={11} />
-                      </button>
-                      <button
-                        onClick={() =>
-                          updateLine(selectedLine.id, {
-                            fontStyle: selectedLine.fontStyle === 'italic' ? 'normal' : 'italic',
-                          })
-                        }
-                        className={clsx(
-                          'p-1 text-xs rounded transition-colors',
-                          selectedLine.fontStyle === 'italic'
-                            ? 'bg-rose-500 text-white'
-                            : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
-                      )}
-                      title="Nghiêng"
-                    >
-                      <Italic size={11} />
-                    </button>
-                  </div>
-
-                  <button
-                    onClick={() => setSelectedLineId(null)}
-                    className="flex items-center gap-1 px-2.5 py-1 text-xs bg-rose-500 hover:bg-rose-600 text-white font-semibold rounded-md shadow-sm transition-colors"
-                  >
-                    <Check size={12} /> Xong
-                  </button>
-                </div>
-              )}
+                  <DirectFloatingToolbar
+                    line={selectedLine}
+                    globalFontFamily={config.globalFontFamily}
+                    topPercent={popupTopPercent}
+                    onUpdateLine={updateLine}
+                    onToggleTextCase={toggleLineTextCase}
+                    onClose={() => setSelectedLineId(null)}
+                  />
+                )}
             </div>
           ))}
         </div>
