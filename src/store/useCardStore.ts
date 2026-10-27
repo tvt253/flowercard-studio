@@ -380,41 +380,64 @@ export const useCardStore = create<CardStore>()(
 
       addLine: () =>
         set((state) => {
-          if (state.config.lines.length === 1 && Math.abs(state.config.lines[0].offsetY - 210) < 25) {
-            // Khi đang có 1 dòng nằm chính giữa (210), chuyển dòng 1 lên trên (155) và thêm dòng 2 ở dưới (260) chuẩn 2 dòng
+          const currentLines = state.config.lines;
+          const count = currentLines.length;
+
+          // Trường hợp đặc biệt: đang có đúng 1 dòng ở chính giữa (210), chuyển dòng 1 lên 155 và thêm dòng 2 ở 260
+          if (count === 1 && Math.abs(currentLines[0].offsetY - 210) < 30) {
             return {
               config: {
                 ...state.config,
                 lines: [
-                  { ...state.config.lines[0], offsetY: 155 },
+                  { ...currentLines[0], offsetY: 155 },
                   {
                     id: generateId(),
                     text: 'Dòng Chữ Mới',
-                    fontSize: 70,
+                    fontSize: Math.min(currentLines[0].fontSize, 70),
                     offsetY: 260,
-                    fontWeight: 'bold',
-                    fontStyle: 'normal',
-                    letterSpacing: 1.5,
-                    textCase: 'capitalize',
+                    fontWeight: currentLines[0].fontWeight,
+                    fontStyle: currentLines[0].fontStyle,
+                    letterSpacing: currentLines[0].letterSpacing,
+                    textCase: currentLines[0].textCase,
+                    fontFamily: currentLines[0].fontFamily,
                   },
                 ],
               },
             };
           }
+
+          // Tính khoảng cách offsetY: nếu có từ 2 dòng trở lên, lấy đúng khoảng cách giữa 2 dòng trước đó
+          let newOffsetY: number;
+          if (count >= 2) {
+            const lastLine = currentLines[count - 1];
+            const prevLine = currentLines[count - 2];
+            const deltaY = lastLine.offsetY - prevLine.offsetY;
+            // Dùng khoảng cách deltaY nếu hợp lý (>= 40px và <= 150px), ngược lại mặc định 85px
+            const stepY = deltaY >= 40 && deltaY <= 150 ? deltaY : 85;
+            newOffsetY = Math.min(375, lastLine.offsetY + stepY);
+          } else if (count === 1) {
+            newOffsetY = Math.min(365, currentLines[0].offsetY + 90);
+          } else {
+            newOffsetY = 210;
+          }
+
+          const lastLine = count > 0 ? currentLines[count - 1] : null;
+
           return {
             config: {
               ...state.config,
               lines: [
-                ...state.config.lines,
+                ...currentLines,
                 {
                   id: generateId(),
                   text: 'Dòng Chữ Mới',
-                  fontSize: 70,
-                  offsetY: 315,
-                  fontWeight: 'bold',
-                  fontStyle: 'normal',
-                  letterSpacing: 1.5,
-                  textCase: 'capitalize',
+                  fontSize: lastLine ? Math.min(lastLine.fontSize, 68) : 65,
+                  offsetY: newOffsetY,
+                  fontWeight: lastLine ? lastLine.fontWeight : 'bold',
+                  fontStyle: lastLine ? lastLine.fontStyle : 'normal',
+                  letterSpacing: lastLine ? lastLine.letterSpacing : 1.5,
+                  textCase: lastLine ? lastLine.textCase : 'capitalize',
+                  fontFamily: lastLine ? lastLine.fontFamily : undefined,
                 },
               ],
             },
