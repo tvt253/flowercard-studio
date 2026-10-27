@@ -412,7 +412,12 @@ const A4PreviewArea: React.FC<A4PreviewAreaProps> = ({
 
       {/* THANH ĐIỀU KHIỂN CHÍNH (MASTER ACTION BAR) */}
       {!isFullscreen && (
-        <div className="w-full max-w-[800px] mb-2.5 flex flex-wrap items-center justify-between gap-2 p-2 bg-white/95 backdrop-blur border border-slate-200 rounded-xl shadow-sm print:hidden">
+        <div
+          className="w-full mb-2.5 flex flex-wrap items-center justify-between gap-2 p-2 bg-white/95 backdrop-blur border border-slate-200 rounded-xl shadow-sm print:hidden transition-all duration-300"
+          style={{
+            maxWidth: isLandscape ? '100%' : 'min(210mm, 100%)',
+          }}
+        >
           <div className="flex items-center gap-2">
             {/* Nút Ẩn / Hiện Cài Đặt */}
             {onToggleSidebar && (
@@ -469,7 +474,12 @@ const A4PreviewArea: React.FC<A4PreviewAreaProps> = ({
       )}
 
       {/* Thanh công cụ thông báo hướng dẫn sửa trực tiếp trên Preview */}
-      <div className="mb-3 flex items-center justify-between w-full max-w-[800px] px-3 py-1.5 bg-white/80 backdrop-blur border border-slate-200 rounded-lg shadow-sm text-xs text-slate-600 print:hidden">
+      <div
+        className="mb-3 flex items-center justify-between w-full px-3 py-1.5 bg-white/80 backdrop-blur border border-slate-200 rounded-lg shadow-sm text-xs text-slate-600 print:hidden transition-all duration-300"
+        style={{
+          maxWidth: isLandscape ? '100%' : 'min(210mm, 100%)',
+        }}
+      >
         <div className="flex items-center gap-1.5 font-medium">
           <Edit3 size={13} className="text-rose-500 flex-shrink-0" />
           <span>
@@ -522,11 +532,7 @@ const A4PreviewArea: React.FC<A4PreviewAreaProps> = ({
         className="a4-paper bg-white relative transition-all duration-300 mx-auto overflow-hidden"
         style={{
           width: '100%',
-          maxWidth: isLandscape
-            ? (isFullscreen
-                ? 'min(297mm, calc((100vh - 80px) * 1.4143), 100%)'
-                : 'min(297mm, calc((100vh - 160px) * 1.4143), 100%)')
-            : 'min(210mm, 100%)',
+          maxWidth: isLandscape ? '100%' : 'min(210mm, 100%)',
           height: 'auto',
           aspectRatio: isLandscape ? '297 / 210' : '210 / 297',
           boxShadow: '0 8px 30px rgba(0,0,0,0.12)',
