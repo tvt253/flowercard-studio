@@ -1,11 +1,9 @@
 import React from 'react';
 import { useCardStore } from '../store/useCardStore';
-import { TextLine, PresetName, StyleType } from '../types/card';
+import { PresetName, StyleType } from '../types/card';
 import {
   Plus,
   Trash2,
-  Bold,
-  Italic,
   Printer,
   FileDown,
   Layers,
@@ -28,56 +26,6 @@ interface PresetItem {
   label: string;
   value: PresetName;
 }
-
-const DebouncedTextInput: React.FC<{
-  initialValue: string;
-  onCommit: (val: string) => void;
-  className?: string;
-  placeholder?: string;
-}> = ({ initialValue, onCommit, className, placeholder }) => {
-  const [val, setVal] = React.useState(initialValue);
-  const timerRef = React.useRef<ReturnType<typeof setTimeout> | null>(null);
-
-  React.useEffect(() => {
-    setVal(initialValue);
-  }, [initialValue]);
-
-  const handleChange = (e: React.ChangeEvent<HTMLInputElement>) => {
-    const next = e.target.value;
-    setVal(next);
-    if (timerRef.current) clearTimeout(timerRef.current);
-    timerRef.current = setTimeout(() => {
-      onCommit(next);
-    }, 350);
-  };
-
-  const handleKeyDown = (e: React.KeyboardEvent<HTMLInputElement>) => {
-    if (e.key === 'Enter') {
-      if (timerRef.current) clearTimeout(timerRef.current);
-      onCommit(val);
-      (e.target as HTMLInputElement).blur();
-    }
-  };
-
-  const handleBlur = () => {
-    if (timerRef.current) clearTimeout(timerRef.current);
-    if (val !== initialValue) {
-      onCommit(val);
-    }
-  };
-
-  return (
-    <input
-      type="text"
-      value={val}
-      onChange={handleChange}
-      onKeyDown={handleKeyDown}
-      onBlur={handleBlur}
-      className={className}
-      placeholder={placeholder}
-    />
-  );
-};
 
 // 1. Mẫu chọn nhanh cho KIỂU ĐÁM MÂY (bỏ chia buồn, khai trương màu đỏ, sinh nhật màu hồng)
 const CLOUD_PRESETS: PresetItem[] = [
@@ -132,8 +80,6 @@ const ControlSidebar: React.FC<ControlSidebarProps> = ({
     config,
     addLine,
     removeLine,
-    updateLine,
-    toggleLineTextCase,
     updateConfig,
     setStyleType,
     updateGlobalTypography,
@@ -217,21 +163,15 @@ const ControlSidebar: React.FC<ControlSidebarProps> = ({
           </div>
         </div>
 
-        {/* MỤC 2: NỘI DUNG CHỮ & ĐIỀU CHỈNH CHUNG */}
+        {/* MỤC 2: CÀI ĐẶT CHUNG */}
         <div className="p-3 border-b border-slate-100 bg-slate-50/50">
           <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-1.5">
               <Type size={14} className="text-rose-600" />
               <h2 className="text-xs font-bold text-slate-700 uppercase tracking-widest">
-                2. Nội Dung & Cài Đặt Chung
+                2. Cài Đặt Chung
               </h2>
             </div>
-            <button
-              onClick={addLine}
-              className="flex items-center gap-1 px-2 py-1 text-xs bg-rose-500 text-white rounded hover:bg-rose-600 transition-colors shadow-sm"
-            >
-              <Plus size={11} /> Thêm dòng
-            </button>
           </div>
 
           {/* Cài đặt chung đồng nhất */}
@@ -240,7 +180,7 @@ const ControlSidebar: React.FC<ControlSidebarProps> = ({
               <Sparkles size={11} /> Cài đặt chung
             </div>
 
-            {/* Kích thước thiệp so với giấy - mặc định 95% chiều rộng giấy và căn giữa */}
+            {/* Kích thước thiệp so với giấy */}
             <div>
               <div className="flex justify-between text-xs font-medium text-slate-500 mb-1">
                 <span>Kích thước thiệp:</span>
@@ -288,7 +228,7 @@ const ControlSidebar: React.FC<ControlSidebarProps> = ({
               </select>
             </div>
 
-            {/* Độ cong tăng lên đến 80 */}
+            {/* Độ cong */}
             <div>
               <div className="flex justify-between text-xs font-medium text-slate-500 mb-1">
                 <span>Độ cong:</span>
@@ -306,126 +246,33 @@ const ControlSidebar: React.FC<ControlSidebarProps> = ({
             </div>
           </div>
 
-          {/* Danh sách nhập nội dung từng dòng */}
-          <div className="space-y-2">
-            {config.lines.map((line: TextLine, index: number) => (
-              <div
-                key={line.id}
-                className="p-2.5 border border-slate-200 rounded-lg bg-white space-y-2 shadow-sm"
-              >
-                {/* Dòng input text */}
-                <div className="flex items-center gap-1">
-                  <span className="text-[11px] font-bold text-slate-400 flex-shrink-0 min-w-[14px]">
-                    {index + 1}.
-                  </span>
-                  <DebouncedTextInput
-                    initialValue={line.text}
-                    onCommit={(text) => updateLine(line.id, { text })}
-                    className="flex-1 min-w-0 px-2 py-1 text-xs font-semibold border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-rose-400 bg-white"
-                    placeholder={`Nhập dòng ${index + 1}...`}
-                  />
-                  <div className="flex items-center gap-0.5 flex-shrink-0">
-                    {/* Nút chuyển kiểu chữ Aa: Viết hoa đầu từ -> In hoa toàn bộ -> Thường */}
-                    <button
-                      onClick={() => toggleLineTextCase(line.id)}
-                      className={clsx(
-                        'px-1.5 py-1 text-xs border rounded font-bold transition-all shadow-2xs flex-shrink-0',
-                        (!line.textCase || line.textCase === 'capitalize')
-                          ? 'bg-rose-500 border-rose-600 text-white'
-                          : line.textCase === 'uppercase'
-                          ? 'bg-amber-500 border-amber-600 text-white'
-                          : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-                      )}
-                      title={
-                        (!line.textCase || line.textCase === 'capitalize')
-                          ? 'Đang bật: Viết Hoa Đầu Từ (Chuẩn mẫu) - Bấm để chuyển'
-                          : line.textCase === 'uppercase'
-                          ? 'Đang bật: IN HOA TOÀN BỘ (CAPSLOCK) - Bấm để chuyển'
-                          : 'Đang bật: Chữ thường - Bấm để chuyển'
-                      }
-                    >
-                      {(!line.textCase || line.textCase === 'capitalize')
-                        ? 'Aa'
-                        : line.textCase === 'uppercase'
-                        ? 'AA'
-                        : 'aa'}
-                    </button>
-                    <button
-                      onClick={() =>
-                        updateLine(line.id, {
-                          fontWeight: line.fontWeight === 'bold' ? 'normal' : 'bold',
-                        })
-                      }
-                      className={clsx(
-                        'p-1 text-xs border rounded font-bold transition-colors flex-shrink-0',
-                        line.fontWeight === 'bold'
-                          ? 'bg-rose-500 border-rose-500 text-white'
-                          : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-                      )}
-                      title="In đậm"
-                    >
-                      <Bold size={11} />
-                    </button>
-                    <button
-                      onClick={() =>
-                        updateLine(line.id, {
-                          fontStyle: line.fontStyle === 'italic' ? 'normal' : 'italic',
-                        })
-                      }
-                      className={clsx(
-                        'p-1 text-xs border rounded italic transition-colors flex-shrink-0',
-                        line.fontStyle === 'italic'
-                          ? 'bg-rose-500 border-rose-500 text-white'
-                          : 'bg-white border-slate-200 text-slate-600 hover:bg-slate-50'
-                      )}
-                      title="Nghiêng"
-                    >
-                      <Italic size={11} />
-                    </button>
-                    {config.lines.length > 1 && (
-                      <button
-                        onClick={() => removeLine(line.id)}
-                        className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded transition-colors flex-shrink-0"
-                        title="Xóa dòng này"
-                      >
-                        <Trash2 size={12} />
-                      </button>
-                    )}
-                  </div>
-                </div>
-
-                {/* Tinh chỉnh riêng: Cỡ chữ & Vị trí dọc */}
-                <div className="grid grid-cols-2 gap-2 pt-1 border-t border-slate-50 text-[11px]">
-                  <div>
-                    <div className="flex justify-between text-slate-500 mb-0.5">
-                      <span>Cỡ chữ:</span>
-                      <span className="font-bold text-rose-600">{line.fontSize}px</span>
-                    </div>
-                    <input
-                      type="range"
-                      min={24}
-                      max={110}
-                      value={line.fontSize}
-                      onChange={(e) => updateLine(line.id, { fontSize: parseInt(e.target.value) })}
-                    />
-                  </div>
-
-                  <div>
-                    <div className="flex justify-between text-slate-500 mb-0.5">
-                      <span>Vị trí Y:</span>
-                      <span className="font-bold text-rose-600">{line.offsetY}px</span>
-                    </div>
-                    <input
-                      type="range"
-                      min={60}
-                      max={360}
-                      value={line.offsetY}
-                      onChange={(e) => updateLine(line.id, { offsetY: parseInt(e.target.value) })}
-                    />
-                  </div>
-                </div>
+          {/* Quản lý số lượng dòng chữ & hướng dẫn sửa trực tiếp */}
+          <div className="p-2.5 bg-white border border-slate-200 rounded-lg space-y-2 shadow-sm">
+            <div className="flex items-center justify-between">
+              <span className="text-xs font-semibold text-slate-700">
+                Số dòng chữ: <strong className="text-rose-600">{config.lines.length} dòng</strong>
+              </span>
+              <div className="flex items-center gap-1">
+                <button
+                  onClick={addLine}
+                  className="flex items-center gap-1 px-2 py-1 text-xs bg-rose-500 hover:bg-rose-600 text-white rounded transition-colors shadow-xs font-semibold"
+                >
+                  <Plus size={11} /> Thêm dòng
+                </button>
+                {config.lines.length > 1 && (
+                  <button
+                    onClick={() => removeLine(config.lines[config.lines.length - 1].id)}
+                    className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded border border-slate-200 transition-colors"
+                    title="Xóa dòng cuối"
+                  >
+                    <Trash2 size={12} />
+                  </button>
+                )}
               </div>
-            ))}
+            </div>
+            <p className="text-[11px] text-slate-500 leading-relaxed bg-slate-50 p-2 rounded border border-slate-100">
+              💡 <strong>Chỉnh sửa trực tiếp:</strong> Nhấp vào chữ trên thiệp để sửa nội dung, cỡ chữ và vị trí.
+            </p>
           </div>
         </div>
 

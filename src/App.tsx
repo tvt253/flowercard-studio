@@ -59,25 +59,24 @@ const App: React.FC = () => {
         </div>
       </div>
 
-      {/* FLOATING BUTTON WHEN SIDEBAR IS HIDDEN */}
+      {/* FLOATING BUTTON WHEN SIDEBAR IS HIDDEN - Chỉ giữ lại icon gọn gàng */}
       {!isSidebarOpen && !isFullscreen && (
         <button
           onClick={toggleSidebar}
-          className="fixed top-3 left-3 z-30 flex items-center gap-1.5 px-3 py-2 bg-white/95 hover:bg-white text-slate-700 hover:text-rose-600 border border-slate-200 rounded-lg shadow-md transition-all text-xs font-semibold backdrop-blur print:hidden"
+          className="fixed top-2.5 left-2.5 z-30 p-2 bg-white/95 hover:bg-white text-slate-700 hover:text-rose-600 border border-slate-200 rounded-lg shadow-md transition-all backdrop-blur print:hidden"
           title="Mở lại bảng cài đặt"
         >
-          <PanelLeftOpen size={16} className="text-rose-600" />
-          <span>Hiện Cài Đặt</span>
+          <PanelLeftOpen size={17} className="text-rose-600" />
         </button>
       )}
 
-      {/* MAIN PREVIEW AREA - Giảm padding để khoảng cách giữa panel và tờ A4 sát nhau hơn */}
+      {/* MAIN PREVIEW AREA - Đặt p-0 để thanh công cụ trên cùng nằm sát lề trên, sticky khi cuộn */}
       <main
         className={clsx(
-          'overflow-auto flex flex-col items-center transition-colors duration-300',
+          'flex flex-col items-center transition-colors duration-300 relative',
           isFullscreen
             ? 'fixed inset-0 z-50 bg-slate-950 p-2 sm:p-4 pt-16 overflow-y-auto'
-            : 'flex-1 bg-slate-100 p-2 sm:p-3 overflow-x-auto'
+            : 'flex-1 bg-slate-100 p-0 overflow-y-auto overflow-x-auto'
         )}
       >
         <A4PreviewArea
