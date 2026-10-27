@@ -15,27 +15,36 @@ import {
 
   Printer,
   FileDown,
+  Plus,
+  Trash2,
+  Sparkles,
 } from 'lucide-react';
 import { clsx } from 'clsx';
 import { handlePrint, handleExportPDF } from '../utils/exportUtils';
 import { FONT_OPTIONS } from '../constants/fonts';
-import { calculateCardMetrics } from '../utils/cardScaleUtils';
+import { calculateCardMetrics, calculateAutoFitFontSize } from '../utils/cardScaleUtils';
 
 interface DirectFloatingToolbarProps {
   line: TextLine;
   globalFontFamily: string;
-  topPercent: number;
+  positionMode: 'top' | 'bottom';
   onUpdateLine: (id: string, updates: Partial<TextLine>) => void;
   onToggleTextCase: (id: string) => void;
+  onAddLine?: () => void;
+  onRemoveLine?: (id: string) => void;
+  canRemove?: boolean;
   onClose: () => void;
 }
 
 const DirectFloatingToolbar: React.FC<DirectFloatingToolbarProps> = ({
   line,
   globalFontFamily,
-  topPercent,
+  positionMode,
   onUpdateLine,
   onToggleTextCase,
+  onAddLine,
+  onRemoveLine,
+  canRemove = false,
   onClose,
 }) => {
   const [textValue, setTextValue] = useState(line.text);
@@ -88,9 +97,7 @@ const DirectFloatingToolbar: React.FC<DirectFloatingToolbarProps> = ({
   return (
     <div
       className="absolute z-30 left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur-md border border-rose-300 rounded-xl p-2 shadow-2xl flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 ring-4 ring-rose-500/10 print:hidden animate-in fade-in zoom-in-95 duration-150 max-w-[96vw]"
-      style={{
-        top: `${topPercent}%`,
-      }}
+      style={positionMode === 'top' ? { top: '-54px' } : { bottom: '-54px' }}
       onClick={(e) => e.stopPropagation()}
     >
       {/* Ô nhập trực tiếp nội dung chữ: gõ phím siêu nhẹ, không lag */}
@@ -205,6 +212,26 @@ const DirectFloatingToolbar: React.FC<DirectFloatingToolbarProps> = ({
         </button>
       </div>
 
+      {/* Nút Tự Động Fit Cỡ Chữ */}
+      <button
+        onClick={() => {
+          const autoSize = calculateAutoFitFontSize(
+            textValue,
+            line.fontFamily || globalFontFamily,
+            line.fontSize,
+            line.fontWeight,
+            line.letterSpacing,
+            780
+          );
+          onUpdateLine(line.id, { fontSize: autoSize });
+        }}
+        className="flex items-center gap-1 px-2 py-1 text-xs bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 font-bold rounded-md shadow-2xs transition-colors"
+        title="Tự động tính cỡ chữ vừa khít chiều ngang khung thiệp"
+      >
+        <Sparkles size={12} className="text-amber-600" />
+        <span>Fit chữ</span>
+      </button>
+
       {/* Nút di chuyển vị trí dọc Offset Y */}
       <div className="flex items-center gap-0.5 bg-slate-100 rounded-md p-0.5">
         <button
@@ -267,6 +294,34 @@ const DirectFloatingToolbar: React.FC<DirectFloatingToolbarProps> = ({
         </button>
       </div>
 
+      {/* Nút Thêm dòng mới */}
+      {onAddLine && (
+        <button
+          onClick={onAddLine}
+          className="flex items-center gap-1 px-2 py-1 text-xs bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-md shadow-xs transition-colors"
+          title="Thêm một dòng chữ mới"
+        >
+          <Plus size={12} />
+          <span className="hidden sm:inline">Thêm dòng</span>
+        </button>
+      )}
+
+      {/* Nút Xóa dòng này */}
+      {onRemoveLine && canRemove && (
+        <button
+          onClick={() => {
+            if (window.confirm(`Bạn có chắc muốn xóa dòng "${line.text}" không?`)) {
+              onRemoveLine(line.id);
+            }
+          }}
+          className="flex items-center gap-1 px-2 py-1 text-xs bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 font-bold rounded-md shadow-xs transition-colors"
+          title="Xóa dòng chữ này"
+        >
+          <Trash2 size={12} />
+          <span className="hidden sm:inline">Xóa</span>
+        </button>
+      )}
+
       {/* Nút Xong */}
       <button
         onClick={handleDone}
@@ -289,7 +344,7 @@ const A4PreviewArea: React.FC<A4PreviewAreaProps> = ({
   isFullscreen = false,
   onToggleFullscreen,
 }) => {
-  const { config, updateLine, toggleLineTextCase } = useCardStore();
+  const { config, updateLine, toggleLineTextCase, addLine, removeLine } = useCardStore();
   const [selectedLineId, setSelectedLineId] = useState<string | null>(null);
 
   const copies = Array.from({ length: config.copiesPerPage }, (_, i) => i);
@@ -305,7 +360,23 @@ const A4PreviewArea: React.FC<A4PreviewAreaProps> = ({
   const visualLineY = selectedLine
     ? centerY + (selectedLine.offsetY - centerY) * activeScale
     : 210;
-  const popupTopPercent = Math.max(5, Math.min(80, (visualLineY / 420) * 100 - 22));
+  // positionMode: dòng nửa trên (<=210) đặt toolbar ở trên (top: -54px), dòng nửa dưới (>210) đặt ở dưới (bottom: -54px)
+  const positionMode: 'top' | 'bottom' = visualLineY <= 210 ? 'top' : 'bottom';
+
+  const handleAddLine = () => {
+    addLine();
+    setTimeout(() => {
+      const lines = useCardStore.getState().config.lines;
+      if (lines.length > 0) {
+        setSelectedLineId(lines[lines.length - 1].id);
+      }
+    }, 50);
+  };
+
+  const handleRemoveLine = (id: string) => {
+    removeLine(id);
+    setSelectedLineId(null);
+  };
 
   return (
     <div className="print-wrapper flex flex-col items-center select-none w-full max-w-none p-0">
@@ -431,7 +502,7 @@ const A4PreviewArea: React.FC<A4PreviewAreaProps> = ({
               )}
             </div>
 
-            {/* Nút chọn nhanh dòng chữ */}
+            {/* Nút chọn nhanh dòng chữ & Thêm dòng */}
             <div className="flex items-center gap-1 flex-shrink-0">
               {config.lines.map((line, idx) => (
                 <button
@@ -447,6 +518,17 @@ const A4PreviewArea: React.FC<A4PreviewAreaProps> = ({
                   Dòng {idx + 1}
                 </button>
               ))}
+
+              {/* Nút Thêm dòng trên thanh công cụ sau Dòng 1, Dòng 2 */}
+              <button
+                onClick={handleAddLine}
+                className="flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-bold bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 transition-colors shadow-2xs"
+                title="Thêm dòng chữ mới vào thiệp"
+              >
+                <Plus size={11} />
+                <span>Thêm dòng</span>
+              </button>
+
               {selectedLineId && (
                 <button
                   onClick={() => setSelectedLineId(null)}
@@ -536,9 +618,12 @@ const A4PreviewArea: React.FC<A4PreviewAreaProps> = ({
                 <DirectFloatingToolbar
                   line={selectedLine}
                   globalFontFamily={config.globalFontFamily}
-                  topPercent={popupTopPercent}
+                  positionMode={positionMode}
                   onUpdateLine={updateLine}
                   onToggleTextCase={toggleLineTextCase}
+                  onAddLine={handleAddLine}
+                  onRemoveLine={handleRemoveLine}
+                  canRemove={config.lines.length > 1}
                   onClose={() => setSelectedLineId(null)}
                 />
               )}
@@ -574,9 +659,12 @@ const A4PreviewArea: React.FC<A4PreviewAreaProps> = ({
                   <DirectFloatingToolbar
                     line={selectedLine}
                     globalFontFamily={config.globalFontFamily}
-                    topPercent={popupTopPercent}
+                    positionMode={positionMode}
                     onUpdateLine={updateLine}
                     onToggleTextCase={toggleLineTextCase}
+                    onAddLine={handleAddLine}
+                    onRemoveLine={handleRemoveLine}
+                    canRemove={config.lines.length > 1}
                     onClose={() => setSelectedLineId(null)}
                   />
                 )}

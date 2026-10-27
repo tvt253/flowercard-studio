@@ -81,6 +81,25 @@ export function measureTextWidth(
   return calculatedWidth;
 }
 
+/**
+ * Tự động tính toán cỡ chữ vừa khít với chiều ngang khung thiệp (~780px trên viewBox 1000)
+ */
+export function calculateAutoFitFontSize(
+  text: string,
+  fontFamily: string,
+  currentFontSize: number,
+  fontWeight: string = 'bold',
+  letterSpacing: number = 0,
+  targetWidth: number = 780
+): number {
+  if (!text || !text.trim()) return currentFontSize;
+  const measured = measureTextWidth(text, fontFamily, currentFontSize, fontWeight, letterSpacing);
+  if (measured <= 0) return currentFontSize;
+  const ratio = targetWidth / measured;
+  const idealSize = Math.round(currentFontSize * ratio);
+  return Math.max(26, Math.min(105, idealSize));
+}
+
 export interface CardMetrics {
   isSingleLine: boolean;
   maxLineWidth: number;

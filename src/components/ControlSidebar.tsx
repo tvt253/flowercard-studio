@@ -2,8 +2,6 @@ import React from 'react';
 import { useCardStore } from '../store/useCardStore';
 import { PresetName, StyleType } from '../types/card';
 import {
-  Plus,
-  Trash2,
   Printer,
   FileDown,
   Layers,
@@ -78,8 +76,6 @@ const ControlSidebar: React.FC<ControlSidebarProps> = ({
 }) => {
   const {
     config,
-    addLine,
-    removeLine,
     updateConfig,
     setStyleType,
     updateGlobalTypography,
@@ -244,35 +240,6 @@ const ControlSidebar: React.FC<ControlSidebarProps> = ({
                 }
               />
             </div>
-          </div>
-
-          {/* Quản lý số lượng dòng chữ & hướng dẫn sửa trực tiếp */}
-          <div className="p-2.5 bg-white border border-slate-200 rounded-lg space-y-2 shadow-sm">
-            <div className="flex items-center justify-between">
-              <span className="text-xs font-semibold text-slate-700">
-                Số dòng chữ: <strong className="text-rose-600">{config.lines.length} dòng</strong>
-              </span>
-              <div className="flex items-center gap-1">
-                <button
-                  onClick={addLine}
-                  className="flex items-center gap-1 px-2 py-1 text-xs bg-rose-500 hover:bg-rose-600 text-white rounded transition-colors shadow-xs font-semibold"
-                >
-                  <Plus size={11} /> Thêm dòng
-                </button>
-                {config.lines.length > 1 && (
-                  <button
-                    onClick={() => removeLine(config.lines[config.lines.length - 1].id)}
-                    className="p-1 text-slate-400 hover:text-red-600 hover:bg-red-50 rounded border border-slate-200 transition-colors"
-                    title="Xóa dòng cuối"
-                  >
-                    <Trash2 size={12} />
-                  </button>
-                )}
-              </div>
-            </div>
-            <p className="text-[11px] text-slate-500 leading-relaxed bg-slate-50 p-2 rounded border border-slate-100">
-              💡 <strong>Chỉnh sửa trực tiếp:</strong> Nhấp vào chữ trên thiệp để sửa nội dung, cỡ chữ và vị trí.
-            </p>
           </div>
         </div>
 
