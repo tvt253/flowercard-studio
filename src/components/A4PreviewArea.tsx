@@ -87,7 +87,7 @@ const DirectFloatingToolbar: React.FC<DirectFloatingToolbarProps> = ({
 
   return (
     <div
-      className="absolute z-30 left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur-md border border-rose-300 rounded-xl p-2 shadow-2xl flex items-center gap-2 ring-4 ring-rose-500/10 print:hidden animate-in fade-in zoom-in-95 duration-150"
+      className="absolute z-30 left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur-md border border-rose-300 rounded-xl p-2 shadow-2xl flex flex-wrap items-center justify-center gap-1.5 sm:gap-2 ring-4 ring-rose-500/10 print:hidden animate-in fade-in zoom-in-95 duration-150 max-w-[96vw]"
       style={{
         top: `${topPercent}%`,
       }}
@@ -102,14 +102,14 @@ const DirectFloatingToolbar: React.FC<DirectFloatingToolbarProps> = ({
           onChange={handleChange}
           onKeyDown={handleKeyDown}
           onBlur={handleBlur}
-          className="px-2.5 py-1 text-xs font-bold text-slate-800 bg-rose-50/60 border border-rose-200 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500 min-w-[210px] pr-14"
+          className="px-3 py-1.5 text-sm font-bold text-slate-800 bg-rose-50/70 border border-rose-200 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500 w-[280px] sm:w-[380px] md:w-[450px] max-w-[75vw] pr-20"
           placeholder="Nhập nội dung chữ..."
         />
         {hasChanges && (
           <button
             onClick={() => commitText(textValue)}
             title="Áp dụng ngay (hoặc bấm Enter)"
-            className="absolute right-1 px-1.5 py-0.5 text-[10px] font-bold bg-rose-500 hover:bg-rose-600 text-white rounded transition-colors shadow-xs"
+            className="absolute right-1 px-2 py-0.5 text-xs font-bold bg-rose-500 hover:bg-rose-600 text-white rounded transition-colors shadow-xs"
           >
             Áp dụng ↵
           </button>
@@ -310,7 +310,7 @@ const A4PreviewArea: React.FC<A4PreviewAreaProps> = ({
   const popupTopPercent = Math.max(5, Math.min(80, (visualLineY / 420) * 100 - 22));
 
   return (
-    <div className="print-wrapper flex flex-col items-center select-none w-full max-w-5xl py-2">
+    <div className="print-wrapper flex flex-col items-center select-none w-full max-w-none px-1 sm:px-2 py-2">
       {/* Dynamic Print Styles for A4 Landscape (1 copy) vs Portrait (2 copies) */}
       <style>{`
         @media print {
@@ -321,6 +321,7 @@ const A4PreviewArea: React.FC<A4PreviewAreaProps> = ({
           *, [filter], .card-shadow-filter {
             filter: none !important;
             -webkit-filter: none !important;
+            aspect-ratio: unset !important;
             box-shadow: none !important;
             text-shadow: none !important;
           }
@@ -348,6 +349,7 @@ const A4PreviewArea: React.FC<A4PreviewAreaProps> = ({
             height: 100% !important;
             max-width: ${isLandscape ? '290mm' : '203mm'} !important;
             max-height: ${isLandscape ? '203mm' : '290mm'} !important;
+            aspect-ratio: unset !important;
             box-shadow: none !important;
             border: none !important;
             margin: 0 auto !important;
@@ -519,8 +521,8 @@ const A4PreviewArea: React.FC<A4PreviewAreaProps> = ({
         id="a4-print-area"
         className="a4-paper bg-white relative transition-all duration-300 mx-auto overflow-hidden"
         style={{
-          width: isLandscape ? '297mm' : '210mm',
-          height: isLandscape ? '210mm' : '297mm',
+          width: isLandscape ? 'min(297mm, 100%)' : 'min(210mm, 100%)',
+          aspectRatio: isLandscape ? '297 / 210' : '210 / 297',
           boxShadow: '0 8px 30px rgba(0,0,0,0.12)',
         }}
         onClick={(e) => {

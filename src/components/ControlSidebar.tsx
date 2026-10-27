@@ -153,9 +153,9 @@ const ControlSidebar: React.FC<ControlSidebarProps> = ({
       : CLOUD_PRESETS;
 
   return (
-    <aside className="w-[340px] h-screen bg-white border-r border-slate-200 flex flex-col overflow-hidden shadow-sm">
+    <aside className="w-[285px] h-screen bg-white border-r border-slate-200 flex flex-col overflow-hidden shadow-sm">
       {/* Header */}
-      <div className="px-4 py-3 bg-gradient-to-r from-rose-500 to-rose-600 text-white flex-shrink-0 flex items-center justify-between">
+      <div className="px-3 py-2.5 bg-gradient-to-r from-rose-500 to-rose-600 text-white flex-shrink-0 flex items-center justify-between">
         <h1 className="text-base font-bold tracking-wide flex items-center gap-1.5">
           FlowerCard Studio
         </h1>
@@ -163,31 +163,31 @@ const ControlSidebar: React.FC<ControlSidebarProps> = ({
           <button
             onClick={onToggleSidebar}
             title="Ẩn bảng cài đặt (Thu gọn)"
-            className="p-1.5 hover:bg-white/20 text-white rounded-lg transition-colors flex items-center justify-center"
+            className="p-1 hover:bg-white/20 text-white rounded-lg transition-colors flex items-center justify-center"
           >
-            <PanelLeftClose size={18} />
+            <PanelLeftClose size={17} />
           </button>
         )}
       </div>
 
       <div className="flex-1 overflow-y-auto">
         {/* MỤC 1: CHỌN KIỂU THIỆP & DỊP LỄ */}
-        <div className="p-4 border-b border-slate-100">
-          <div className="flex items-center gap-1.5 mb-2.5">
+        <div className="p-3 border-b border-slate-100">
+          <div className="flex items-center gap-1.5 mb-2">
             <Cloud size={14} className="text-rose-600" />
             <h2 className="text-xs font-bold text-slate-700 uppercase tracking-widest">
               1. Kiểu Thiệp & Dịp Lễ
             </h2>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             {/* Chọn Kiểu Thiệp (Đám mây / Oval Đỏ / Oval Đen) */}
             <div>
               <label className="block text-xs font-medium text-slate-500 mb-1">Kiểu thiệp</label>
               <select
                 value={config.styleType}
                 onChange={(e) => setStyleType(e.target.value as StyleType)}
-                className="w-full px-2.5 py-1.5 text-xs font-semibold border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-rose-400 bg-white"
+                className="w-full px-2 py-1.5 text-xs font-semibold border border-slate-200 rounded focus:outline-none focus:ring-1 focus:ring-rose-400 bg-white"
               >
                 {STYLE_OPTIONS.map((s) => (
                   <option key={s.value} value={s.value}>
@@ -199,15 +199,15 @@ const ControlSidebar: React.FC<ControlSidebarProps> = ({
 
             {/* Chọn nhanh mẫu theo kiểu thiệp đang chọn */}
             <div>
-              <label className="block text-xs font-medium text-slate-500 mb-1.5">
+              <label className="block text-xs font-medium text-slate-500 mb-1">
                 Chọn nhanh mẫu:
               </label>
-              <div className="grid grid-cols-2 gap-1.5">
+              <div className="grid grid-cols-2 gap-1">
                 {currentPresets.map((p) => (
                   <button
                     key={p.value}
                     onClick={() => applyPreset(p.value)}
-                    className="flex items-center justify-start p-2 text-xs bg-slate-50 hover:bg-rose-50 hover:text-rose-600 border border-slate-200 hover:border-rose-300 rounded-lg transition-colors text-slate-700 text-left font-semibold group shadow-2xs"
+                    className="flex items-center justify-start p-1.5 text-[11px] bg-slate-50 hover:bg-rose-50 hover:text-rose-600 border border-slate-200 hover:border-rose-300 rounded-md transition-colors text-slate-700 text-left font-semibold group shadow-2xs"
                   >
                     <span className="truncate w-full">{p.label}</span>
                   </button>
@@ -218,8 +218,8 @@ const ControlSidebar: React.FC<ControlSidebarProps> = ({
         </div>
 
         {/* MỤC 2: NỘI DUNG CHỮ & ĐIỀU CHỈNH CHUNG */}
-        <div className="p-4 border-b border-slate-100 bg-slate-50/50">
-          <div className="flex items-center justify-between mb-2.5">
+        <div className="p-3 border-b border-slate-100 bg-slate-50/50">
+          <div className="flex items-center justify-between mb-2">
             <div className="flex items-center gap-1.5">
               <Type size={14} className="text-rose-600" />
               <h2 className="text-xs font-bold text-slate-700 uppercase tracking-widest">
@@ -235,7 +235,7 @@ const ControlSidebar: React.FC<ControlSidebarProps> = ({
           </div>
 
           {/* Cài đặt chung đồng nhất */}
-          <div className="p-3 bg-white border border-slate-200 rounded-lg space-y-2.5 mb-3 shadow-sm">
+          <div className="p-2.5 bg-white border border-slate-200 rounded-lg space-y-2 mb-2.5 shadow-sm">
             <div className="text-[11px] font-bold text-rose-600 uppercase tracking-wider flex items-center gap-1">
               <Sparkles size={11} /> Cài đặt chung
             </div>
@@ -430,15 +430,15 @@ const ControlSidebar: React.FC<ControlSidebarProps> = ({
         </div>
 
         {/* MỤC 3: MÀU SẮC & LỚP VIỀN STROKE */}
-        <div className="p-4 border-b border-slate-100">
-          <div className="flex items-center gap-1.5 mb-2.5">
+        <div className="p-3 border-b border-slate-100">
+          <div className="flex items-center gap-1.5 mb-2">
             <Layers size={14} className="text-rose-600" />
             <h2 className="text-xs font-bold text-slate-700 uppercase tracking-widest">
               {isOval ? '3. Màu Sắc Thiệp Oval' : '3. Lớp Viền Stroke'}
             </h2>
           </div>
 
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             {/* Chọn nhanh nhóm màu */}
             <div>
               <label className="block text-xs font-medium text-slate-500 mb-1.5">
@@ -619,21 +619,21 @@ const ControlSidebar: React.FC<ControlSidebarProps> = ({
         </div>
 
         {/* MỤC 4: SỐ BẢN IN TRÊN TỜ A4 */}
-        <div className="p-4 border-b border-slate-100">
-          <h2 className="text-xs font-bold text-slate-700 uppercase tracking-widest mb-3">
+        <div className="p-3 border-b border-slate-100">
+          <h2 className="text-xs font-bold text-slate-700 uppercase tracking-widest mb-2">
             4. Dàn Trang A4
           </h2>
 
-          <div className="space-y-3">
+          <div className="space-y-2.5">
             <div>
-              <label className="block text-xs font-medium text-slate-500 mb-1.5">
+              <label className="block text-xs font-medium text-slate-500 mb-1">
                 Số bản in / tờ A4
               </label>
-              <div className="grid grid-cols-3 gap-1.5">
+              <div className="grid grid-cols-3 gap-1">
                 <button
                   onClick={() => setCopiesPerPage(1)}
                   className={clsx(
-                    'py-2 text-xs border rounded-lg font-bold transition-colors text-center',
+                    'py-1.5 text-xs border rounded-lg font-bold transition-colors text-center',
                     config.copiesPerPage === 1
                       ? 'bg-rose-500 border-rose-500 text-white shadow-sm'
                       : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
@@ -645,7 +645,7 @@ const ControlSidebar: React.FC<ControlSidebarProps> = ({
                 <button
                   onClick={() => setCopiesPerPage(2)}
                   className={clsx(
-                    'py-2 text-xs border rounded-lg font-bold transition-colors text-center',
+                    'py-1.5 text-xs border rounded-lg font-bold transition-colors text-center',
                     config.copiesPerPage === 2
                       ? 'bg-rose-500 border-rose-500 text-white shadow-sm'
                       : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
@@ -657,7 +657,7 @@ const ControlSidebar: React.FC<ControlSidebarProps> = ({
                 <button
                   onClick={() => setCopiesPerPage(3)}
                   className={clsx(
-                    'py-2 text-xs border rounded-lg font-bold transition-colors text-center',
+                    'py-1.5 text-xs border rounded-lg font-bold transition-colors text-center',
                     config.copiesPerPage === 3
                       ? 'bg-rose-500 border-rose-500 text-white shadow-sm'
                       : 'bg-white border-slate-200 text-slate-700 hover:bg-slate-50'
@@ -672,17 +672,17 @@ const ControlSidebar: React.FC<ControlSidebarProps> = ({
       </div>
 
       {/* FOOTER ACTIONS */}
-      <div className="p-3 border-t border-slate-200 bg-slate-50 flex-shrink-0">
-        <div className="flex gap-2">
+      <div className="p-2.5 border-t border-slate-200 bg-slate-50 flex-shrink-0">
+        <div className="flex gap-1.5">
           <button
             onClick={() => handlePrint(config.copiesPerPage === 1)}
-            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-rose-500 hover:bg-rose-600 text-white text-xs font-semibold rounded-lg transition-colors shadow-sm"
+            className="flex-1 flex items-center justify-center gap-1 px-2.5 py-2 bg-rose-500 hover:bg-rose-600 text-white text-xs font-semibold rounded-lg transition-colors shadow-sm"
           >
             <Printer size={13} /> In Trực Tiếp
           </button>
           <button
             onClick={() => handleExportPDF(config.copiesPerPage === 1)}
-            className="flex-1 flex items-center justify-center gap-1.5 px-3 py-2 bg-slate-700 hover:bg-slate-800 text-white text-xs font-semibold rounded-lg transition-colors shadow-sm"
+            className="flex-1 flex items-center justify-center gap-1 px-2.5 py-2 bg-slate-700 hover:bg-slate-800 text-white text-xs font-semibold rounded-lg transition-colors shadow-sm"
           >
             <FileDown size={13} /> Xuất PDF
           </button>

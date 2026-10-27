@@ -49,10 +49,10 @@ const App: React.FC = () => {
       <div
         className={clsx(
           'print:hidden flex-shrink-0 transition-all duration-300 ease-in-out relative z-20 overflow-hidden',
-          isSidebarOpen ? 'w-[340px]' : 'w-0'
+          isSidebarOpen ? 'w-[285px]' : 'w-0'
         )}
       >
-        <div className="w-[340px] h-full">
+        <div className="w-[285px] h-full">
           <ControlSidebar
             onToggleSidebar={toggleSidebar}
           />
@@ -71,13 +71,13 @@ const App: React.FC = () => {
         </button>
       )}
 
-      {/* MAIN PREVIEW AREA */}
+      {/* MAIN PREVIEW AREA - Giảm padding để khoảng cách giữa panel và tờ A4 sát nhau hơn */}
       <main
         className={clsx(
           'overflow-auto flex flex-col items-center transition-colors duration-300',
           isFullscreen
-            ? 'fixed inset-0 z-50 bg-slate-950 p-4 pt-16 overflow-y-auto'
-            : 'flex-1 bg-slate-100 p-4 md:p-6'
+            ? 'fixed inset-0 z-50 bg-slate-950 p-2 sm:p-4 pt-16 overflow-y-auto'
+            : 'flex-1 bg-slate-100 p-2 sm:p-3 overflow-x-auto'
         )}
       >
         <A4PreviewArea
