@@ -18,10 +18,8 @@ body {
   font-family: 'Montserrat', sans-serif;
 }
 
-/* A4 Paper container */
+/* A4 Paper container - Kích thước & tỷ lệ co dãn chuẩn do A4PreviewArea quản lý */
 .a4-paper {
-  width: 210mm;
-  height: 297mm;
   background: white;
   position: relative;
   overflow: hidden;

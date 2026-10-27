@@ -521,7 +521,13 @@ const A4PreviewArea: React.FC<A4PreviewAreaProps> = ({
         id="a4-print-area"
         className="a4-paper bg-white relative transition-all duration-300 mx-auto overflow-hidden"
         style={{
-          width: isLandscape ? 'min(297mm, 100%)' : 'min(210mm, 100%)',
+          width: '100%',
+          maxWidth: isLandscape
+            ? (isFullscreen
+                ? 'min(297mm, calc((100vh - 80px) * 1.4143), 100%)'
+                : 'min(297mm, calc((100vh - 160px) * 1.4143), 100%)')
+            : 'min(210mm, 100%)',
+          height: 'auto',
           aspectRatio: isLandscape ? '297 / 210' : '210 / 297',
           boxShadow: '0 8px 30px rgba(0,0,0,0.12)',
         }}
