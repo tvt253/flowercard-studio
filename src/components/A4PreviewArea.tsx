@@ -44,18 +44,26 @@ const DirectFloatingToolbar: React.FC<DirectFloatingToolbarProps> = ({
   onToggleTextCase,
   onAddLine,
   onRemoveLine,
-  canRemove = false,
+  canRemove = true,
   onClose,
 }) => {
   const [textValue, setTextValue] = useState(line.text);
   const [hasChanges, setHasChanges] = useState(false);
   const timerRef = useRef<ReturnType<typeof setTimeout> | null>(null);
 
+  // Cỡ chữ: cho phép nhập trực tiếp số hoặc bấm +/-
+  const [fontSizeInput, setFontSizeInput] = useState<string>(String(line.fontSize));
+
   // Đồng bộ khi dòng chọn hoặc text gốc thay đổi
   useEffect(() => {
     setTextValue(line.text);
     setHasChanges(false);
   }, [line.id, line.text]);
+
+  // Đồng bộ cỡ chữ khi line.fontSize thay đổi từ ngoài (ví dụ bấm nút Fit hoặc đổi mẫu)
+  useEffect(() => {
+    setFontSizeInput(String(line.fontSize));
+  }, [line.fontSize]);
 
   const commitText = (newText: string) => {
     if (timerRef.current) clearTimeout(timerRef.current);
@@ -89,6 +97,29 @@ const DirectFloatingToolbar: React.FC<DirectFloatingToolbarProps> = ({
     commitText(textValue);
   };
 
+  const handleFontSizeChange = (e: React.ChangeEvent<HTMLInputElement>) => {
+    const valStr = e.target.value;
+    setFontSizeInput(valStr);
+    const num = parseInt(valStr, 10);
+    if (!isNaN(num) && num >= 16 && num <= 150) {
+      onUpdateLine(line.id, { fontSize: num });
+    }
+  };
+
+  const handleFontSizeBlur = () => {
+    const num = parseInt(fontSizeInput, 10);
+    if (isNaN(num) || num < 16) {
+      setFontSizeInput('16');
+      onUpdateLine(line.id, { fontSize: 16 });
+    } else if (num > 150) {
+      setFontSizeInput('150');
+      onUpdateLine(line.id, { fontSize: 150 });
+    } else {
+      setFontSizeInput(String(num));
+      onUpdateLine(line.id, { fontSize: num });
+    }
+  };
+
   const handleDone = () => {
     commitText(textValue);
     onClose();
@@ -96,14 +127,14 @@ const DirectFloatingToolbar: React.FC<DirectFloatingToolbarProps> = ({
 
   return (
     <div
-      className="absolute z-30 left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur-md border border-rose-300 rounded-xl p-2.5 shadow-2xl flex flex-col gap-2 ring-4 ring-rose-500/10 print:hidden animate-in fade-in zoom-in-95 duration-150 w-[96%] max-w-[880px]"
-      style={positionMode === 'top' ? { top: '-86px' } : { bottom: '-86px' }}
+      className="absolute z-30 left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur-md border border-rose-300 rounded-xl p-2 shadow-2xl flex flex-col gap-1.5 ring-4 ring-rose-500/10 print:hidden animate-in fade-in zoom-in-95 duration-150 w-[95%] sm:w-auto max-w-[500px]"
+      style={positionMode === 'top' ? { top: '-84px' } : { bottom: '-84px' }}
       onClick={(e) => e.stopPropagation()}
     >
-      {/* DÒNG 1: Ô NHẬP TEXT (ĐÃ GIẢM BỀ RỘNG) + NÚT THÊM DÒNG & NÚT XÓA Ở BÊN PHẢI */}
-      <div className="flex items-center justify-between gap-2 w-full">
+      {/* DÒNG 1: Ô NHẬP TEXT + ICON THÊM DÒNG + ICON XÓA (ICON ONLY, RÚT GỌN KÍCH THƯỚC) */}
+      <div className="flex items-center gap-1.5 w-full">
         {/* Ô nhập trực tiếp nội dung chữ */}
-        <div className="relative flex-1 max-w-[440px] flex items-center">
+        <div className="relative flex-1 flex items-center min-w-0">
           <input
             type="text"
             value={textValue}
@@ -111,66 +142,54 @@ const DirectFloatingToolbar: React.FC<DirectFloatingToolbarProps> = ({
             onChange={handleChange}
             onKeyDown={handleKeyDown}
             onBlur={handleBlur}
-            className="w-full px-3 py-1.5 text-sm font-bold text-slate-800 bg-rose-50/70 border border-rose-200 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500 pr-20"
+            className="w-full px-2.5 py-1 text-sm font-bold text-slate-800 bg-rose-50/70 border border-rose-200 rounded-md focus:outline-none focus:ring-2 focus:ring-rose-500 pr-16 h-7"
             placeholder="Nhập nội dung chữ..."
           />
           {hasChanges && (
             <button
               onClick={() => commitText(textValue)}
               title="Áp dụng ngay (hoặc bấm Enter)"
-              className="absolute right-1 px-2 py-0.5 text-xs font-bold bg-rose-500 hover:bg-rose-600 text-white rounded transition-colors shadow-xs"
+              className="absolute right-1 px-1.5 py-0.5 text-[10px] font-bold bg-rose-500 hover:bg-rose-600 text-white rounded transition-colors shadow-2xs"
             >
-              Áp dụng ↵
+              Lưu ↵
             </button>
           )}
         </div>
 
-        {/* Nút Thêm dòng, Xóa dòng & Nút Xong đưa lên bên phải Dòng 1 */}
-        <div className="flex items-center gap-1.5 flex-shrink-0">
-          {onAddLine && (
-            <button
-              onClick={onAddLine}
-              className="flex items-center gap-1 px-2.5 py-1.5 text-xs bg-emerald-500 hover:bg-emerald-600 text-white font-bold rounded-md shadow-xs transition-colors"
-              title="Thêm một dòng chữ mới"
-            >
-              <Plus size={13} />
-              <span>Thêm dòng</span>
-            </button>
-          )}
-
-          {onRemoveLine && canRemove && (
-            <button
-              onClick={() => {
-                if (window.confirm(`Bạn có chắc muốn xóa dòng "${line.text}" không?`)) {
-                  onRemoveLine(line.id);
-                }
-              }}
-              className="flex items-center gap-1 px-2.5 py-1.5 text-xs bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 font-bold rounded-md shadow-xs transition-colors"
-              title="Xóa dòng chữ này"
-            >
-              <Trash2 size={13} />
-              <span>Xóa dòng</span>
-            </button>
-          )}
-
-          {/* Nút Xong */}
+        {/* Icon Thêm dòng (icon only, không dùng chữ) */}
+        {onAddLine && (
           <button
-            onClick={handleDone}
-            className="flex items-center gap-1 px-3 py-1.5 text-xs bg-rose-500 hover:bg-rose-600 text-white font-bold rounded-md shadow-sm transition-colors"
+            onClick={onAddLine}
+            className="w-7 h-7 flex items-center justify-center bg-emerald-500 hover:bg-emerald-600 text-white rounded-md shadow-2xs transition-colors flex-shrink-0"
+            title="Thêm dòng chữ mới"
           >
-            <Check size={13} />
-            <span>Xong</span>
+            <Plus size={15} />
           </button>
-        </div>
+        )}
+
+        {/* Icon Xóa dòng (icon only, không dùng chữ) */}
+        {onRemoveLine && canRemove && (
+          <button
+            onClick={() => {
+              if (window.confirm(`Bạn có chắc muốn xóa dòng "${line.text}" không?`)) {
+                onRemoveLine(line.id);
+              }
+            }}
+            className="w-7 h-7 flex items-center justify-center bg-red-50 hover:bg-red-100 text-red-600 border border-red-200 rounded-md shadow-2xs transition-colors flex-shrink-0"
+            title="Xóa dòng chữ này"
+          >
+            <Trash2 size={14} />
+          </button>
+        )}
       </div>
 
-      {/* DÒNG 2: CÁC ICON ĐỊNH DẠNG (FONT, CỠ CHỮ, FIT CHỮ, OFFSET Y, IN ĐẬM/NGHIÊNG) */}
-      <div className="flex items-center flex-wrap sm:flex-nowrap gap-1.5 sm:gap-2 w-full pt-1.5 border-t border-slate-100 justify-start">
+      {/* DÒNG 2: CÁC NÚT ĐIỀU CHỈNH & NÚT XONG */}
+      <div className="flex items-center gap-1.5 w-full pt-1.5 border-t border-slate-100 justify-start overflow-x-auto">
         {/* Nút chuyển đổi kiểu chữ Aa: Viết hoa đầu từ -> IN HOA TOÀN BỘ -> Chữ thường */}
         <button
           onClick={() => onToggleTextCase(line.id)}
           className={clsx(
-            'px-2 py-1 text-xs font-bold rounded-md border transition-all flex items-center gap-1 shadow-sm flex-shrink-0',
+            'w-7 h-7 text-xs font-bold rounded-md border transition-all flex items-center justify-center shadow-xs flex-shrink-0',
             (!line.textCase || line.textCase === 'capitalize')
               ? 'bg-rose-500 text-white border-rose-600'
               : line.textCase === 'uppercase'
@@ -198,7 +217,7 @@ const DirectFloatingToolbar: React.FC<DirectFloatingToolbarProps> = ({
         <select
           value={line.fontFamily || ''}
           onChange={(e) => onUpdateLine(line.id, { fontFamily: e.target.value || undefined })}
-          className="px-2 py-1 text-xs border border-slate-200 rounded-md bg-white text-slate-700 font-medium focus:outline-none focus:ring-1 focus:ring-rose-400 max-w-[130px] flex-shrink-0"
+          className="h-7 px-1.5 py-0 text-xs border border-slate-200 rounded-md bg-white text-slate-700 font-medium focus:outline-none focus:ring-1 focus:ring-rose-400 max-w-[105px] flex-shrink-0"
           style={{ fontFamily: line.fontFamily || globalFontFamily }}
           title="Chọn font chữ cho dòng này"
         >
@@ -226,30 +245,47 @@ const DirectFloatingToolbar: React.FC<DirectFloatingToolbarProps> = ({
           </optgroup>
         </select>
 
-        {/* Nút cỡ chữ */}
-        <div className="flex items-center gap-1 bg-slate-100 rounded-md px-1.5 py-0.5 text-xs text-slate-700 flex-shrink-0">
+        {/* Cụm cỡ chữ: Nút [-] + Nhập trực tiếp số + Nút [+] */}
+        <div className="flex items-center bg-slate-100 rounded-md p-0.5 text-xs text-slate-700 flex-shrink-0 border border-slate-200 h-7">
           <button
+            type="button"
             onClick={() =>
               onUpdateLine(line.id, {
-                fontSize: Math.max(20, line.fontSize - 4),
+                fontSize: Math.max(16, line.fontSize - 2),
               })
             }
-            className="hover:text-rose-600 font-bold px-1"
-            title="Giảm cỡ chữ"
+            className="w-4 h-full flex items-center justify-center hover:text-rose-600 font-bold text-slate-600 hover:bg-white rounded transition-colors"
+            title="Giảm 2px"
           >
             -
           </button>
-          <span className="font-bold w-9 text-center text-[11px]">
-            {line.fontSize}px
-          </span>
+          <div className="flex items-center px-0.5">
+            <input
+              type="number"
+              min={16}
+              max={150}
+              value={fontSizeInput}
+              onChange={handleFontSizeChange}
+              onBlur={handleFontSizeBlur}
+              onKeyDown={(e) => {
+                if (e.key === 'Enter') {
+                  (e.target as HTMLInputElement).blur();
+                }
+              }}
+              className="w-8 h-5 text-center font-bold text-[11px] bg-white text-slate-800 rounded border border-slate-200 focus:outline-none focus:ring-1 focus:ring-rose-500 [appearance:textfield] [&::-webkit-outer-spin-button]:appearance-none [&::-webkit-inner-spin-button]:appearance-none"
+              title="Nhập trực tiếp cỡ chữ (16 - 150px)"
+            />
+            <span className="text-[10px] text-slate-400 font-medium px-0.5 select-none">px</span>
+          </div>
           <button
+            type="button"
             onClick={() =>
               onUpdateLine(line.id, {
-                fontSize: Math.min(120, line.fontSize + 4),
+                fontSize: Math.min(150, line.fontSize + 2),
               })
             }
-            className="hover:text-rose-600 font-bold px-1"
-            title="Tăng cỡ chữ"
+            className="w-4 h-full flex items-center justify-center hover:text-rose-600 font-bold text-slate-600 hover:bg-white rounded transition-colors"
+            title="Tăng 2px"
           >
             +
           </button>
@@ -268,25 +304,25 @@ const DirectFloatingToolbar: React.FC<DirectFloatingToolbarProps> = ({
             );
             onUpdateLine(line.id, { fontSize: autoSize });
           }}
-          className="flex items-center gap-1 px-2 py-1 text-xs bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 font-bold rounded-md shadow-2xs transition-colors flex-shrink-0"
+          className="h-7 flex items-center gap-1 px-1.5 py-0 text-xs bg-amber-50 hover:bg-amber-100 text-amber-800 border border-amber-300 font-bold rounded-md shadow-2xs transition-colors flex-shrink-0"
           title="Tự động tính cỡ chữ vừa khít chiều ngang khung thiệp"
         >
-          <Sparkles size={12} className="text-amber-600" />
-          <span>Fit chữ</span>
+          <Sparkles size={11} className="text-amber-600" />
+          <span>Fit</span>
         </button>
 
         {/* Nút di chuyển vị trí dọc Offset Y */}
-        <div className="flex items-center gap-0.5 bg-slate-100 rounded-md p-0.5 flex-shrink-0">
+        <div className="h-7 flex items-center gap-0.5 bg-slate-100 rounded-md p-0.5 flex-shrink-0 border border-slate-200">
           <button
             onClick={() =>
               onUpdateLine(line.id, {
                 offsetY: Math.max(60, line.offsetY - 10),
               })
             }
-            className="p-1 hover:text-rose-600 rounded text-slate-600 hover:bg-white"
+            className="w-4 h-full flex items-center justify-center hover:text-rose-600 rounded text-slate-600 hover:bg-white"
             title="Di chuyển lên trên"
           >
-            <ArrowUp size={12} />
+            <ArrowUp size={11} />
           </button>
           <button
             onClick={() =>
@@ -294,15 +330,15 @@ const DirectFloatingToolbar: React.FC<DirectFloatingToolbarProps> = ({
                 offsetY: Math.min(360, line.offsetY + 10),
               })
             }
-            className="p-1 hover:text-rose-600 rounded text-slate-600 hover:bg-white"
+            className="w-4 h-full flex items-center justify-center hover:text-rose-600 rounded text-slate-600 hover:bg-white"
             title="Di chuyển xuống dưới"
           >
-            <ArrowDown size={12} />
+            <ArrowDown size={11} />
           </button>
         </div>
 
         {/* Nút In đậm & Nghiêng */}
-        <div className="flex items-center gap-0.5 flex-shrink-0">
+        <div className="h-7 flex items-center gap-0.5 flex-shrink-0">
           <button
             onClick={() =>
               onUpdateLine(line.id, {
@@ -310,10 +346,10 @@ const DirectFloatingToolbar: React.FC<DirectFloatingToolbarProps> = ({
               })
             }
             className={clsx(
-              'p-1 text-xs rounded transition-colors',
+              'w-5 h-7 text-xs rounded transition-colors flex items-center justify-center',
               line.fontWeight === 'bold'
                 ? 'bg-rose-500 text-white'
-                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200'
             )}
             title="In đậm"
           >
@@ -326,16 +362,26 @@ const DirectFloatingToolbar: React.FC<DirectFloatingToolbarProps> = ({
               })
             }
             className={clsx(
-              'p-1 text-xs rounded transition-colors',
+              'w-5 h-7 text-xs rounded transition-colors flex items-center justify-center',
               line.fontStyle === 'italic'
                 ? 'bg-rose-500 text-white'
-                : 'bg-slate-100 text-slate-600 hover:bg-slate-200'
+                : 'bg-slate-100 text-slate-600 hover:bg-slate-200 border border-slate-200'
             )}
             title="Nghiêng"
           >
             <Italic size={11} />
           </button>
         </div>
+
+        {/* Nút Xong (đưa xuống cuối Dòng 2) */}
+        <button
+          onClick={handleDone}
+          className="h-7 ml-auto flex items-center gap-1 px-2.5 py-0 text-xs bg-rose-500 hover:bg-rose-600 text-white font-bold rounded-md shadow-xs transition-colors flex-shrink-0"
+          title="Hoàn tất chỉnh sửa"
+        >
+          <Check size={12} />
+          <span>Xong</span>
+        </button>
       </div>
     </div>
   );
