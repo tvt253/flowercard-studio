@@ -23,7 +23,7 @@ export interface StrokeLayer {
   enabled: boolean;
 }
 
-export type StyleType = 'cloud' | 'oval-red' | 'oval-black';
+export type StyleType = 'cloud' | 'cloud-solid' | 'oval-red' | 'oval-black';
 
 export interface CardConfig {
   scalePercent: number; // Kích thước thiệp so với giấy (mặc định 95%)
@@ -36,6 +36,10 @@ export interface CardConfig {
   ovalBgColor?: string;
   ovalBorderColor?: string;
   ovalTextColor?: string;
+
+  // Nền & Chữ kiểu Đám Mây Nền Đặc (Solid Cloud - Chữ Nổi)
+  cloudTextColor?: string;
+  cloudBgColor?: string;
 
   // Cài đặt chung
   globalFontFamily: string;

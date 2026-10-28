@@ -28,6 +28,7 @@ const SvgCardCanvas: React.FC<SvgCardCanvasProps> = ({
   selectedLineId,
 }) => {
   const isOval = config.styleType === 'oval-red' || config.styleType === 'oval-black';
+  const isCloudSolid = config.styleType === 'cloud-solid';
 
   // Nền và viền Oval: hỗ trợ màu tùy chỉnh như Kính dâng (nền đỏ chữ vàng), Kính viếng (nền trắng chữ đen)
   const defaultOvalBg =
@@ -38,6 +39,9 @@ const SvgCardCanvas: React.FC<SvgCardCanvasProps> = ({
   const ovalBorderColor =
     config.ovalBorderColor || (ovalBgColor === '#ffffff' ? '#09090b' : ovalBgColor);
 
+  // Màu nền đám mây đặc (Solid Cloud)
+  const solidCloudBg = config.cloudBgColor || config.outerStrokeColor || '#c81e2b';
+
   // Sắp xếp các lớp stroke từ ngoài cùng (width lớn nhất) vào trong (width nhỏ nhất)
   const activeLayers: StrokeLayer[] = [...config.strokeLayers]
     .filter((layer) => layer.enabled && layer.width > 0)
@@ -45,9 +49,11 @@ const SvgCardCanvas: React.FC<SvgCardCanvasProps> = ({
 
   const maxLayerWidth = activeLayers[0]?.width || 130;
 
-  // Màu mặt chữ: kiểu Oval ưu tiên ovalTextColor, kiểu Đám mây chữ trùng màu viền ngoài cùng
+  // Màu mặt chữ: kiểu Oval ưu tiên ovalTextColor, kiểu Đám mây đặc ưu tiên cloudTextColor (#ffffff), kiểu Đám mây chuyển tầng chữ trùng màu viền ngoài
   const primaryTextColor = isOval
     ? config.ovalTextColor || '#ffffff'
+    : isCloudSolid
+    ? config.cloudTextColor || '#ffffff'
     : config.outerStrokeColor;
 
   // Tính toán tỷ lệ auto-scale để nội dung thiệp luôn tự động lấp đầy ~95% trang giấy
@@ -215,6 +221,8 @@ const SvgCardCanvas: React.FC<SvgCardCanvasProps> = ({
             const vDelta = layer.width * 0.1; // (1.2 - 1.0) * width / 2 = 0.1 * width
             const vOffsets = [-vDelta, 0, vDelta];
 
+            const strokeColor = isCloudSolid ? solidCloudBg : layer.color;
+
             return (
               <g key={`stroke-layer-${layer.id}`}>
                 {vOffsets.map((dy, oIdx) => (
@@ -232,8 +240,8 @@ const SvgCardCanvas: React.FC<SvgCardCanvasProps> = ({
                           fontSize={line.fontSize}
                           fontWeight={line.fontWeight}
                           fontStyle={line.fontStyle}
-                          fill={layer.color}
-                          stroke={layer.color}
+                          fill={strokeColor}
+                          stroke={strokeColor}
                           strokeWidth={layer.width}
                           strokeLinejoin="round"
                           strokeLinecap="round"

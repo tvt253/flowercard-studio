@@ -127,6 +127,9 @@ const defaultConfig: CardConfig = {
   outerStrokeColor: initialOuterColor,
   innerStrokeColor: initialInnerColor,
 
+  cloudTextColor: '#ffffff',
+  cloudBgColor: initialOuterColor,
+
   strokeLayers: defaultStrokeLayers,
   lines: [defaultLine1, defaultLine2],
 };
@@ -369,6 +372,8 @@ interface CardStore {
     innerStrokeColor?: string;
   }) => void;
   setQuickColorGroup: (color: string) => void;
+  setCloudTextColor: (color: string) => void;
+  setCloudBgColor: (color: string) => void;
   applyPreset: (presetName: PresetName) => void;
   resetDefault: () => void;
 }
@@ -570,8 +575,63 @@ export const useCardStore = create<CardStore>()(
                 ],
               },
             };
+          } else if (style === 'cloud-solid') {
+            // Style Đám Mây Nền Đặc (Chữ Trắng Nổi Bật theo mẫu thực tế)
+            const outerWidth = state.config.outerStrokeWidth || 130;
+            const innerWidth = state.config.innerStrokeWidth || 30;
+            const layerCount = state.config.strokeLayerCount || 5;
+            const solidColor = state.config.outerStrokeColor || '#c81e2b';
+            const textColor = state.config.cloudTextColor || '#ffffff';
+            const newLayers = generateAutoStrokeLayers(
+              layerCount,
+              solidColor,
+              solidColor,
+              outerWidth,
+              innerWidth
+            );
+            return {
+              config: {
+                ...state.config,
+                styleType: 'cloud-solid',
+                outerStrokeColor: solidColor,
+                innerStrokeColor: solidColor,
+                cloudBgColor: solidColor,
+                cloudTextColor: textColor,
+                outerStrokeWidth: outerWidth,
+                innerStrokeWidth: innerWidth,
+                strokeLayerCount: layerCount,
+                ovalBgColor: undefined,
+                ovalBorderColor: undefined,
+                ovalTextColor: undefined,
+                globalFontFamily: 'Charm',
+                globalCurveStrength: 18,
+                strokeLayers: newLayers,
+                lines: [
+                  {
+                    id: generateId(),
+                    text: 'Chúc Mừng',
+                    fontSize: 76,
+                    offsetY: 150,
+                    fontWeight: 'bold',
+                    fontStyle: 'normal',
+                    letterSpacing: 2,
+                    textCase: 'capitalize',
+                  },
+                  {
+                    id: generateId(),
+                    text: 'Ngày Phụ Nữ Việt Nam 20-10',
+                    fontSize: 74,
+                    offsetY: 265,
+                    fontWeight: 'bold',
+                    fontStyle: 'normal',
+                    letterSpacing: 1.5,
+                    textCase: 'capitalize',
+                  },
+                ],
+              },
+            };
           } else {
-            // Style đám mây (cloud)
+            // Style đám mây viền tầng (cloud)
             const outerWidth = state.config.outerStrokeWidth || 130;
             const innerWidth = state.config.innerStrokeWidth || 30;
             const layerCount = state.config.strokeLayerCount || 5;
@@ -651,11 +711,14 @@ export const useCardStore = create<CardStore>()(
 
       updateStrokeSettings: (updates) =>
         set((state) => {
+          const isSolid = state.config.styleType === 'cloud-solid';
           const newCount = updates.strokeLayerCount ?? state.config.strokeLayerCount ?? 5;
           let newOuterWidth = updates.outerStrokeWidth ?? state.config.outerStrokeWidth ?? 130;
           let newInnerWidth = updates.innerStrokeWidth ?? state.config.innerStrokeWidth ?? 30;
           const newOuterColor = updates.outerStrokeColor ?? state.config.outerStrokeColor ?? '#c81e2b';
-          const newInnerColor = updates.innerStrokeColor ?? state.config.innerStrokeColor ?? '#ffffff';
+          const newInnerColor = isSolid
+            ? newOuterColor
+            : (updates.innerStrokeColor ?? state.config.innerStrokeColor ?? '#ffffff');
 
           newOuterWidth = Math.max(20, Math.min(150, newOuterWidth));
           newInnerWidth = Math.max(2, Math.min(newOuterWidth - 5, newInnerWidth));
@@ -677,6 +740,7 @@ export const useCardStore = create<CardStore>()(
               strokeLayerCount: newCount,
               outerStrokeColor: newOuterColor,
               innerStrokeColor: newInnerColor,
+              cloudBgColor: isSolid ? newOuterColor : state.config.cloudBgColor,
               strokeLayers: newLayers,
             },
           };
@@ -687,7 +751,8 @@ export const useCardStore = create<CardStore>()(
           const outerWidth = state.config.outerStrokeWidth || 130;
           const innerWidth = state.config.innerStrokeWidth || 30;
           const layerCount = state.config.strokeLayerCount || 5;
-          const innerColor = state.config.innerStrokeColor || '#ffffff';
+          const isSolid = state.config.styleType === 'cloud-solid';
+          const innerColor = isSolid ? color : (state.config.innerStrokeColor || '#ffffff');
 
           const newLayers = generateAutoStrokeLayers(
             layerCount,
@@ -701,8 +766,41 @@ export const useCardStore = create<CardStore>()(
             config: {
               ...state.config,
               outerStrokeColor: color,
-              ovalBgColor: state.config.styleType !== 'cloud' ? color : state.config.ovalBgColor,
-              ovalBorderColor: state.config.styleType !== 'cloud' ? color : state.config.ovalBorderColor,
+              innerStrokeColor: innerColor,
+              cloudBgColor: isSolid ? color : state.config.cloudBgColor,
+              ovalBgColor: state.config.styleType !== 'cloud' && !isSolid ? color : state.config.ovalBgColor,
+              ovalBorderColor: state.config.styleType !== 'cloud' && !isSolid ? color : state.config.ovalBorderColor,
+              strokeLayers: newLayers,
+            },
+          };
+        }),
+
+      setCloudTextColor: (color: string) =>
+        set((state) => ({
+          config: {
+            ...state.config,
+            cloudTextColor: color,
+          },
+        })),
+
+      setCloudBgColor: (color: string) =>
+        set((state) => {
+          const outerWidth = state.config.outerStrokeWidth || 130;
+          const innerWidth = state.config.innerStrokeWidth || 30;
+          const layerCount = state.config.strokeLayerCount || 5;
+          const newLayers = generateAutoStrokeLayers(
+            layerCount,
+            color,
+            color,
+            outerWidth,
+            innerWidth
+          );
+          return {
+            config: {
+              ...state.config,
+              cloudBgColor: color,
+              outerStrokeColor: color,
+              innerStrokeColor: color,
               strokeLayers: newLayers,
             },
           };
@@ -713,14 +811,16 @@ export const useCardStore = create<CardStore>()(
           const preset = PRESETS[presetName];
           if (!preset) return state;
 
+          const isSolid = state.config.styleType === 'cloud-solid';
           const outerWidth = state.config.outerStrokeWidth || 130;
           const innerWidth = state.config.innerStrokeWidth || 30;
           const layerCount = state.config.strokeLayerCount || 5;
+          const innerColor = isSolid ? preset.outerColor : preset.innerColor;
 
           const newLayers = generateAutoStrokeLayers(
             layerCount,
             preset.outerColor,
-            preset.innerColor,
+            innerColor,
             outerWidth,
             innerWidth
           );
@@ -729,7 +829,9 @@ export const useCardStore = create<CardStore>()(
             config: {
               ...state.config,
               outerStrokeColor: preset.outerColor,
-              innerStrokeColor: preset.innerColor,
+              innerStrokeColor: innerColor,
+              cloudBgColor: isSolid ? preset.outerColor : state.config.cloudBgColor,
+              cloudTextColor: isSolid ? (state.config.cloudTextColor || '#ffffff') : state.config.cloudTextColor,
               outerStrokeWidth: outerWidth,
               innerStrokeWidth: innerWidth,
               strokeLayerCount: layerCount,

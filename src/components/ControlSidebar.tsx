@@ -15,8 +15,9 @@ import { handlePrint, handleExportPDF } from '../utils/exportUtils';
 import { FONT_OPTIONS } from '../constants/fonts';
 
 const STYLE_OPTIONS: { label: string; value: StyleType }[] = [
-  { label: '☁️ Kiểu Đám Mây (Chữ Viền Stroke)', value: 'cloud' },
-  { label: '🔴 Kiểu Oval Đỏ (Khai Trương / Chúc Mừng)', value: 'oval-red' },
+  { label: '☁️ Kiểu Đám Mây Viền Tầng (Đa Sắc)', value: 'cloud' },
+  { label: '🔴 Kiểu Đám Mây Nền Đặc (Chữ Nổi)', value: 'cloud-solid' },
+  { label: '⭕ Kiểu Oval Đỏ (Khai Trương / Chúc Mừng)', value: 'oval-red' },
   { label: '⚫ Kiểu Oval Đen (Chia Buồn / Tang Lễ)', value: 'oval-black' },
 ];
 
@@ -81,11 +82,14 @@ const ControlSidebar: React.FC<ControlSidebarProps> = ({
     updateGlobalTypography,
     updateStrokeSettings,
     setQuickColorGroup,
+    setCloudTextColor,
+    setCloudBgColor,
     setCopiesPerPage,
     applyPreset,
   } = useCardStore();
 
   const isOval = config.styleType === 'oval-red' || config.styleType === 'oval-black';
+  const isCloudSolid = config.styleType === 'cloud-solid';
 
   const currentPresets: PresetItem[] =
     config.styleType === 'oval-black'
@@ -322,6 +326,91 @@ const ControlSidebar: React.FC<ControlSidebarProps> = ({
                       {config.ovalTextColor || '#ffffff'}
                     </span>
                   </div>
+                </div>
+              </div>
+            ) : isCloudSolid ? (
+              /* TÙY CHỈNH MÀU SẮC DÀNH CHO KIỂU ĐÁM MÂY NỀN ĐẶC (SOLID CLOUD) */
+              <div className="space-y-2.5">
+                <div className="grid grid-cols-2 gap-2 p-2.5 bg-slate-50 border border-slate-200 rounded-lg">
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                      Màu nền mây:
+                    </label>
+                    <div className="flex items-center gap-1.5">
+                      <input
+                        type="color"
+                        value={config.cloudBgColor || config.outerStrokeColor || '#c81e2b'}
+                        onChange={(e) => setCloudBgColor(e.target.value)}
+                        className="w-7 h-6 rounded cursor-pointer border border-slate-300"
+                      />
+                      <span className="text-xs font-mono text-slate-600 truncate">
+                        {config.cloudBgColor || config.outerStrokeColor}
+                      </span>
+                    </div>
+                  </div>
+
+                  <div>
+                    <label className="block text-[11px] font-semibold text-slate-600 mb-1">
+                      Màu chữ nổi:
+                    </label>
+                    <div className="flex items-center gap-1.5">
+                      <input
+                        type="color"
+                        value={config.cloudTextColor || '#ffffff'}
+                        onChange={(e) => setCloudTextColor(e.target.value)}
+                        className="w-7 h-6 rounded cursor-pointer border border-slate-300"
+                      />
+                      <span className="text-xs font-mono text-slate-600 truncate">
+                        {config.cloudTextColor || '#ffffff'}
+                      </span>
+                    </div>
+                  </div>
+                </div>
+
+                {/* Chọn nhanh màu chữ nổi */}
+                <div>
+                  <div className="text-[11px] font-medium text-slate-500 mb-1">
+                    Chọn nhanh màu chữ nổi:
+                  </div>
+                  <div className="flex items-center gap-1.5">
+                    {[
+                      { name: 'Trắng', color: '#ffffff' },
+                      { name: 'Vàng kim', color: '#fef08a' },
+                      { name: 'Đen', color: '#09090b' },
+                    ].map((c) => (
+                      <button
+                        key={c.color}
+                        onClick={() => setCloudTextColor(c.color)}
+                        className={clsx(
+                          'flex-1 py-1 text-[11px] font-bold rounded border transition-colors flex items-center justify-center gap-1 shadow-2xs',
+                          (config.cloudTextColor || '#ffffff') === c.color
+                            ? 'border-rose-500 bg-rose-50 text-rose-700 font-bold'
+                            : 'border-slate-200 bg-white text-slate-700 hover:bg-slate-50'
+                        )}
+                      >
+                        <span
+                          className="w-2.5 h-2.5 rounded-full border border-slate-300"
+                          style={{ backgroundColor: c.color }}
+                        />
+                        <span>{c.name}</span>
+                      </button>
+                    ))}
+                  </div>
+                </div>
+
+                {/* Độ dày khối mây đặc */}
+                <div>
+                  <div className="flex justify-between text-xs font-medium text-slate-500 mb-1">
+                    <span>Độ dày khối mây:</span>
+                    <span className="font-bold text-rose-600">{config.outerStrokeWidth ?? 130}px</span>
+                  </div>
+                  <input
+                    type="range"
+                    min={60}
+                    max={150}
+                    value={config.outerStrokeWidth ?? 130}
+                    onChange={(e) => updateStrokeSettings({ outerStrokeWidth: parseInt(e.target.value) })}
+                  />
                 </div>
               </div>
             ) : (
