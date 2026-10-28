@@ -158,12 +158,22 @@ export function calculateCardMetrics(config: CardConfig): CardMetrics {
     : (minY + maxY) / 2;
 
   // 3. TỶ LỆ SCALE TỰ ĐỘNG CHO KIỂU ĐÁM MÂY (CLOUD)
-  // Mục tiêu: Bề rộng đám mây đạt ~950px trong viewBox 1000px (lấp đầy 95% chiều ngang, lề hẹp cân đối)
-  const targetCloudWidth = 950;
   // Giới hạn chiều cao an toàn trong viewBox 420px (để trống 12px trên và dưới)
   const maxSafeHeight = 396;
   const maxScaleY = maxSafeHeight / contentHeight;
-  const targetScaleX = targetCloudWidth / maxLineWidth;
+
+  // Tính tỷ lệ scale theo chiều ngang:
+  // - Nội dung ngắn (maxLineWidth < 950): scale phóng to để đạt ~950px trong viewBox 1000px
+  // - Nội dung vừa vặn (950 <= maxLineWidth <= 1040): giữ tỷ lệ tự nhiên 1.0, không ép co cụm làm nhỏ thiệp
+  // - Nội dung quá dài (maxLineWidth > 1040): co nhẹ về mức tối đa 1040px để đảm bảo lề in an toàn
+  let targetScaleX: number;
+  if (maxLineWidth < 950) {
+    targetScaleX = 950 / maxLineWidth;
+  } else if (maxLineWidth <= 1040) {
+    targetScaleX = 1.0;
+  } else {
+    targetScaleX = 1040 / maxLineWidth;
+  }
 
   // Với 1 dòng: cho phép scale lên đến 2.35x để thiệp trải rộng tối đa 95%
   // Với 2 dòng: scale tối đa 1.55x để lấp đầy không gian mà không chạm viền trên/dưới

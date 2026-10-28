@@ -84,12 +84,12 @@ const defaultStrokeLayers = generateAutoStrokeLayers(
   initialInnerWidth
 );
 
-// Mẫu chữ mặc định: Charm (Thư pháp), kích thước chữ 70px
+// Mẫu chữ mặc định: Charm (Thư pháp), kích thước chữ chuẩn cân đối
 const defaultLine1: TextLine = {
   id: generateId(),
   text: 'Chúc Mừng',
-  fontSize: 70,
-  offsetY: 155,
+  fontSize: 76,
+  offsetY: 150,
   fontWeight: 'bold',
   fontStyle: 'normal',
   letterSpacing: 2,
@@ -99,8 +99,8 @@ const defaultLine1: TextLine = {
 const defaultLine2: TextLine = {
   id: generateId(),
   text: 'Ngày Phụ Nữ Việt Nam 20-10',
-  fontSize: 70,
-  offsetY: 260,
+  fontSize: 74,
+  offsetY: 265,
   fontWeight: 'bold',
   fontStyle: 'normal',
   letterSpacing: 1.5,
@@ -156,8 +156,8 @@ const PRESETS: Record<
     innerColor: '#ffffff',
     globalFontFamily: 'Charm',
     lines: [
-      { text: 'Chúc Mừng', fontSize: 72, offsetY: 155, fontWeight: 'bold', textCase: 'capitalize' },
-      { text: 'Ngày Phụ Nữ Việt Nam 20-10', fontSize: 70, offsetY: 260, fontWeight: 'bold', textCase: 'capitalize' },
+      { text: 'Chúc Mừng', fontSize: 76, offsetY: 150, fontWeight: 'bold', textCase: 'capitalize' },
+      { text: 'Ngày Phụ Nữ Việt Nam 20-10', fontSize: 74, offsetY: 265, fontWeight: 'bold', textCase: 'capitalize' },
     ],
   },
   '20-11': {
@@ -165,8 +165,8 @@ const PRESETS: Record<
     innerColor: '#ffffff',
     globalFontFamily: 'Charm',
     lines: [
-      { text: 'Chúc Mừng', fontSize: 72, offsetY: 155, fontWeight: 'bold', textCase: 'capitalize' },
-      { text: 'Ngày Nhà Giáo Việt Nam 20/11', fontSize: 66, offsetY: 260, fontWeight: 'bold', textCase: 'capitalize' },
+      { text: 'Chúc Mừng', fontSize: 78, offsetY: 150, fontWeight: 'bold', textCase: 'capitalize' },
+      { text: 'Ngày Nhà Giáo Việt Nam 20-11', fontSize: 74, offsetY: 265, fontWeight: 'bold', textCase: 'capitalize' },
     ],
   },
   '8-3': {
@@ -263,8 +263,8 @@ const PRESETS: Record<
     ovalTextColor: '#ffffff',
     globalFontFamily: 'Oswald',
     lines: [
-      { text: 'CHÚC MỪNG', fontSize: 76, offsetY: 150, fontWeight: 'bold', textCase: 'uppercase' },
-      { text: 'NGÀY NHÀ GIÁO VIỆT NAM 20-11', fontSize: 70, offsetY: 260, fontWeight: 'bold', textCase: 'uppercase' },
+      { text: 'CHÚC MỪNG', fontSize: 80, offsetY: 150, fontWeight: 'bold', textCase: 'uppercase' },
+      { text: 'NGÀY NHÀ GIÁO VIỆT NAM 20-11', fontSize: 76, offsetY: 260, fontWeight: 'bold', textCase: 'uppercase' },
     ],
   },
   'oval-8-3': {
