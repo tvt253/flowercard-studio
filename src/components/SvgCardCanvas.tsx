@@ -97,6 +97,7 @@ const SvgCardCanvas: React.FC<SvgCardCanvasProps> = ({
           {/* Hiệu ứng viền phát sáng khi chọn dòng trên preview */}
           {isSelected && (
             <text
+              className="print:hidden selection-highlight"
               fontFamily={fontFamily}
               fontSize={line.fontSize}
               fontWeight={line.fontWeight}

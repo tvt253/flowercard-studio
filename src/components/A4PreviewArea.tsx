@@ -437,8 +437,28 @@ const A4PreviewArea: React.FC<A4PreviewAreaProps> = ({
     setSelectedLineId(null);
   };
 
+  // Đóng bảng chọn và highlight trước khi in hoặc xuất PDF
+  const onPrint = () => {
+    setSelectedLineId(null);
+    setTimeout(() => {
+      handlePrint(isLandscape);
+    }, 50);
+  };
+
+  const onExportPDF = () => {
+    setSelectedLineId(null);
+    setTimeout(() => {
+      handleExportPDF(isLandscape);
+    }, 50);
+  };
+
   return (
-    <div className="print-wrapper flex flex-col items-center select-none w-full max-w-none p-0">
+    <div
+      className={clsx(
+        "print-wrapper flex flex-col items-center select-none w-full max-w-none p-0",
+        isFullscreen && "h-full justify-center"
+      )}
+    >
       {/* Dynamic Print Styles for A4 Landscape (1 copy) vs Portrait (2 copies) */}
       <style>{`
         @media print {
@@ -511,7 +531,7 @@ const A4PreviewArea: React.FC<A4PreviewAreaProps> = ({
 
           {/* Nút In Trực Tiếp */}
           <button
-            onClick={() => handlePrint(isLandscape)}
+            onClick={onPrint}
             className="flex items-center gap-1 px-3 py-1 bg-rose-500 hover:bg-rose-600 text-white rounded-full text-xs font-semibold transition-colors shadow-sm"
           >
             <Printer size={13} /> In A4
@@ -519,7 +539,7 @@ const A4PreviewArea: React.FC<A4PreviewAreaProps> = ({
 
           {/* Nút Xuất PDF */}
           <button
-            onClick={() => handleExportPDF(isLandscape)}
+            onClick={onExportPDF}
             className="flex items-center gap-1 px-3 py-1 bg-slate-700 hover:bg-slate-600 text-white rounded-full text-xs font-semibold transition-colors shadow-sm"
           >
             <FileDown size={13} /> Xuất PDF
@@ -616,7 +636,7 @@ const A4PreviewArea: React.FC<A4PreviewAreaProps> = ({
 
             {/* Nút In A4 nhanh */}
             <button
-              onClick={() => handlePrint(isLandscape)}
+              onClick={onPrint}
               className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-500 hover:bg-rose-600 text-white rounded-lg text-xs font-semibold transition-colors shadow-sm shadow-rose-100"
               title="In trực tiếp ra máy in khổ A4"
             >
@@ -626,7 +646,7 @@ const A4PreviewArea: React.FC<A4PreviewAreaProps> = ({
 
             {/* Nút Xuất PDF nhanh */}
             <button
-              onClick={() => handleExportPDF(isLandscape)}
+              onClick={onExportPDF}
               className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-700 hover:bg-slate-800 text-white rounded-lg text-xs font-semibold transition-colors shadow-sm"
               title="Xuất file PDF chuẩn 1 trang A4"
             >
@@ -638,16 +658,28 @@ const A4PreviewArea: React.FC<A4PreviewAreaProps> = ({
       )}
 
       {/* VÙNG CHỨA TỜ GIẤY A4 */}
-      <div className="w-full flex flex-col items-center px-2 sm:px-3 py-3">
+      <div className={clsx(
+        "w-full flex flex-col items-center px-2 sm:px-3",
+        isFullscreen ? "h-full justify-center py-0" : "py-3"
+      )}>
         <div
         id="a4-print-area"
         className="a4-paper bg-white relative transition-all duration-300 mx-auto overflow-hidden"
         style={{
           width: '100%',
-          maxWidth: isLandscape ? '100%' : 'min(210mm, 100%)',
+          maxWidth: isFullscreen
+            ? isLandscape
+              ? 'min(calc(100vw - 2rem), calc((100vh - 5rem) * 297 / 210))'
+              : 'min(calc(100vw - 2rem), calc((100vh - 5rem) * 210 / 297))'
+            : isLandscape
+            ? '100%'
+            : 'min(210mm, 100%)',
+          maxHeight: isFullscreen ? 'calc(100vh - 5rem)' : undefined,
           height: 'auto',
           aspectRatio: isLandscape ? '297 / 210' : '210 / 297',
-          boxShadow: '0 8px 30px rgba(0,0,0,0.12)',
+          boxShadow: isFullscreen
+            ? '0 12px 40px rgba(0,0,0,0.5)'
+            : '0 8px 30px rgba(0,0,0,0.12)',
         }}
         onClick={(e) => {
           // Bấm ra vùng giấy trắng thì đóng editor nổi

@@ -75,7 +75,7 @@ const App: React.FC = () => {
         className={clsx(
           'flex flex-col items-center transition-colors duration-300 relative',
           isFullscreen
-            ? 'fixed inset-0 z-50 bg-slate-950 p-2 sm:p-4 pt-16 overflow-y-auto'
+            ? 'fixed inset-0 z-50 bg-slate-950 p-2 sm:p-4 pt-14 overflow-auto flex items-center justify-center'
             : 'flex-1 bg-slate-100 p-0 overflow-y-auto overflow-x-auto'
         )}
       >

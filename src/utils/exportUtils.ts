@@ -80,26 +80,35 @@ async function buildPdf(isLandscape: boolean) {
   const element = document.getElementById('a4-print-area');
   if (!element) return null;
 
-  // Lưu lại các thuộc tính inline ban đầu của element
+  // 1. Tạm thời ẩn tất cả các phần tử có class print:hidden (ví dụ DirectFloatingToolbar, highlight viền)
+  const printHiddenElements = element.querySelectorAll<HTMLElement>('.print\\:hidden');
+  printHiddenElements.forEach((el) => {
+    el.style.setProperty('display', 'none', 'important');
+  });
+
+  // 2. Lưu lại các thuộc tính inline ban đầu của element
   const originalWidth = element.style.width;
   const originalHeight = element.style.height;
   const originalMaxWidth = element.style.maxWidth;
+  const originalMaxHeight = element.style.maxHeight;
   const originalAspectRatio = element.style.aspectRatio;
   const originalShadow = element.style.boxShadow;
   const originalTransition = element.style.transition;
 
-  // Tạm thời cố định kích thước chuẩn A4 (mm) để html2canvas chụp sắc nét 100% đúng tỉ lệ vật lý
+  // 3. Tạm thời cố định kích thước chuẩn A4 (mm) để html2canvas chụp sắc nét 100% đúng tỉ lệ vật lý
   element.style.boxShadow = 'none';
   element.style.transition = 'none';
   element.style.aspectRatio = 'unset';
   if (isLandscape) {
     element.style.width = '297mm';
-    element.style.height = '210mm';
+    element.style.height = '209.5mm'; // 209.5mm ngăn lỗi làm tròn subpixel sinh trang trắng thứ 2
     element.style.maxWidth = '297mm';
+    element.style.maxHeight = '209.5mm';
   } else {
     element.style.width = '210mm';
-    element.style.height = '297mm';
+    element.style.height = '296.5mm'; // 296.5mm ngăn lỗi làm tròn subpixel sinh trang trắng thứ 2
     element.style.maxWidth = '210mm';
+    element.style.maxHeight = '296.5mm';
   }
 
   try {
@@ -111,36 +120,39 @@ async function buildPdf(isLandscape: boolean) {
         scale: 2,
         useCORS: true,
         logging: false,
-        scrollX: 0,
-        scrollY: 0,
-        windowWidth: element.offsetWidth,
-        windowHeight: element.offsetHeight,
+        backgroundColor: '#ffffff',
       },
       jsPDF: {
         unit: 'mm',
         format: 'a4',
         orientation: isLandscape ? 'landscape' : 'portrait',
       },
-      pagebreak: { mode: 'avoid-all' },
+      pagebreak: { mode: ['avoid-all', 'css', 'legacy'] },
     };
 
     const worker = (html2pdf as any)().set(opt).from(element);
     const pdf = await worker.toPdf().get('pdf');
 
-    // Xóa triệt để các trang trắng thừa nếu phát sinh
+    // Xóa triệt để các trang trắng thừa nếu phát sinh do làm tròn
     while (pdf.internal.getNumberOfPages() > 1) {
       pdf.deletePage(pdf.internal.getNumberOfPages());
     }
 
     return pdf;
   } finally {
-    // Phục hồi lại toàn bộ style ban đầu để giao diện responsive xem trước trên màn hình không bị xáo trộn
+    // 4. Phục hồi lại toàn bộ style ban đầu để giao diện responsive xem trước trên màn hình không bị xáo trộn
     element.style.width = originalWidth;
     element.style.height = originalHeight;
     element.style.maxWidth = originalMaxWidth;
+    element.style.maxHeight = originalMaxHeight;
     element.style.aspectRatio = originalAspectRatio;
     element.style.boxShadow = originalShadow;
     element.style.transition = originalTransition;
+
+    // Phục hồi lại hiển thị của các phần tử print:hidden
+    printHiddenElements.forEach((el) => {
+      el.style.removeProperty('display');
+    });
   }
 }
 
