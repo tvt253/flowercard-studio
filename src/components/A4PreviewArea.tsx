@@ -20,7 +20,7 @@ import {
   Sparkles,
 } from 'lucide-react';
 import { clsx } from 'clsx';
-import { handlePrint, handleExportPDF } from '../utils/exportUtils';
+import { handlePrint, handleExportPDF, updatePrintHeadStyle } from '../utils/exportUtils';
 import { FONT_OPTIONS } from '../constants/fonts';
 import { calculateCardMetrics, calculateAutoFitFontSize } from '../utils/cardScaleUtils';
 
@@ -404,6 +404,11 @@ const A4PreviewArea: React.FC<A4PreviewAreaProps> = ({
   const copies = Array.from({ length: config.copiesPerPage }, (_, i) => i);
   const isLandscape = config.copiesPerPage === 1;
 
+  // Dong bo style in an va PDF trong document.head theo huong giay
+  useEffect(() => {
+    updatePrintHeadStyle(isLandscape);
+  }, [isLandscape]);
+
   // Dòng đang được chọn để chỉnh sửa
   const selectedLine = config.lines.find((l) => l.id === selectedLineId);
 
@@ -468,8 +473,8 @@ const A4PreviewArea: React.FC<A4PreviewAreaProps> = ({
             justify-content: center !important;
           }
           .a4-paper {
-            width: 100% !important;
-            height: 100% !important;
+            width: ${isLandscape ? '290mm' : '203mm'} !important;
+            height: ${isLandscape ? '203mm' : '290mm'} !important;
             max-width: ${isLandscape ? '290mm' : '203mm'} !important;
             max-height: ${isLandscape ? '203mm' : '290mm'} !important;
             aspect-ratio: unset !important;

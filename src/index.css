@@ -84,9 +84,6 @@ body {
 
 /* Print styles */
 @media print {
-  @page {
-    margin: 3.5mm !important; /* Lề an toàn chuẩn 3.5mm lấp đầy 95% trang */
-  }
 
   * {
     -webkit-print-color-adjust: exact !important;
