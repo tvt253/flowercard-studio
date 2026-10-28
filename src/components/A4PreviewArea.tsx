@@ -9,18 +9,12 @@ import {
   Edit3,
   ArrowUp,
   ArrowDown,
-  Maximize2,
-  Minimize2,
-
-
-  Printer,
-  FileDown,
   Plus,
   Trash2,
   Sparkles,
 } from 'lucide-react';
 import { clsx } from 'clsx';
-import { handlePrint, handleExportPDF, updatePrintHeadStyle } from '../utils/exportUtils';
+import { updatePrintHeadStyle } from '../utils/exportUtils';
 import { FONT_OPTIONS } from '../constants/fonts';
 import { calculateCardMetrics, calculateAutoFitFontSize } from '../utils/cardScaleUtils';
 
@@ -390,14 +384,10 @@ const DirectFloatingToolbar: React.FC<DirectFloatingToolbarProps> = ({
 interface A4PreviewAreaProps {
   isSidebarOpen?: boolean;
   onToggleSidebar?: () => void;
-  isFullscreen?: boolean;
-  onToggleFullscreen?: () => void;
 }
 
 const A4PreviewArea: React.FC<A4PreviewAreaProps> = ({
   isSidebarOpen = true,
-  isFullscreen = false,
-  onToggleFullscreen,
 }) => {
   const { config, updateLine, toggleLineTextCase, addLine, removeLine } = useCardStore();
   const [selectedLineId, setSelectedLineId] = useState<string | null>(null);
@@ -438,27 +428,11 @@ const A4PreviewArea: React.FC<A4PreviewAreaProps> = ({
     setSelectedLineId(null);
   };
 
-  // Đóng bảng chọn và highlight trước khi in hoặc xuất PDF
-  const onPrint = () => {
-    setSelectedLineId(null);
-    setTimeout(() => {
-      handlePrint(isLandscape);
-    }, 50);
-  };
-
-  const onExportPDF = () => {
-    setSelectedLineId(null);
-    setTimeout(() => {
-      handleExportPDF(isLandscape);
-    }, 50);
-  };
+  
 
   return (
     <div
-      className={clsx(
-        "print-wrapper flex flex-col items-center select-none w-full max-w-none p-0",
-        isFullscreen && "h-full justify-center"
-      )}
+      className="print-wrapper flex flex-col items-center select-none w-full max-w-none p-0"
     >
       {/* Dynamic Print Styles for A4 Landscape (1 copy) vs Portrait (2 copies) */}
       <style>{`
@@ -514,99 +488,63 @@ const A4PreviewArea: React.FC<A4PreviewAreaProps> = ({
       `}</style>
 
       {/* THANH ĐIỀU KHIỂN CHÍNH (MASTER ACTION BAR) - SÁT LỀ TRÊN, STICKY KHI CUỘN, HOẠT ĐỘNG TRONG MỌI CHẾ ĐỘ */}
-        <div className="sticky top-0 z-20 w-full bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs px-3 py-2 flex flex-wrap items-center justify-between gap-2.5 print:hidden">
-          {/* BÊN TRÁI: DÒNG CHỮ HƯỚNG DẪN / TRẠNG THÁI & CHỌN NHANH DÒNG */}
-          <div className="flex items-center gap-2 min-w-0 flex-1">
-            <div className="flex items-center gap-1.5 text-xs text-slate-700 min-w-0">
-              <Edit3 size={14} className="text-rose-500 flex-shrink-0" />
-              {selectedLine ? (
-                <span className="truncate">
-                  Đang sửa:{' '}
-                  <strong className="text-rose-600 font-bold">
-                    {selectedLine.text.length > 25
-                      ? selectedLine.text.slice(0, 25) + '...'
-                      : selectedLine.text}
-                  </strong>
-                </span>
-              ) : (
-                <span className="text-slate-500 font-medium truncate">
-                  Nhấp chuột trực tiếp vào dòng chữ trên thiệp để sửa nhanh nội dung
-                </span>
-              )}
-            </div>
-
-            {/* Nút chọn nhanh dòng chữ & Thêm dòng */}
-            <div className="flex items-center gap-1 flex-shrink-0">
-              {config.lines.map((line, idx) => (
-                <button
-                  key={line.id}
-                  onClick={() => setSelectedLineId(selectedLineId === line.id ? null : line.id)}
-                  className={clsx(
-                    'px-2 py-0.5 rounded text-[11px] font-bold transition-colors',
-                    selectedLineId === line.id
-                      ? 'bg-rose-500 text-white shadow-xs'
-                      : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
-                  )}
-                >
-                  Dòng {idx + 1}
-                </button>
-              ))}
-
-              {/* Nút Thêm dòng trên thanh công cụ sau Dòng 1, Dòng 2 */}
-              <button
-                onClick={handleAddLine}
-                className="flex items-center gap-1 px-2 py-0.5 rounded text-[11px] font-bold bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 transition-colors shadow-2xs"
-                title="Thêm dòng chữ mới vào thiệp"
-              >
-                <Plus size={11} />
-                <span>Thêm dòng</span>
-              </button>
-
-              {selectedLineId && (
-                <button
-                  onClick={() => setSelectedLineId(null)}
-                  className="p-1 hover:bg-slate-100 text-slate-400 hover:text-slate-600 rounded text-xs leading-none"
-                  title="Đóng thanh chỉnh sửa"
-                >
-                  ✕
-                </button>
-              )}
-            </div>
+        {/* THANH ĐIỀU KHIỂN CHÍNH (MASTER ACTION BAR) - SÁT LỀ TRÊN, STICKY KHI CUỘN */}
+        <div className="sticky top-0 z-20 w-full bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs px-3.5 py-2 flex items-center justify-between gap-3 print:hidden">
+          {/* BÊN TRÁI: DÒNG CHỮ HƯỚNG DẪN / TRẠNG THÁI */}
+          <div className="flex items-center gap-1.5 text-xs text-slate-700 min-w-0">
+            <Edit3 size={14} className="text-rose-500 flex-shrink-0" />
+            {selectedLine ? (
+              <span className="truncate">
+                Đang sửa:{' '}
+                <strong className="text-rose-600 font-bold">
+                  {selectedLine.text.length > 30
+                    ? selectedLine.text.slice(0, 30) + '...'
+                    : selectedLine.text}
+                </strong>
+              </span>
+            ) : (
+              <span className="text-slate-500 font-medium truncate">
+                💡 Nhấp trực tiếp vào dòng chữ trên thiệp để sửa nội dung, cỡ chữ và vị trí
+              </span>
+            )}
           </div>
 
-          {/* BÊN PHẢI: CÁC NÚT CHỨC NĂNG (XEM ĐẦY ĐỦ MÀU ẤM CẠNH IN A4, XUẤT PDF) */}
-          <div className="flex items-center gap-2 flex-shrink-0">
-            {/* Nút Xem đầy đủ / Thu nhỏ (màu ấm hổ phách/amber cạnh nút In A4) */}
-            {onToggleFullscreen && (
+          {/* BÊN PHẢI: CÁC NÚT CHỌN NHANH DÒNG & THÊM DÒNG */}
+          <div className="flex items-center gap-1.5 flex-shrink-0">
+            {config.lines.map((line, idx) => (
               <button
-                onClick={onToggleFullscreen}
-                className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-semibold transition-all shadow-sm shadow-amber-100"
-                title={isFullscreen || !isSidebarOpen ? "Thu nhỏ lại (Hiện bảng cài đặt)" : "Xem đầy đủ (Ẩn bảng cài đặt để thiệp to nhất)"}
+                key={line.id}
+                onClick={() => setSelectedLineId(selectedLineId === line.id ? null : line.id)}
+                className={clsx(
+                  'px-2.5 py-1 rounded-md text-xs font-bold transition-colors',
+                  selectedLineId === line.id
+                    ? 'bg-rose-500 text-white shadow-xs'
+                    : 'bg-slate-100 hover:bg-slate-200 text-slate-700'
+                )}
               >
-                {isFullscreen || !isSidebarOpen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
-                <span>{isFullscreen || !isSidebarOpen ? "Thu nhỏ" : "Xem đầy đủ"}</span>
+                Dòng {idx + 1}
+              </button>
+            ))}
+
+            {/* Nút Thêm dòng */}
+            <button
+              onClick={handleAddLine}
+              className="flex items-center gap-1 px-2.5 py-1 rounded-md text-xs font-bold bg-rose-50 hover:bg-rose-100 text-rose-600 border border-rose-200 transition-colors shadow-2xs"
+              title="Thêm dòng chữ mới vào thiệp"
+            >
+              <Plus size={12} />
+              <span>Thêm dòng</span>
+            </button>
+
+            {selectedLineId && (
+              <button
+                onClick={() => setSelectedLineId(null)}
+                className="p-1 hover:bg-slate-100 text-slate-400 hover:text-slate-600 rounded text-xs leading-none ml-0.5"
+                title="Đóng thanh chỉnh sửa"
+              >
+                ✕
               </button>
             )}
-
-            {/* Nút In A4 nhanh */}
-            <button
-              onClick={onPrint}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-rose-500 hover:bg-rose-600 text-white rounded-lg text-xs font-semibold transition-colors shadow-sm shadow-rose-100"
-              title="In trực tiếp ra máy in khổ A4"
-            >
-              <Printer size={14} />
-              <span>In A4</span>
-            </button>
-
-            {/* Nút Xuất PDF nhanh */}
-            <button
-              onClick={onExportPDF}
-              className="flex items-center gap-1.5 px-3 py-1.5 bg-slate-700 hover:bg-slate-800 text-white rounded-lg text-xs font-semibold transition-colors shadow-sm"
-              title="Xuất file PDF chuẩn 1 trang A4"
-            >
-              <FileDown size={14} />
-              <span>Xuất PDF</span>
-            </button>
           </div>
         </div>
 
@@ -617,14 +555,10 @@ const A4PreviewArea: React.FC<A4PreviewAreaProps> = ({
         className="a4-paper bg-white relative transition-all duration-300 mx-auto overflow-hidden"
         style={{
           width: '100%',
-          maxWidth: isLandscape
-            ? '100%'
-            : (isFullscreen || !isSidebarOpen ? 'min(100%, 1150px)' : 'min(100%, 950px)'),
+          maxWidth: isLandscape ? '100%' : (!isSidebarOpen ? 'min(100%, 1150px)' : 'min(100%, 950px)'),
           height: 'auto',
           aspectRatio: isLandscape ? '297 / 210' : '210 / 297',
-          boxShadow: isFullscreen || !isSidebarOpen
-            ? '0 10px 36px rgba(0,0,0,0.18)'
-            : '0 8px 30px rgba(0,0,0,0.12)',
+          boxShadow: !isSidebarOpen ? '0 10px 36px rgba(0,0,0,0.18)' : '0 8px 30px rgba(0,0,0,0.12)',
         }}
         onClick={(e) => {
           // Bấm ra vùng giấy trắng thì đóng editor nổi

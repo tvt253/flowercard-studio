@@ -1,4 +1,4 @@
-import React, { useState, useEffect } from 'react';
+import React, { useState } from 'react';
 import ControlSidebar from './components/ControlSidebar';
 import A4PreviewArea from './components/A4PreviewArea';
 import { PanelLeftOpen } from 'lucide-react';
@@ -6,49 +6,10 @@ import { clsx } from 'clsx';
 
 const App: React.FC = () => {
   const [isSidebarOpen, setIsSidebarOpen] = useState(true);
-  const [isFullscreen, setIsFullscreen] = useState(false);
 
   const toggleSidebar = () => {
     setIsSidebarOpen((prev) => !prev);
   };
-
-  const toggleFullscreen = () => {
-    if (!isFullscreen) {
-      setIsFullscreen(true);
-      setIsSidebarOpen(false); // Tự động ẩn panel khi bật Xem đầy đủ
-      if (document.documentElement.requestFullscreen) {
-        document.documentElement.requestFullscreen().catch(() => {});
-      }
-    } else {
-      setIsFullscreen(false);
-      setIsSidebarOpen(true); // Tự động hiện lại panel khi thoát Xem đầy đủ
-      if (document.fullscreenElement && document.exitFullscreen) {
-        document.exitFullscreen().catch(() => {});
-      }
-    }
-  };
-
-  useEffect(() => {
-    const handleKeyDown = (e: KeyboardEvent) => {
-      if (e.key === 'Escape' && isFullscreen) {
-        setIsFullscreen(false);
-        setIsSidebarOpen(true);
-      }
-    };
-    const handleFsChange = () => {
-      // Khi người dùng bấm ESC ở native fullscreen
-      if (!document.fullscreenElement && isFullscreen) {
-        setIsFullscreen(false);
-        setIsSidebarOpen(true);
-      }
-    };
-    document.addEventListener('fullscreenchange', handleFsChange);
-    window.addEventListener('keydown', handleKeyDown);
-    return () => {
-      document.removeEventListener('fullscreenchange', handleFsChange);
-      window.removeEventListener('keydown', handleKeyDown);
-    };
-  }, [isFullscreen]);
 
   return (
     <div className="flex h-screen overflow-hidden bg-slate-100 relative" id="app-root">
@@ -56,7 +17,7 @@ const App: React.FC = () => {
       <div
         className={clsx(
           'print:hidden flex-shrink-0 transition-all duration-300 ease-in-out relative z-20 overflow-hidden',
-          isSidebarOpen && !isFullscreen ? 'w-[285px]' : 'w-0'
+          isSidebarOpen ? 'w-[285px]' : 'w-0'
         )}
       >
         <div className="w-[285px] h-full">
@@ -67,7 +28,7 @@ const App: React.FC = () => {
       </div>
 
       {/* FLOATING BUTTON WHEN SIDEBAR IS HIDDEN - Chỉ giữ lại icon gọn gàng */}
-      {!isSidebarOpen && !isFullscreen && (
+      {!isSidebarOpen && (
         <button
           onClick={toggleSidebar}
           className="fixed top-2.5 left-2.5 z-30 p-2 bg-white/95 hover:bg-white text-slate-700 hover:text-rose-600 border border-slate-200 rounded-lg shadow-md transition-all backdrop-blur print:hidden"
@@ -78,19 +39,10 @@ const App: React.FC = () => {
       )}
 
       {/* MAIN PREVIEW AREA - Đặt p-0 để thanh công cụ trên cùng nằm sát lề trên, sticky khi cuộn */}
-      <main
-        className={clsx(
-          'flex flex-col items-center transition-colors duration-300 relative',
-          isFullscreen
-            ? 'fixed inset-0 z-50 bg-slate-100 p-0 overflow-y-auto overflow-x-auto'
-            : 'flex-1 bg-slate-100 p-0 overflow-y-auto overflow-x-auto'
-        )}
-      >
+      <main className="flex-1 bg-slate-100 p-0 overflow-y-auto overflow-x-auto flex flex-col items-center relative">
         <A4PreviewArea
           isSidebarOpen={isSidebarOpen}
           onToggleSidebar={toggleSidebar}
-          isFullscreen={isFullscreen}
-          onToggleFullscreen={toggleFullscreen}
         />
       </main>
     </div>
