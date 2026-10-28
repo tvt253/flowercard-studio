@@ -14,25 +14,32 @@ const App: React.FC = () => {
 
   const toggleFullscreen = () => {
     if (!isFullscreen) {
+      setIsFullscreen(true);
+      setIsSidebarOpen(false); // Tự động ẩn panel khi bật Xem đầy đủ
       if (document.documentElement.requestFullscreen) {
         document.documentElement.requestFullscreen().catch(() => {});
       }
-      setIsFullscreen(true);
     } else {
+      setIsFullscreen(false);
+      setIsSidebarOpen(true); // Tự động hiện lại panel khi thoát Xem đầy đủ
       if (document.fullscreenElement && document.exitFullscreen) {
         document.exitFullscreen().catch(() => {});
       }
-      setIsFullscreen(false);
     }
   };
 
   useEffect(() => {
-    const handleFsChange = () => {
-      setIsFullscreen(!!document.fullscreenElement);
-    };
     const handleKeyDown = (e: KeyboardEvent) => {
       if (e.key === 'Escape' && isFullscreen) {
         setIsFullscreen(false);
+        setIsSidebarOpen(true);
+      }
+    };
+    const handleFsChange = () => {
+      // Khi người dùng bấm ESC ở native fullscreen
+      if (!document.fullscreenElement && isFullscreen) {
+        setIsFullscreen(false);
+        setIsSidebarOpen(true);
       }
     };
     document.addEventListener('fullscreenchange', handleFsChange);
@@ -49,7 +56,7 @@ const App: React.FC = () => {
       <div
         className={clsx(
           'print:hidden flex-shrink-0 transition-all duration-300 ease-in-out relative z-20 overflow-hidden',
-          isSidebarOpen ? 'w-[285px]' : 'w-0'
+          isSidebarOpen && !isFullscreen ? 'w-[285px]' : 'w-0'
         )}
       >
         <div className="w-[285px] h-full">
@@ -75,7 +82,7 @@ const App: React.FC = () => {
         className={clsx(
           'flex flex-col items-center transition-colors duration-300 relative',
           isFullscreen
-            ? 'fixed inset-0 z-50 bg-slate-950 p-2 sm:p-4 pt-14 overflow-auto flex items-center justify-center'
+            ? 'fixed inset-0 z-50 bg-slate-100 p-0 overflow-y-auto overflow-x-auto'
             : 'flex-1 bg-slate-100 p-0 overflow-y-auto overflow-x-auto'
         )}
       >

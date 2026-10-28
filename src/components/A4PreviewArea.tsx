@@ -395,6 +395,7 @@ interface A4PreviewAreaProps {
 }
 
 const A4PreviewArea: React.FC<A4PreviewAreaProps> = ({
+  isSidebarOpen = true,
   isFullscreen = false,
   onToggleFullscreen,
 }) => {
@@ -512,54 +513,7 @@ const A4PreviewArea: React.FC<A4PreviewAreaProps> = ({
         }
       `}</style>
 
-      {/* FLOATING BAR IN FULLSCREEN MODE */}
-      {isFullscreen && (
-        <div className="fixed top-4 z-50 flex items-center gap-2.5 px-4 py-2 bg-slate-900/95 text-white backdrop-blur-md rounded-full shadow-2xl border border-slate-700/60 print:hidden">
-          <span className="text-xs font-bold text-rose-400 flex items-center gap-1.5 mr-1">
-            🌸 Preview Full
-          </span>
-
-          <span className="text-xs text-slate-400 hidden sm:inline">
-            {isLandscape
-              ? 'A4 Ngang (1 bản)'
-              : config.copiesPerPage === 3
-              ? 'A4 Đứng (3 bản - 1 dòng)'
-              : 'A4 Đứng (2 bản)'}
-          </span>
-
-          <div className="h-4 w-px bg-slate-700 mx-1" />
-
-          {/* Nút In Trực Tiếp */}
-          <button
-            onClick={onPrint}
-            className="flex items-center gap-1 px-3 py-1 bg-rose-500 hover:bg-rose-600 text-white rounded-full text-xs font-semibold transition-colors shadow-sm"
-          >
-            <Printer size={13} /> In A4
-          </button>
-
-          {/* Nút Xuất PDF */}
-          <button
-            onClick={onExportPDF}
-            className="flex items-center gap-1 px-3 py-1 bg-slate-700 hover:bg-slate-600 text-white rounded-full text-xs font-semibold transition-colors shadow-sm"
-          >
-            <FileDown size={13} /> Xuất PDF
-          </button>
-
-          <div className="h-4 w-px bg-slate-700 mx-1" />
-
-          {/* Nút Thoát Fullscreen */}
-          <button
-            onClick={onToggleFullscreen}
-            className="flex items-center gap-1 px-3 py-1 bg-red-600/90 hover:bg-red-600 text-white rounded-full text-xs font-bold transition-colors shadow-sm"
-            title="Thoát toàn màn hình (phím ESC)"
-          >
-            <Minimize2 size={13} /> Thoát (ESC)
-          </button>
-        </div>
-      )}
-
-      {/* THANH ĐIỀU KHIỂN CHÍNH (MASTER ACTION BAR) - SÁT LỀ TRÊN, STICKY KHI CUỘN */}
-      {!isFullscreen && (
+      {/* THANH ĐIỀU KHIỂN CHÍNH (MASTER ACTION BAR) - SÁT LỀ TRÊN, STICKY KHI CUỘN, HOẠT ĐỘNG TRONG MỌI CHẾ ĐỘ */}
         <div className="sticky top-0 z-20 w-full bg-white/95 backdrop-blur-md border-b border-slate-200 shadow-xs px-3 py-2 flex flex-wrap items-center justify-between gap-2.5 print:hidden">
           {/* BÊN TRÁI: DÒNG CHỮ HƯỚNG DẪN / TRẠNG THÁI & CHỌN NHANH DÒNG */}
           <div className="flex items-center gap-2 min-w-0 flex-1">
@@ -622,15 +576,15 @@ const A4PreviewArea: React.FC<A4PreviewAreaProps> = ({
 
           {/* BÊN PHẢI: CÁC NÚT CHỨC NĂNG (XEM ĐẦY ĐỦ MÀU ẤM CẠNH IN A4, XUẤT PDF) */}
           <div className="flex items-center gap-2 flex-shrink-0">
-            {/* Nút Xem đầy đủ (màu ấm hổ phách/amber cạnh nút In A4) */}
+            {/* Nút Xem đầy đủ / Thu nhỏ (màu ấm hổ phách/amber cạnh nút In A4) */}
             {onToggleFullscreen && (
               <button
                 onClick={onToggleFullscreen}
                 className="flex items-center gap-1.5 px-3 py-1.5 bg-amber-500 hover:bg-amber-600 text-white rounded-lg text-xs font-semibold transition-all shadow-sm shadow-amber-100"
-                title="Xem thiệp ở chế độ toàn màn hình"
+                title={isFullscreen || !isSidebarOpen ? "Thu nhỏ lại (Hiện bảng cài đặt)" : "Xem đầy đủ (Ẩn bảng cài đặt để thiệp to nhất)"}
               >
-                <Maximize2 size={14} />
-                <span>Xem đầy đủ</span>
+                {isFullscreen || !isSidebarOpen ? <Minimize2 size={14} /> : <Maximize2 size={14} />}
+                <span>{isFullscreen || !isSidebarOpen ? "Thu nhỏ" : "Xem đầy đủ"}</span>
               </button>
             )}
 
@@ -655,30 +609,21 @@ const A4PreviewArea: React.FC<A4PreviewAreaProps> = ({
             </button>
           </div>
         </div>
-      )}
 
       {/* VÙNG CHỨA TỜ GIẤY A4 */}
-      <div className={clsx(
-        "w-full flex flex-col items-center px-2 sm:px-3",
-        isFullscreen ? "h-full justify-center py-0" : "py-3"
-      )}>
+      <div className="w-full flex flex-col items-center px-2 sm:px-4 py-4">
         <div
         id="a4-print-area"
         className="a4-paper bg-white relative transition-all duration-300 mx-auto overflow-hidden"
         style={{
           width: '100%',
-          maxWidth: isFullscreen
-            ? isLandscape
-              ? 'min(calc(100vw - 2rem), calc((100vh - 5rem) * 297 / 210))'
-              : 'min(calc(100vw - 2rem), calc((100vh - 5rem) * 210 / 297))'
-            : isLandscape
+          maxWidth: isLandscape
             ? '100%'
-            : 'min(210mm, 100%)',
-          maxHeight: isFullscreen ? 'calc(100vh - 5rem)' : undefined,
+            : (isFullscreen || !isSidebarOpen ? 'min(100%, 1150px)' : 'min(100%, 950px)'),
           height: 'auto',
           aspectRatio: isLandscape ? '297 / 210' : '210 / 297',
-          boxShadow: isFullscreen
-            ? '0 12px 40px rgba(0,0,0,0.5)'
+          boxShadow: isFullscreen || !isSidebarOpen
+            ? '0 10px 36px rgba(0,0,0,0.18)'
             : '0 8px 30px rgba(0,0,0,0.12)',
         }}
         onClick={(e) => {
