@@ -157,30 +157,24 @@ export function calculateCardMetrics(config: CardConfig): CardMetrics {
     ? (config.lines[0]?.offsetY ?? 210)
     : (minY + maxY) / 2;
 
-  // 3. TỶ LỆ SCALE TỰ ĐỘNG CHO KIỂU ĐÁM MÂY (CLOUD)
-  // Giới hạn chiều cao an toàn trong viewBox 420px (để trống 12px trên và dưới)
-  const maxSafeHeight = 396;
+  // 3. TỶ LỆ SCALE TỰ ĐỘNG CHO KIỂU ĐÁM MÂY (CLOUD & CLOUD-SOLID)
+  // Kích thước khả dụng an toàn của khung SVG viewBox (1000 x 420):
+  // - Bề rộng khả dụng an toàn: 910px (để trống 45px lề trái và phải, viền mây đặc không bao giờ chạm mép hay tràn khung)
+  // - Chiều cao khả dụng an toàn: 375px (để trống ~22px lề trên và dưới)
+  const targetCloudWidth = 910;
+  const maxSafeHeight = 375;
+
+  const targetScaleX = targetCloudWidth / maxLineWidth;
   const maxScaleY = maxSafeHeight / contentHeight;
 
-  // Tính tỷ lệ scale theo chiều ngang:
-  // - Nội dung ngắn (maxLineWidth < 950): scale phóng to để đạt ~950px trong viewBox 1000px
-  // - Nội dung vừa vặn (950 <= maxLineWidth <= 1040): giữ tỷ lệ tự nhiên 1.0, không ép co cụm làm nhỏ thiệp
-  // - Nội dung quá dài (maxLineWidth > 1040): co nhẹ về mức tối đa 1040px để đảm bảo lề in an toàn
-  let targetScaleX: number;
-  if (maxLineWidth < 950) {
-    targetScaleX = 950 / maxLineWidth;
-  } else if (maxLineWidth <= 1040) {
-    targetScaleX = 1.0;
-  } else {
-    targetScaleX = 1040 / maxLineWidth;
-  }
-
-  // Với 1 dòng: cho phép scale lên đến 2.35x để thiệp trải rộng tối đa 95%
-  // Với 2 dòng: scale tối đa 1.55x để lấp đầy không gian mà không chạm viền trên/dưới
-  const maxAllowedScale = isSingleLine ? 2.35 : 1.55;
-  const minAllowedScale = 0.65;
-
+  // Lấy tỷ lệ scale nhỏ hơn giữa 2 chiều để nội dung luôn fit trọn vẹn 100% trong khung khả dụng
   const rawCloudScale = Math.min(targetScaleX, maxScaleY);
+
+  // Với 1 dòng: cho phép scale lên đến 2.2x để thiệp trải rộng vừa vặn
+  // Với 2 dòng trở lên: scale tối đa 1.45x để đảm bảo khối thiệp không chạm viền
+  const maxAllowedScale = isSingleLine ? 2.2 : 1.45;
+  const minAllowedScale = 0.55;
+
   const cloudScale = Math.min(maxAllowedScale, Math.max(minAllowedScale, rawCloudScale));
 
   // 4. TỶ LỆ SCALE TỰ ĐỘNG CHO CHỮ TRONG KHUNG OVAL

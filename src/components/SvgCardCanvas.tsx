@@ -10,15 +10,15 @@ interface SvgCardCanvasProps {
   selectedLineId?: string | null;
 }
 
-// Đường cong dẫn hướng (khi curveStrength = 0 thì thẳng ngang)
+// Đường cong dẫn hướng (khi curveStrength = 0 thì thẳng ngang, trải đều trên toàn bộ bề rộng khả dụng 910px)
 function calculatePathD(line: TextLine, config: CardConfig): string {
   const y = line.offsetY;
   const c = line.curveStrength !== undefined ? line.curveStrength : config.globalCurveStrength;
 
   if (c === 0) {
-    return `M 60,${y} L 940,${y}`;
+    return `M 45,${y} L 955,${y}`;
   }
-  return `M 60,${y + c * 0.5} Q 500,${y - c * 1.7} 940,${y + c * 0.5}`;
+  return `M 45,${y + c * 0.5} Q 500,${y - c * 1.7} 955,${y + c * 0.5}`;
 }
 
 const SvgCardCanvas: React.FC<SvgCardCanvasProps> = ({
