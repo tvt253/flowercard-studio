@@ -23,7 +23,7 @@ export interface StrokeLayer {
   enabled: boolean;
 }
 
-export type StyleType = 'cloud' | 'cloud-solid' | 'oval-red' | 'oval-black';
+export type StyleType = 'cloud' | 'cloud-solid' | 'oval-red' | 'oval-black' | 'floral-heart';
 
 export interface CardConfig {
   scalePercent: number; // Kích thước thiệp so với giấy (mặc định 95%)
@@ -40,6 +40,11 @@ export interface CardConfig {
   // Nền & Chữ kiểu Đám Mây Nền Đặc (Solid Cloud - Chữ Nổi)
   cloudTextColor?: string;
   cloudBgColor?: string;
+
+  // Cài đặt cho kiểu Khung Hoa Trái Tim (Floral Heart Frame)
+  frameThemeColor?: string;
+  frameTextColor?: string;
+  frameHueAngle?: number;
 
   // Cài đặt chung
   globalFontFamily: string;

@@ -16,7 +16,7 @@ export function updatePrintHeadStyle(isLandscape: boolean) {
         size: ${isLandscape ? 'A4 landscape' : 'A4 portrait'};
         margin: 3.5mm !important;
       }
-      *, [filter], .card-shadow-filter {
+      .card-shadow-filter {
         filter: none !important;
         -webkit-filter: none !important;
         box-shadow: none !important;
