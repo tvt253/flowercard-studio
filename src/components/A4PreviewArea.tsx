@@ -21,7 +21,8 @@ import { calculateCardMetrics, calculateAutoFitFontSize } from '../utils/cardSca
 interface DirectFloatingToolbarProps {
   line: TextLine;
   globalFontFamily: string;
-  positionMode: 'top' | 'bottom';
+  positionMode?: 'top' | 'bottom';
+  positionStyle?: React.CSSProperties;
   onUpdateLine: (id: string, updates: Partial<TextLine>) => void;
   onToggleTextCase: (id: string) => void;
   onAddLine?: () => void;
@@ -34,6 +35,7 @@ const DirectFloatingToolbar: React.FC<DirectFloatingToolbarProps> = ({
   line,
   globalFontFamily,
   positionMode,
+  positionStyle,
   onUpdateLine,
   onToggleTextCase,
   onAddLine,
@@ -121,8 +123,13 @@ const DirectFloatingToolbar: React.FC<DirectFloatingToolbarProps> = ({
 
   return (
     <div
-      className="absolute z-30 left-1/2 -translate-x-1/2 bg-white/95 backdrop-blur-md border border-rose-300 rounded-xl p-2 shadow-2xl flex flex-col gap-1.5 ring-4 ring-rose-500/10 print:hidden animate-in fade-in zoom-in-95 duration-150 w-[95%] sm:w-auto max-w-[500px]"
-      style={positionMode === 'top' ? { top: '-84px' } : { bottom: '-84px' }}
+      className="absolute z-30 left-1/2 bg-white/95 backdrop-blur-md border border-rose-300 rounded-xl p-2 shadow-2xl flex flex-col gap-1.5 ring-4 ring-rose-500/10 print:hidden animate-in fade-in zoom-in-95 duration-150 w-[95%] sm:w-auto max-w-[500px]"
+      style={
+        positionStyle ??
+        (positionMode === 'top'
+          ? { top: '-84px', transform: 'translateX(-50%)' }
+          : { bottom: '-84px', transform: 'translateX(-50%)' })
+      }
       onClick={(e) => e.stopPropagation()}
     >
       {/* DÒNG 1: Ô NHẬP TEXT + ICON THÊM DÒNG + ICON XÓA (ICON ONLY, RÚT GỌN KÍCH THƯỚC) */}
@@ -403,15 +410,41 @@ const A4PreviewArea: React.FC<A4PreviewAreaProps> = ({
   // Dòng đang được chọn để chỉnh sửa
   const selectedLine = config.lines.find((l) => l.id === selectedLineId);
 
-  // Tính toán vị trí nổi của popup editor theo tỷ lệ scale thực tế của dòng chữ
+  // Tính toán vị trí nổi của popup editor bám sát dòng chữ được chọn mà không che chữ
   const { centerY, cloudScale, ovalTextScale } = calculateCardMetrics(config);
   const isOval = config.styleType === 'oval-red' || config.styleType === 'oval-black';
   const activeScale = isOval ? ovalTextScale : cloudScale;
+  const activeLayers = (config.strokeLayers || []).filter((l) => l.enabled && l.width > 0);
+  const maxLayerWidth = isOval ? 0 : (activeLayers[0]?.width || config.outerStrokeWidth || 130);
+
   const visualLineY = selectedLine
     ? centerY + (selectedLine.offsetY - centerY) * activeScale
     : 210;
-  // positionMode: dòng nửa trên (<=210) đặt toolbar ở trên (top: -54px), dòng nửa dưới (>210) đặt ở dưới (bottom: -54px)
-  const positionMode: 'top' | 'bottom' = visualLineY <= 210 ? 'top' : 'bottom';
+  const currentFontSize = selectedLine ? selectedLine.fontSize : 70;
+
+  // Tính bán kính vùng an toàn của dòng chữ (chiều cao chữ + viền mây) theo % chiều cao container SVG (viewBox 420)
+  const safePaddingSvg = (currentFontSize * 0.45 + maxLayerWidth * 0.22) * activeScale;
+  const safePaddingPercent = (safePaddingSvg / 420) * 100;
+  const lineCenterPercent = (visualLineY / 420) * 100;
+
+  // Quyết định đặt popup ở trên hay dưới dòng chữ:
+  // - Dòng ở nửa trên (visualLineY <= 210): đặt ở TRÊN dòng chữ (trừ khi quá sát mép trên < 115)
+  // - Dòng ở nửa dưới (visualLineY > 210): đặt ở DƯỚI dòng chữ (trừ khi quá sát mép dưới > 325)
+  const placement: 'top' | 'bottom' =
+    visualLineY <= 210
+      ? visualLineY >= 115 ? 'top' : 'bottom'
+      : visualLineY <= 325 ? 'bottom' : 'top';
+
+  const popupPositionStyle: React.CSSProperties =
+    placement === 'top'
+      ? {
+          top: `${Math.max(1, lineCenterPercent - safePaddingPercent)}%`,
+          transform: 'translate(-50%, calc(-100% - 6px))',
+        }
+      : {
+          top: `${Math.min(99, lineCenterPercent + safePaddingPercent)}%`,
+          transform: 'translate(-50%, 6px)',
+        };
 
   const handleAddLine = () => {
     addLine();
@@ -588,7 +621,8 @@ const A4PreviewArea: React.FC<A4PreviewAreaProps> = ({
                 <DirectFloatingToolbar
                   line={selectedLine}
                   globalFontFamily={config.globalFontFamily}
-                  positionMode={positionMode}
+                  positionMode={placement}
+                  positionStyle={popupPositionStyle}
                   onUpdateLine={updateLine}
                   onToggleTextCase={toggleLineTextCase}
                   onAddLine={handleAddLine}
@@ -629,7 +663,8 @@ const A4PreviewArea: React.FC<A4PreviewAreaProps> = ({
                   <DirectFloatingToolbar
                     line={selectedLine}
                     globalFontFamily={config.globalFontFamily}
-                    positionMode={positionMode}
+                    positionMode={placement}
+                    positionStyle={popupPositionStyle}
                     onUpdateLine={updateLine}
                     onToggleTextCase={toggleLineTextCase}
                     onAddLine={handleAddLine}
