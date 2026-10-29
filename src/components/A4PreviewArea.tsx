@@ -501,10 +501,10 @@ const A4PreviewArea: React.FC<A4PreviewAreaProps> = ({
             justify-content: center !important;
           }
           .a4-paper {
-            width: ${isLandscape ? '290mm' : '203mm'} !important;
-            height: ${isLandscape ? '203mm' : '290mm'} !important;
-            max-width: ${isLandscape ? '290mm' : '203mm'} !important;
-            max-height: ${isLandscape ? '203mm' : '290mm'} !important;
+            width: ${isLandscape ? '293.4mm' : '206.4mm'} !important;
+            height: ${isLandscape ? '206.4mm' : '293.4mm'} !important;
+            max-width: ${isLandscape ? '293.4mm' : '206.4mm'} !important;
+            max-height: ${isLandscape ? '206.4mm' : '293.4mm'} !important;
             aspect-ratio: unset !important;
             box-shadow: none !important;
             border: none !important;
@@ -601,8 +601,8 @@ const A4PreviewArea: React.FC<A4PreviewAreaProps> = ({
         }}
       >
         {isLandscape ? (
-          // 1 BẢN TRÊN GIẤY A4 XOAY NGANG (297mm x 210mm) - Chữ nằm ngang tự nhiên, mặc định 95% căn giữa
-          <div className="w-full h-full flex items-center justify-center p-1.5 relative">
+          // 1 BẢN TRÊN GIẤY A4 XOAY NGANG (297mm x 210mm) - Chữ nằm ngang tự nhiên, mặc định 98% căn giữa
+          <div className="w-full h-full flex items-center justify-center p-0.5 relative">
             <div
               className="relative flex items-center justify-center transition-all duration-200 mx-auto"
               style={{
@@ -634,13 +634,13 @@ const A4PreviewArea: React.FC<A4PreviewAreaProps> = ({
             </div>
           </div>
         ) : (
-          // 2 HOẶC 3 BẢN TRÊN GIẤY A4 ĐỨNG (210mm x 297mm) - Xếp tầng trên dưới, mặc định 95% căn giữa
+          // 2 HOẶC 3 BẢN TRÊN GIẤY A4 ĐỨNG (210mm x 297mm) - Xếp tầng trên dưới, mặc định 98% căn giữa
           <div
             className={clsx(
               "w-full h-full flex flex-col items-center relative",
               config.copiesPerPage === 3
-                ? "justify-evenly py-1 px-1"
-                : "justify-around py-1.5 px-1"
+                ? "justify-evenly py-0.5 px-0.5"
+                : "justify-around py-0.5 px-0.5"
             )}
           >
             {copies.map((i) => (

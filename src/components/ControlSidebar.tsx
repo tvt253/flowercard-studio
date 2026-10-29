@@ -5,7 +5,6 @@ import {
   Printer,
   FileDown,
   Layers,
-  Sparkles,
   Type,
   Cloud,
   PanelLeftClose,
@@ -15,7 +14,6 @@ import { handlePrint, handleExportPDF } from '../utils/exportUtils';
 import { FONT_OPTIONS } from '../constants/fonts';
 
 const STYLE_OPTIONS: { label: string; value: StyleType }[] = [
-  { label: '🌸 Kiểu Khung Hoa Trái Tim (Mẫu Mới)', value: 'floral-heart' },
   { label: '☁️ Kiểu Đám Mây Viền Tầng (Đa Sắc)', value: 'cloud' },
   { label: '🔴 Kiểu Đám Mây Nền Đặc (Chữ Nổi)', value: 'cloud-solid' },
   { label: '⭕ Kiểu Oval Đỏ (Khai Trương / Chúc Mừng)', value: 'oval-red' },
@@ -56,27 +54,6 @@ const OVAL_BLACK_PRESETS: PresetItem[] = [
   { label: '🌿 Ngàn Thu Yên Nghỉ', value: 'ngan-thu' },
 ];
 
-// Gam màu chọn nhanh cho Khung Hoa (tương ứng với các góc xoay màu hài hòa)
-const FLORAL_FRAME_COLORS = [
-  { name: 'Hồng phấn (Mẫu gốc)', color: '#ec4899' },
-  { name: 'Đỏ ruby', color: '#dc2626' },
-  { name: 'Cam đào', color: '#ea580c' },
-  { name: 'Vàng kim', color: '#ca8a04' },
-  { name: 'Xanh ngọc', color: '#16a34a' },
-  { name: 'Xanh biếc', color: '#2563eb' },
-  { name: 'Tím huế', color: '#9333ea' },
-];
-
-// Màu chữ sang trọng, nổi bật và sắc nét trên nền Khung Hoa
-const FLORAL_TEXT_COLORS = [
-  { name: 'Đỏ mận', color: '#be185d' },
-  { name: 'Hồng sen', color: '#db2777' },
-  { name: 'Tím đậm', color: '#7e22ce' },
-  { name: 'Nâu socola', color: '#78350f' },
-  { name: 'Đen than', color: '#0f172a' },
-  { name: 'Đỏ ruby', color: '#b91c1c' },
-];
-
 // Nhóm màu chọn nhanh: Đỏ, Hồng, Tím, Xanh biển, Xanh lá, Cam/Nâu, Đen
 const COLOR_GROUPS = [
   { name: 'Đỏ', color: '#c81e2b' },
@@ -106,13 +83,10 @@ const ControlSidebar: React.FC<ControlSidebarProps> = ({
     setQuickColorGroup,
     setCloudTextColor,
     setCloudBgColor,
-    setFrameThemeColor,
-    setFrameTextColor,
     setCopiesPerPage,
     applyPreset,
   } = useCardStore();
 
-  const isFloral = config.styleType === 'floral-heart';
   const isOval = config.styleType === 'oval-red' || config.styleType === 'oval-black';
   const isCloudSolid = config.styleType === 'cloud-solid';
 
@@ -201,21 +175,17 @@ const ControlSidebar: React.FC<ControlSidebarProps> = ({
 
           {/* Cài đặt chung đồng nhất */}
           <div className="p-2.5 bg-white border border-slate-200 rounded-lg space-y-2 mb-2.5 shadow-sm">
-            <div className="text-[11px] font-bold text-rose-600 uppercase tracking-wider flex items-center gap-1">
-              <Sparkles size={11} /> Cài đặt chung
-            </div>
-
             {/* Kích thước thiệp so với giấy */}
             <div>
               <div className="flex justify-between text-xs font-medium text-slate-500 mb-1">
                 <span>Kích thước thiệp:</span>
-                <span className="text-rose-600 font-bold">{config.scalePercent ?? 95}% chiều rộng</span>
+                <span className="text-rose-600 font-bold">{config.scalePercent ?? 98}% chiều rộng</span>
               </div>
               <input
                 type="range"
                 min={50}
                 max={100}
-                value={config.scalePercent ?? 95}
+                value={config.scalePercent ?? 98}
                 onChange={(e) => updateGlobalTypography({ scalePercent: parseInt(e.target.value) })}
               />
             </div>
@@ -277,138 +247,39 @@ const ControlSidebar: React.FC<ControlSidebarProps> = ({
           <div className="flex items-center gap-1.5 mb-2">
             <Layers size={14} className="text-rose-600" />
             <h2 className="text-xs font-bold text-slate-700 uppercase tracking-widest">
-              {isFloral
-                ? '3. Màu Sắc Khung Hoa & Chữ'
-                : isOval
-                ? '3. Màu Sắc Thiệp Oval'
-                : '3. Lớp Viền Stroke'}
+              {isOval ? '3. Màu Sắc Thiệp Oval' : '3. Lớp Viền Stroke'}
             </h2>
           </div>
 
           <div className="space-y-2.5">
-            {isFloral ? (
-              /* TÙY CHỈNH MÀU SẮC DÀNH CHO KIỂU KHUNG HOA TRÁI TIM */
-              <div className="space-y-3">
-                {/* 1. Chọn màu Khung Hoa */}
-                <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-1.5">
-                    Màu khung hoa mẫu:
-                  </label>
-                  <div className="flex items-center gap-2 flex-wrap mb-2">
-                    {FLORAL_FRAME_COLORS.map((f) => {
-                      const isSelected =
-                        (config.frameThemeColor || '#ec4899').toLowerCase() === f.color.toLowerCase();
-                      return (
-                        <button
-                          key={f.color}
-                          onClick={() => setFrameThemeColor(f.color)}
-                          title={f.name}
-                          className={clsx(
-                            'w-7 h-7 rounded-full transition-all shadow-sm border border-slate-300 flex items-center justify-center flex-shrink-0',
-                            isSelected
-                              ? 'ring-2 ring-offset-2 ring-rose-500 scale-110'
-                              : 'hover:scale-105 opacity-90 hover:opacity-100'
-                          )}
-                          style={{ backgroundColor: f.color }}
-                        >
-                          {isSelected && <span className="w-2 h-2 rounded-full bg-white shadow-sm" />}
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  {/* Color picker tùy chỉnh màu khung hoa */}
-                  <div className="flex items-center justify-between p-2 bg-slate-50 border border-slate-200 rounded-lg">
-                    <span className="text-[11px] font-semibold text-slate-600">Tự chọn màu khung:</span>
-                    <div className="flex items-center gap-1.5">
-                      <input
-                        type="color"
-                        value={config.frameThemeColor || '#ec4899'}
-                        onChange={(e) => setFrameThemeColor(e.target.value)}
-                        className="w-7 h-6 rounded cursor-pointer border border-slate-300"
-                      />
-                      <span className="text-xs font-mono text-slate-600">
-                        {config.frameThemeColor || '#ec4899'}
-                      </span>
-                    </div>
-                  </div>
-                </div>
-
-                {/* 2. Chọn màu Chữ thiệp */}
-                <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-1.5">
-                    Màu chữ thiệp:
-                  </label>
-                  <div className="flex items-center gap-2 flex-wrap mb-2">
-                    {FLORAL_TEXT_COLORS.map((t) => {
-                      const isSelected =
-                        (config.frameTextColor || '#be185d').toLowerCase() === t.color.toLowerCase();
-                      return (
-                        <button
-                          key={t.color}
-                          onClick={() => setFrameTextColor(t.color)}
-                          title={t.name}
-                          className={clsx(
-                            'w-7 h-7 rounded-full transition-all shadow-sm border border-slate-300 flex items-center justify-center flex-shrink-0',
-                            isSelected
-                              ? 'ring-2 ring-offset-2 ring-rose-500 scale-110'
-                              : 'hover:scale-105 opacity-90 hover:opacity-100'
-                          )}
-                          style={{ backgroundColor: t.color }}
-                        >
-                          {isSelected && <span className="w-2 h-2 rounded-full bg-white shadow-sm" />}
-                        </button>
-                      );
-                    })}
-                  </div>
-
-                  {/* Color picker tùy chỉnh màu chữ */}
-                  <div className="flex items-center justify-between p-2 bg-slate-50 border border-slate-200 rounded-lg">
-                    <span className="text-[11px] font-semibold text-slate-600">Tự chọn màu chữ:</span>
-                    <div className="flex items-center gap-1.5">
-                      <input
-                        type="color"
-                        value={config.frameTextColor || '#be185d'}
-                        onChange={(e) => setFrameTextColor(e.target.value)}
-                        className="w-7 h-6 rounded cursor-pointer border border-slate-300"
-                      />
-                      <span className="text-xs font-mono text-slate-600">
-                        {config.frameTextColor || '#be185d'}
-                      </span>
-                    </div>
-                  </div>
-                </div>
+            {/* Chọn nhanh nhóm màu */}
+            <div>
+              <label className="block text-xs font-medium text-slate-500 mb-1.5">
+                {isOval ? 'Chọn màu nền Oval' : 'Chọn nhanh nhóm màu'}
+              </label>
+              <div className="flex items-center gap-2 flex-wrap">
+                {COLOR_GROUPS.map((g) => {
+                  const isSelected =
+                    config.outerStrokeColor.toLowerCase() === g.color.toLowerCase();
+                  return (
+                    <button
+                      key={g.color}
+                      onClick={() => setQuickColorGroup(g.color)}
+                      title={g.name}
+                      className={clsx(
+                        'w-7 h-7 rounded-full transition-all shadow-sm border border-slate-300 flex items-center justify-center flex-shrink-0',
+                        isSelected
+                          ? 'ring-2 ring-offset-2 ring-rose-500 scale-110'
+                          : 'hover:scale-105 opacity-90 hover:opacity-100'
+                      )}
+                      style={{ backgroundColor: g.color }}
+                    >
+                      {isSelected && <span className="w-2 h-2 rounded-full bg-white shadow-sm" />}
+                    </button>
+                  );
+                })}
               </div>
-            ) : (
-              <>
-                {/* Chọn nhanh nhóm màu */}
-                <div>
-                  <label className="block text-xs font-medium text-slate-500 mb-1.5">
-                    {isOval ? 'Chọn màu nền Oval' : 'Chọn nhanh nhóm màu'}
-                  </label>
-                  <div className="flex items-center gap-2 flex-wrap">
-                    {COLOR_GROUPS.map((g) => {
-                      const isSelected =
-                        config.outerStrokeColor.toLowerCase() === g.color.toLowerCase();
-                      return (
-                        <button
-                          key={g.color}
-                          onClick={() => setQuickColorGroup(g.color)}
-                          title={g.name}
-                          className={clsx(
-                            'w-7 h-7 rounded-full transition-all shadow-sm border border-slate-300 flex items-center justify-center flex-shrink-0',
-                            isSelected
-                              ? 'ring-2 ring-offset-2 ring-rose-500 scale-110'
-                              : 'hover:scale-105 opacity-90 hover:opacity-100'
-                          )}
-                          style={{ backgroundColor: g.color }}
-                        >
-                          {isSelected && <span className="w-2 h-2 rounded-full bg-white shadow-sm" />}
-                        </button>
-                      );
-                    })}
-                  </div>
-                </div>
+            </div>
 
             {isOval ? (
               /* Tùy chỉnh màu sắc chi tiết cho Oval */
@@ -596,20 +467,6 @@ const ControlSidebar: React.FC<ControlSidebarProps> = ({
                   </div>
                 </div>
 
-                {/* Dải màu chuyển tiếp */}
-                <div>
-                  <div className="flex h-3 rounded overflow-hidden border border-slate-200 shadow-inner">
-                    {config.strokeLayers.map((layer) => (
-                      <div
-                        key={layer.id}
-                        className="flex-1"
-                        style={{ backgroundColor: layer.color }}
-                        title={`${layer.name}: ${layer.color}`}
-                      />
-                    ))}
-                  </div>
-                </div>
-
                 {/* Kích thước độ dày viền ngoài cùng (130px) và sát chữ (30px) */}
                 <div className="space-y-2">
                   <div>
@@ -641,8 +498,6 @@ const ControlSidebar: React.FC<ControlSidebarProps> = ({
                   </div>
                 </div>
               </>
-            )}
-            </>
             )}
           </div>
         </div>

@@ -1,7 +1,6 @@
 import { create } from 'zustand';
 import { persist } from 'zustand/middleware';
 import { CardConfig, TextLine, StrokeLayer, PresetName, StyleType } from '../types/card';
-import { calculateHueAngle } from '../utils/cardScaleUtils';
 
 const generateId = () => Math.random().toString(36).substring(2, 9);
 
@@ -109,7 +108,7 @@ const defaultLine2: TextLine = {
 };
 
 const defaultConfig: CardConfig = {
-  scalePercent: 95, // Kích thước mặc định 95% chiều rộng khổ giấy và căn giữa
+  scalePercent: 98, // Kích thước mặc định 98% chiều rộng khổ giấy (giảm lề 50% để mở rộng không gian thiệp)
   copiesPerPage: 2, // Mặc định 2 bản (A4 đứng)
   showCutLines: false,
 
@@ -130,11 +129,6 @@ const defaultConfig: CardConfig = {
 
   cloudTextColor: '#ffffff',
   cloudBgColor: initialOuterColor,
-
-  // Cài đặt cho kiểu Khung Hoa Trái Tim (Floral Heart Frame)
-  frameThemeColor: '#ec4899',
-  frameTextColor: '#be185d',
-  frameHueAngle: 0,
 
   strokeLayers: defaultStrokeLayers,
   lines: [defaultLine1, defaultLine2],
@@ -380,8 +374,6 @@ interface CardStore {
   setQuickColorGroup: (color: string) => void;
   setCloudTextColor: (color: string) => void;
   setCloudBgColor: (color: string) => void;
-  setFrameThemeColor: (color: string) => void;
-  setFrameTextColor: (color: string) => void;
   applyPreset: (presetName: PresetName) => void;
   resetDefault: () => void;
 }
@@ -583,43 +575,6 @@ export const useCardStore = create<CardStore>()(
                 ],
               },
             };
-          } else if (style === 'floral-heart') {
-            // Style Khung Hoa Trái Tim (Floral Heart Frame)
-            const frameTheme = state.config.frameThemeColor || '#ec4899';
-            const frameText = state.config.frameTextColor || '#be185d';
-            return {
-              config: {
-                ...state.config,
-                styleType: 'floral-heart',
-                frameThemeColor: frameTheme,
-                frameTextColor: frameText,
-                frameHueAngle: calculateHueAngle(frameTheme),
-                globalFontFamily: 'Charm',
-                globalCurveStrength: 8,
-                lines: [
-                  {
-                    id: generateId(),
-                    text: 'Chúc Mừng',
-                    fontSize: 68,
-                    offsetY: 155,
-                    fontWeight: 'bold',
-                    fontStyle: 'normal',
-                    letterSpacing: 2,
-                    textCase: 'capitalize',
-                  },
-                  {
-                    id: generateId(),
-                    text: 'Ngày Phụ Nữ Việt Nam 20-10',
-                    fontSize: 66,
-                    offsetY: 260,
-                    fontWeight: 'bold',
-                    fontStyle: 'normal',
-                    letterSpacing: 1.5,
-                    textCase: 'capitalize',
-                  },
-                ],
-              },
-            };
           } else if (style === 'cloud-solid') {
             // Style Đám Mây Nền Đặc (Chữ Trắng Nổi Bật theo mẫu thực tế)
             const outerWidth = state.config.outerStrokeWidth || 130;
@@ -740,7 +695,7 @@ export const useCardStore = create<CardStore>()(
             config: {
               ...state.config,
               copiesPerPage: copies,
-              scalePercent: 95, // Kích thước mặc định là 95% chiều rộng khổ giấy và căn giữa
+              scalePercent: 98, // Kích thước mặc định là 98% chiều rộng khổ giấy (giảm lề 50%)
               lines: updatedLines,
             },
           };
@@ -851,49 +806,10 @@ export const useCardStore = create<CardStore>()(
           };
         }),
 
-      setFrameThemeColor: (color: string) =>
-        set((state) => ({
-          config: {
-            ...state.config,
-            frameThemeColor: color,
-            frameHueAngle: calculateHueAngle(color),
-          },
-        })),
-
-      setFrameTextColor: (color: string) =>
-        set((state) => ({
-          config: {
-            ...state.config,
-            frameTextColor: color,
-          },
-        })),
-
       applyPreset: (presetName: PresetName) =>
         set((state) => {
           const preset = PRESETS[presetName];
           if (!preset) return state;
-
-          const isFloral = state.config.styleType === 'floral-heart';
-          if (isFloral) {
-            // Khi đang ở kiểu Khung Hoa Trái Tim: chỉ nạp nội dung dòng chữ & font chữ của preset
-            return {
-              config: {
-                ...state.config,
-                globalFontFamily: preset.globalFontFamily || 'Charm',
-                lines: preset.lines.map((l) => ({
-                  id: generateId(),
-                  text: l.text,
-                  fontSize: Math.round(l.fontSize * 0.92),
-                  offsetY: l.offsetY,
-                  fontWeight: l.fontWeight,
-                  fontStyle: 'normal' as const,
-                  letterSpacing: 1.5,
-                  textCase: l.textCase || ('capitalize' as const),
-                  fontFamily: l.fontFamily,
-                })),
-              },
-            };
-          }
 
           const isSolid = state.config.styleType === 'cloud-solid';
           const outerWidth = state.config.outerStrokeWidth || 130;
@@ -961,8 +877,8 @@ export const useCardStore = create<CardStore>()(
         }),
     }),
     {
-      name: 'flower-card-studio-storage-v16',
-      version: 16,
+      name: 'flower-card-studio-storage-v17',
+      version: 17,
     }
   )
 );

@@ -107,12 +107,11 @@ export interface CardMetrics {
   centerY: number;
   cloudScale: number;
   ovalTextScale: number;
-  floralTextScale: number;
 }
 
 /**
  * Tính toán tỷ lệ auto-scale để nội dung thiệp (text + strokes)
- * luôn lấp đầy ~95% chiều rộng khổ giấy và căn giữa hoàn hảo
+ * luôn lấp đầy không gian thiệp và căn giữa hoàn hảo (đã giảm lề 50% để mở rộng không gian)
  */
 export function calculateCardMetrics(config: CardConfig): CardMetrics {
   const isOval = config.styleType === 'oval-red' || config.styleType === 'oval-black';
@@ -160,10 +159,11 @@ export function calculateCardMetrics(config: CardConfig): CardMetrics {
 
   // 3. TỶ LỆ SCALE TỰ ĐỘNG CHO KIỂU ĐÁM MÂY (CLOUD & CLOUD-SOLID)
   // Kích thước khả dụng an toàn của khung SVG viewBox (1000 x 420):
-  // - Bề rộng khả dụng an toàn: 910px (để trống 45px lề trái và phải, viền mây đặc không bao giờ chạm mép hay tràn khung)
-  // - Chiều cao khả dụng an toàn: 375px (để trống ~22px lề trên và dưới)
-  const targetCloudWidth = 910;
-  const maxSafeHeight = 375;
+  // ĐÃ GIẢM LỀ 50% SO VỚI TRƯỚC:
+  // - Bề rộng khả dụng an toàn mở rộng từ 910px lên 955px (lề 2 bên chỉ còn ~22px)
+  // - Chiều cao khả dụng an toàn mở rộng từ 375px lên 398px (lề trên dưới chỉ còn ~11px)
+  const targetCloudWidth = 955;
+  const maxSafeHeight = 398;
 
   const targetScaleX = targetCloudWidth / maxLineWidth;
   const maxScaleY = maxSafeHeight / contentHeight;
@@ -171,15 +171,15 @@ export function calculateCardMetrics(config: CardConfig): CardMetrics {
   // Lấy tỷ lệ scale nhỏ hơn giữa 2 chiều để nội dung luôn fit trọn vẹn 100% trong khung khả dụng
   const rawCloudScale = Math.min(targetScaleX, maxScaleY);
 
-  // Với 1 dòng: cho phép scale lên đến 2.2x để thiệp trải rộng vừa vặn
-  // Với 2 dòng trở lên: scale tối đa 1.45x để đảm bảo khối thiệp không chạm viền
-  const maxAllowedScale = isSingleLine ? 2.2 : 1.45;
+  // Với 1 dòng: cho phép scale lên đến 2.3x để thiệp trải rộng vừa vặn
+  // Với 2 dòng trở lên: scale tối đa 1.55x giúp chữ to, rõ ràng và không bị thu nhỏ
+  const maxAllowedScale = isSingleLine ? 2.3 : 1.55;
   const minAllowedScale = 0.55;
 
   const cloudScale = Math.min(maxAllowedScale, Math.max(minAllowedScale, rawCloudScale));
 
   // 4. TỶ LỆ SCALE TỰ ĐỘNG CHO CHỮ TRONG KHUNG OVAL
-  // Trong khung Oval (rx=466, ry=182, bề rộng trong 932px), mở rộng vùng chữ lên ngang 820px
+  // ĐÃ GIẢM LỀ 50%: mở rộng vùng an toàn cho text lên 876px (thay vì 820px trước đây)
   const textWidthsOnly = config.lines.map((line) => {
     const fontFamily = line.fontFamily || config.globalFontFamily || 'Oswald';
     const displayText = applyTextCase(line.text, line.textCase);
@@ -192,22 +192,11 @@ export function calculateCardMetrics(config: CardConfig): CardMetrics {
     );
   });
   const maxTextOnlyWidth = Math.max(80, ...textWidthsOnly);
-  const targetOvalTextWidth = 820;
+  const targetOvalTextWidth = 876;
   const rawOvalTextScale = targetOvalTextWidth / maxTextOnlyWidth;
   const ovalTextScale = Math.min(
-    isSingleLine ? 1.75 : 1.45,
-    Math.max(0.68, rawOvalTextScale)
-  );
-
-  // 5. TỶ LỆ SCALE TỰ ĐỘNG CHO CHỮ TRONG KHUNG HOA TRÁI TIM (FLORAL HEART FRAME)
-  // Trong lòng khung hoa, bề rộng an toàn là 640px (không chạm hoa 2 bên góc), chiều cao an toàn 220px (không chạm trái tim trên/dưới)
-  const targetFloralWidth = 640;
-  const maxSafeFloralHeight = 220;
-  const rawFloralScaleX = targetFloralWidth / maxTextOnlyWidth;
-  const rawFloralScaleY = maxSafeFloralHeight / contentHeight;
-  const floralTextScale = Math.min(
-    isSingleLine ? 1.4 : 1.15,
-    Math.max(0.55, Math.min(rawFloralScaleX, rawFloralScaleY))
+    isSingleLine ? 1.85 : 1.55,
+    Math.max(0.72, rawOvalTextScale)
   );
 
   return {
@@ -217,40 +206,6 @@ export function calculateCardMetrics(config: CardConfig): CardMetrics {
     centerY,
     cloudScale,
     ovalTextScale,
-    floralTextScale,
   };
-}
-
-/**
- * Tính góc xoay màu (Hue rotate angle) từ mã màu HEX dựa trên màu hồng gốc (#ec4899 ~ 330°)
- */
-export function calculateHueAngle(hex: string): number {
-  if (!hex) return 0;
-  let c = hex.replace('#', '');
-  if (c.length === 3) c = c.split('').map((x) => x + x).join('');
-  if (c.length !== 6) return 0;
-
-  const r = parseInt(c.substring(0, 2), 16) / 255;
-  const g = parseInt(c.substring(2, 4), 16) / 255;
-  const b = parseInt(c.substring(4, 6), 16) / 255;
-
-  const max = Math.max(r, g, b);
-  const min = Math.min(r, g, b);
-  const delta = max - min;
-  if (delta === 0) return 0;
-
-  let h = 0;
-  if (max === r) {
-    h = ((g - b) / delta) % 6;
-  } else if (max === g) {
-    h = (b - r) / delta + 2;
-  } else {
-    h = (r - g) / delta + 4;
-  }
-  h = Math.round(h * 60);
-  if (h < 0) h += 360;
-
-  // Ảnh gốc có màu hồng chủ đạo với Hue ≈ 330°
-  return (h - 330 + 360) % 360;
 }
 

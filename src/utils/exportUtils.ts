@@ -14,7 +14,7 @@ export function updatePrintHeadStyle(isLandscape: boolean) {
     @media print {
       @page {
         size: ${isLandscape ? 'A4 landscape' : 'A4 portrait'};
-        margin: 3.5mm !important;
+        margin: 1.8mm !important;
       }
       .card-shadow-filter {
         filter: none !important;
@@ -44,10 +44,10 @@ export function updatePrintHeadStyle(isLandscape: boolean) {
         background: white !important;
       }
       .a4-paper {
-        width: ${isLandscape ? '290mm' : '203mm'} !important;
-        height: ${isLandscape ? '203mm' : '290mm'} !important;
-        max-width: ${isLandscape ? '290mm' : '203mm'} !important;
-        max-height: ${isLandscape ? '203mm' : '290mm'} !important;
+        width: ${isLandscape ? '293.4mm' : '206.4mm'} !important;
+        height: ${isLandscape ? '206.4mm' : '293.4mm'} !important;
+        max-width: ${isLandscape ? '293.4mm' : '206.4mm'} !important;
+        max-height: ${isLandscape ? '206.4mm' : '293.4mm'} !important;
         box-shadow: none !important;
         border: none !important;
         margin: 0 auto !important;
